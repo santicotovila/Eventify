@@ -10,4 +10,7 @@ struct ConstantsUsers {
     static let isAdmin: FieldKey = "isAdmin"
     static let createdAt: FieldKey = "created_at"
     static let updatedAt: FieldKey = "updated_at"
+    static let interests: FieldKey = "interests"
+    static let lat: FieldKey = "lat"
+    static let lng: FieldKey = "lng"
 }

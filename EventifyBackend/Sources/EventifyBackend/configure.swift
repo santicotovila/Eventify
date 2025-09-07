@@ -10,6 +10,5 @@ public func configure(_ app: Application) async throws {
 
     app.migrations.add(CreateUsers())
 
-    // register routes
     try routes(app)
 }

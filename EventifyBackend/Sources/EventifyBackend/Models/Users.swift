@@ -19,6 +19,15 @@ final class Users: Model, @unchecked Sendable {
     @Field(key: ConstantsUsers.isAdmin)
     var isAdmin: Bool
     
+    @Field(key: ConstantsUsers.interests)
+    var interests: [String]
+    
+    @Field(key: ConstantsUsers.lat)
+    var lat: Double
+    
+    @Field(key: ConstantsUsers.lng)
+    var lng: Double
+    
     @Timestamp(key: ConstantsUsers.createdAt, on: .create)
     var createdAt: Date?
     
@@ -28,10 +37,11 @@ final class Users: Model, @unchecked Sendable {
     init() {}
     
     
-    init(name:String, email:String, password:String, isAdmin:Bool = false) {
+    init(name:String, email:String, password:String,interests: [String],isAdmin:Bool = false) {
         self.name = name
         self.email = email
         self.password = password
+        self.interests = interests
         self.isAdmin = isAdmin
     }
 }
