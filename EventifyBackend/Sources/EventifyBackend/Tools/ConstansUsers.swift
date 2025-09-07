@@ -1,0 +1,13 @@
+import Foundation
+import Vapor
+import Fluent
+
+struct ConstantsUsers {
+    static let schemaUsers = "users"
+    static let name: FieldKey = "name"
+    static let email: FieldKey = "email"
+    static let password: FieldKey = "password"
+    static let isAdmin: FieldKey = "isAdmin"
+    static let createdAt: FieldKey = "created_at"
+    static let updatedAt: FieldKey = "updated_at"
+}
