@@ -1,70 +1,158 @@
-//
-//  EventifyAIApp.swift
-//  EventifyAI
-//
-//  Created by Javier Gomez on 6/9/25.
-//
+/*
+ * EventifyAIApp.swift
+ * EventifyAI
+ *
+ * Aplicación principal de EventifyAI - Sistema de organización de eventos con IA
+ * Arquitectura: Clean Architecture + MVVM + @Observable
+ * 
+ * Desarrollado por: Javier Gómez
+ * Fecha: 6 Septiembre 2025
+ * Versión: 1.0.0
+ *
+ * Descripción:
+ * App principal que maneja el ciclo de vida de la aplicación,
+ * configuración inicial, dependencias y navegación de alto nivel.
+ * 
+ * Funcionalidades principales:
+ * - Gestión de sesiones de usuario
+ * - Configuración de dependencias
+ * - Navegación entre autenticación y app principal
+ * - Manejo de estado global de la aplicación
+ */
 
 import SwiftUI
-import SwiftData
-import Firebase
+import TipKit
 
-// Esta es la app principal de EventifyAI
-// Configura Firebase y maneja si hay alguien logueado o no
 @main
 struct EventifyAIApp: App {
     
-    // Aquí guardamos si hay alguien logueado
-    @State private var currentUser: User?
+    @State private var appStateVM: AppStateVM
+    @State private var isInitialized = false
     
-    // Cuando la app arranca, configuramos Firebase
     init() {
-        // Prepara Firebase para que funcione
-        configureFirebase()
+        // Inicializar AppState primero
+        let loginUseCase = AppFactory.shared.makeLoginUseCase()
+        self._appStateVM = State(wrappedValue: AppStateVM(loginUseCase: loginUseCase))
+        
+        // Configurar dependencias
+        setupDependencies()
+        
+        // Configurar TipKit
+        setupTipKit()
     }
     
-    // Aquí va la ventana principal de la app
     var body: some Scene {
         WindowGroup {
-            ContentView(
-                currentUser: $currentUser,
-                onUserSignedIn: { user in
-                    currentUser = user
-                },
-                onUserSignedOut: {
-                    currentUser = nil
+            ZStack {
+                if isInitialized {
+                    RootView()
+                        .environmentObject(appStateVM)
+                } else {
+                    SplashView()
                 }
-            )
-            .modelContainer(SwiftDataManager.shared.container)
-            .onAppear {
-                // Cuando aparece la app, revisar si ya hay alguien logueado
-                checkExistingSession()
+            }
+            .task {
+                await initializeApp()
             }
         }
     }
     
-    // Métodos que usa la app internamente
-    
-    // Configura Firebase para que funcione con nuestros datos
-    private func configureFirebase() {
-        guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") else {
-            fatalError("No se encontró GoogleService-Info.plist. Asegúrate de agregarlo al proyecto.")
-        }
-        
-        FirebaseApp.configure()
-        print("✅ Firebase configurado correctamente")
+    /// Configuración de dependencias de la aplicación
+    private func setupDependencies() {
+        // Inicializar AppFactory
+        _ = AppFactory.shared
     }
     
-    // Revisa si ya hay alguien logueado cuando la app arranca
-    private func checkExistingSession() {
-        let authUseCase = AppFactory.shared.makeAuthUseCase()
-        currentUser = authUseCase.getCurrentUser()
+    /// Configuración inicial de TipKit
+    private func setupTipKit() {
+        do {
+            try Tips.resetDatastore()
+            try Tips.configure([
+                .displayFrequency(.immediate),
+                .datastoreLocation(.applicationDefault)
+            ])
+        } catch {
+            // Silently handle error
+        }
+    }
+    
+    /// Inicialización asíncrona de la aplicación
+    private func initializeApp() async {
+        // Simular tiempo de carga inicial
+        try? await Task.sleep(for: .milliseconds(1500))
         
-        if let user = currentUser {
-            print("✅ Sesión existente encontrada para: \(user.email)")
-        } else {
-            print("ℹ️ No hay sesión activa")
+        // Verificar estado de autenticación
+        appStateVM.checkAuthenticationState()
+        
+        await MainActor.run {
+            withAnimation(.easeInOut(duration: 0.8)) {
+                isInitialized = true
+            }
         }
     }
 }
 
+private struct SplashView: View {
+    @State private var scale: CGFloat = 0.8
+    @State private var opacity: Double = 0.0
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 24) {
+                Image(systemName: "calendar.circle.fill")
+                    .font(.system(size: 100))
+                    .foregroundColor(.white)
+                    .scaleEffect(scale)
+                
+                Text("EventifyAI")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .opacity(opacity)
+                
+                Text("Organizando eventos inteligentes")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
+                    .opacity(opacity)
+                
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.2)
+                    .opacity(opacity)
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.0)) {
+                    scale = 1.0
+                    opacity = 1.0
+                }
+            }
+        }
+    }
+}
+
+extension EventifyAIApp {
+    
+    /// Información de la aplicación
+    static let appInfo = AppInfo(
+        name: "EventifyAI",
+        version: "1.0.0",
+        build: "MVP",
+        developer: "Javier Gómez",
+        description: "Sistema inteligente de organización de eventos"
+    )
+}
+
+struct AppInfo {
+    let name: String
+    let version: String
+    let build: String
+    let developer: String
+    let description: String
+}
