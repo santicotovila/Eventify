@@ -15,26 +15,19 @@ final class DefaultEventsRepository: EventsRepositoryProtocol {
     
     func createEvent(_ event: EventModel) async throws -> EventModel {
         do {
-            let createDTO = EventMapper.toCreateDTO(from: event)
-            let createdEventDTO = try await networkEvents.createEvent(event: createDTO)
-            guard let createdEvent = EventMapper.toModel(from: createdEventDTO) else {
-                throw DomainError.mappingFailed("No se pudo convertir EventDTO a EventModel")
-            }
+            let createdEvent = try await networkEvents.createEvent(event: event)
             NotificationCenter.default.postEventWasCreated(event: createdEvent)
             return createdEvent
         } catch let networkError as NetworkError {
             throw EventError.networkError(networkError)
-        } catch let domainError as DomainError {
-            throw domainError
         } catch {
-            throw EventError.eventCreationFailed(error.localizedDescription)
+            throw EventError.unknown(error)
         }
     }
     
     func getEvents(for userId: String) async throws -> [EventModel] {
         do {
-            let eventDTOs = try await networkEvents.getEvents(userId: userId)
-            let events = eventDTOs.compactMap { EventMapper.toModel(from: $0) }
+            let events = try await networkEvents.getEvents(userId: userId)
             return events
         } catch let networkError as NetworkError {
             throw EventError.networkError(networkError)
@@ -43,12 +36,10 @@ final class DefaultEventsRepository: EventsRepositoryProtocol {
         }
     }
     
-    func getEventById(_ id: String) async throws -> EventModel? {
+    func getEventById(_ eventId: String) async throws -> EventModel? {
         do {
-            guard let eventDTO = try await networkEvents.getEventById(eventId: id) else {
-                return nil
-            }
-            return EventMapper.toModel(from: eventDTO)
+            let event = try await networkEvents.getEventById(eventId: eventId)
+            return event
         } catch let networkError as NetworkError {
             throw EventError.networkError(networkError)
         } catch {
@@ -58,19 +49,13 @@ final class DefaultEventsRepository: EventsRepositoryProtocol {
     
     func updateEvent(_ event: EventModel) async throws -> EventModel {
         do {
-            let updateDTO = EventMapper.toDTO(from: event)
-            let updatedEventDTO = try await networkEvents.updateEvent(eventId: event.id, event: updateDTO)
-            guard let updatedEvent = EventMapper.toModel(from: updatedEventDTO) else {
-                throw DomainError.mappingFailed("No se pudo convertir EventDTO a EventModel")
-            }
+            let updatedEvent = try await networkEvents.updateEvent(eventId: event.id, event: event)
             NotificationCenter.default.postEventWasUpdated(event: updatedEvent)
             return updatedEvent
         } catch let networkError as NetworkError {
             throw EventError.networkError(networkError)
-        } catch let domainError as DomainError {
-            throw domainError
         } catch {
-            throw EventError.eventUpdateFailed(error.localizedDescription)
+            throw EventError.unknown(error)
         }
     }
     
@@ -80,12 +65,7 @@ final class DefaultEventsRepository: EventsRepositoryProtocol {
         } catch let networkError as NetworkError {
             throw EventError.networkError(networkError)
         } catch {
-            throw EventError.eventDeletionFailed(error.localizedDescription)
+            throw EventError.unknown(error)
         }
     }
-    
-    private func getCurrentUserId() -> String? {
-        return keychain.getString(key: ConstantsApp.Keychain.currentUserId)
-    }
 }
-

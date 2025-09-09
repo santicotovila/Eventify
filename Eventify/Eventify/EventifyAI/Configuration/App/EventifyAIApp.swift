@@ -30,12 +30,10 @@ struct EventifyAIApp: App {
     @State private var isInitialized = false
     
     init() {
-        // Inicializar AppState primero
-        let loginUseCase = AppFactory.shared.makeLoginUseCase()
+        // Inicializar AppState con inyección directa
+        let loginRepository = DefaultLoginRepository()
+        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
         self._appStateVM = State(wrappedValue: AppStateVM(loginUseCase: loginUseCase))
-        
-        // Configurar dependencias
-        setupDependencies()
         
         // Configurar TipKit
         setupTipKit()
@@ -57,11 +55,6 @@ struct EventifyAIApp: App {
         }
     }
     
-    /// Configuración de dependencias de la aplicación
-    private func setupDependencies() {
-        // Inicializar AppFactory
-        _ = AppFactory.shared
-    }
     
     /// Configuración inicial de TipKit
     private func setupTipKit() {

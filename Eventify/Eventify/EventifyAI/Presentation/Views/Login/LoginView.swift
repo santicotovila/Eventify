@@ -12,9 +12,12 @@ struct LoginView: View {
     // MARK: - Inicializador
     // Inyectamos las dependencias que necesita el ViewModel para funcionar.
     init() {
-        // Creamos el ViewModel pasándole el caso de uso que necesita, que obtenemos de nuestra AppFactory.
+        // Creamos el ViewModel pasándole el caso de uso con inyección directa.
+        let loginRepository = DefaultLoginRepository()
+        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+        
         self._viewModel = StateObject(wrappedValue: LoginViewModel(
-            loginUseCase: AppFactory.shared.makeLoginUseCase()
+            loginUseCase: loginUseCase
         ))
     }
     

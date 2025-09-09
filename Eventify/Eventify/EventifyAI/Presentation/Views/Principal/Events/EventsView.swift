@@ -5,7 +5,12 @@ struct EventsView: View {
     @State private var viewModel: EventsViewModel
     @State private var showCreateEvent = false
     
-    init(eventsUseCase: EventsUseCaseProtocol, loginUseCase: LoginUseCaseProtocol) {
+    init() {
+        let eventsRepository = DefaultEventsRepository()
+        let loginRepository = DefaultLoginRepository()
+        let eventsUseCase = EventsUseCase(repository: eventsRepository, loginRepository: loginRepository)
+        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+        
         self._viewModel = State(wrappedValue: EventsViewModel(eventsUseCase: eventsUseCase, loginUseCase: loginUseCase))
     }
     
@@ -141,8 +146,5 @@ struct EventSection: View {
 }
 
 #Preview {
-    EventsView(
-        eventsUseCase: AppFactory.shared.makeEventsUseCase(),
-        loginUseCase: AppFactory.shared.makeLoginUseCase()
-    )
+    EventsView()
 }

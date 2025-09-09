@@ -11,8 +11,12 @@ struct CreateEventView: View {
     
     // Constructor
     init(onEventCreated: (() -> Void)? = nil) {
+        let eventsRepository = DefaultEventsRepository()
+        let loginRepository = DefaultLoginRepository()
+        let eventsUseCase = EventsUseCase(repository: eventsRepository, loginRepository: loginRepository)
+        
         self._viewModel = State(wrappedValue: CreateEventViewModel(
-            eventsUseCase: AppFactory.shared.makeEventsUseCase()
+            eventsUseCase: eventsUseCase
         ))
         self.onEventCreated = onEventCreated
     }

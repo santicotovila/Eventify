@@ -8,11 +8,23 @@ struct EventDetailView: View {
     
     // Constructor
     init(eventId: String) {
+        let eventsRepository = DefaultEventsRepository()
+        let attendanceRepository = DefaultAttendanceRepository()
+        let loginRepository = DefaultLoginRepository()
+        
+        let eventsUseCase = EventsUseCase(repository: eventsRepository, loginRepository: loginRepository)
+        let attendanceUseCase = AttendanceUseCase(
+            attendanceRepository: attendanceRepository,
+            loginRepository: loginRepository,
+            eventsRepository: eventsRepository
+        )
+        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+        
         self._viewModel = State(wrappedValue: EventDetailViewModel(
             eventId: eventId,
-            eventsUseCase: AppFactory.shared.makeEventsUseCase(),
-            attendanceUseCase: AppFactory.shared.makeAttendanceUseCase(),
-            loginUseCase: AppFactory.shared.makeLoginUseCase()
+            eventsUseCase: eventsUseCase,
+            attendanceUseCase: attendanceUseCase,
+            loginUseCase: loginUseCase
         ))
     }
     

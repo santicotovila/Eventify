@@ -21,21 +21,15 @@ final class DefaultLoginRepository: LoginRepositoryProtocol {
     
     func signIn(email: String, password: String) async throws -> UserModel {
         do {
-            // 1. Llama al servicio de red que devuelve DTOs
-            let userDTO = try await networkLogin.signIn(email: email, password: password)
-            // 2. Convierte DTO a Model usando el mapper
-            guard let user = UserMapper.toModel(from: userDTO) else {
-                throw DomainError.mappingFailed("No se pudo convertir UserDTO a UserModel")
-            }
-            // 3. Si tiene éxito, guarda los datos del usuario en el Keychain para persistir la sesión.
+            // 1. Llama al servicio de red que devuelve Models directamente
+            let user = try await networkLogin.signIn(email: email, password: password)
+            // 2. Si tiene éxito, guarda los datos del usuario en el Keychain para persistir la sesión.
             try saveUserToKeychain(user)
-            // 4. Notifica al resto de la app (aunque esto podría estar solo en el UseCase).
+            // 3. Notifica al resto de la app (aunque esto podría estar solo en el UseCase).
             NotificationCenter.default.postUserDidSignIn(user: user)
             return user
         } catch let networkError as NetworkError {
             throw AuthError.networkError(networkError)
-        } catch let domainError as DomainError {
-            throw domainError
         } catch {
             throw AuthError.unknown(error)
         }
@@ -43,20 +37,15 @@ final class DefaultLoginRepository: LoginRepositoryProtocol {
     
     func signUp(email: String, password: String) async throws -> UserModel {
         do {
-            // 1. Llama al servicio de red que devuelve DTOs
-            let userDTO = try await networkLogin.signUp(email: email, password: password, name: extractNameFromEmail(email))
-            // 2. Convierte DTO a Model usando el mapper
-            guard let user = UserMapper.toModel(from: userDTO) else {
-                throw DomainError.mappingFailed("No se pudo convertir UserDTO a UserModel")
-            }
-            // 3. Guarda y notifica
+            // 1. Llama al servicio de red que devuelve Models directamente
+            let user = try await networkLogin.signUp(email: email, password: password, name: extractNameFromEmail(email))
+            // 2. Si tiene éxito, guarda los datos del usuario en el Keychain para persistir la sesión.
             try saveUserToKeychain(user)
+            // 3. Notifica al resto de la app.
             NotificationCenter.default.postUserDidSignIn(user: user)
             return user
         } catch let networkError as NetworkError {
             throw AuthError.networkError(networkError)
-        } catch let domainError as DomainError {
-            throw domainError
         } catch {
             throw AuthError.unknown(error)
         }
@@ -65,42 +54,30 @@ final class DefaultLoginRepository: LoginRepositoryProtocol {
     func signOut() async throws {
         do {
             try await networkLogin.signOut()
-            // Al cerrar sesión, es crucial borrar los datos del Keychain.
-            try clearUserFromKeychain()
+            // Limpia los datos del usuario del Keychain.
+            try keychain.delete(key: ConstantsApp.Keychain.currentUserId)
+            try keychain.delete(key: ConstantsApp.Keychain.userEmail)
+            try keychain.delete(key: ConstantsApp.Keychain.userToken)
+            // Notifica al resto de la app que el usuario ha cerrado sesión.
             NotificationCenter.default.postUserDidSignOut()
         } catch let networkError as NetworkError {
-            // Incluso si la llamada de red falla, intentamos limpiar el keychain.
-            try? clearUserFromKeychain()
             throw AuthError.networkError(networkError)
         } catch {
-            try? clearUserFromKeychain()
-            throw AuthError.signOutFailed
+            throw AuthError.unknown(error)
         }
     }
     
-    // Intenta recuperar al usuario actual directamente desde el Keychain.
     func getCurrentUser() -> UserModel? {
         guard let userId = keychain.getString(key: ConstantsApp.Keychain.currentUserId),
-              let userEmail = keychain.getString(key: ConstantsApp.Keychain.userEmail),
-              let userData = keychain.get(key: "user_data_\(userId)"),
-              let userName = String(data: userData, encoding: .utf8) else {
+              let userEmail = keychain.getString(key: ConstantsApp.Keychain.userEmail) else {
             return nil
         }
         
-        return UserModel(id: userId, email: userEmail, displayName: userName)
-    }
-    
-    func refreshToken() async throws -> String {
-        do {
-            let newToken = try await networkLogin.refreshToken()
-            // Guarda el nuevo token en el keychain para mantener la sesión activa.
-            try keychain.saveString(key: ConstantsApp.Keychain.userToken, value: newToken)
-            return newToken
-        } catch let networkError as NetworkError {
-            throw AuthError.networkError(networkError)
-        } catch {
-            throw AuthError.tokenExpired
-        }
+        return UserModel(
+            id: userId,
+            email: userEmail,
+            displayName: extractNameFromEmail(userEmail)
+        )
     }
     
     func isUserAuthenticated() -> Bool {
@@ -111,39 +88,31 @@ final class DefaultLoginRepository: LoginRepositoryProtocol {
         return keychain.getString(key: ConstantsApp.Keychain.userToken)
     }
     
+    func refreshToken() async throws -> String {
+        do {
+            let newToken = try await networkLogin.refreshToken()
+            try keychain.saveString(key: ConstantsApp.Keychain.userToken, value: newToken)
+            return newToken
+        } catch let networkError as NetworkError {
+            throw AuthError.networkError(networkError)
+        } catch {
+            throw AuthError.unknown(error)
+        }
+    }
+    
     // MARK: - Métodos Privados
     
-    // Guarda toda la información del usuario en el Keychain de forma segura.
     private func saveUserToKeychain(_ user: UserModel) throws {
-        try keychain.saveString(key: ConstantsApp.Keychain.currentUserId, value: user.id)
-        try keychain.saveString(key: ConstantsApp.Keychain.userEmail, value: user.email)
-        
-        let userDataKey = "user_data_\(user.id)"
-        try keychain.saveString(key: userDataKey, value: user.name)
-        
-        let mockToken = "mock-jwt-token-\(UUID().uuidString)"
-        try keychain.saveString(key: ConstantsApp.Keychain.userToken, value: mockToken)
-    }
-    
-    // Limpia todos los datos de la sesión del Keychain.
-    private func clearUserFromKeychain() throws {
-        let userId = keychain.getString(key: ConstantsApp.Keychain.currentUserId)
-        
-        try keychain.delete(key: ConstantsApp.Keychain.currentUserId)
-        try keychain.delete(key: ConstantsApp.Keychain.userEmail)
-        try keychain.delete(key: ConstantsApp.Keychain.userToken)
-        
-        if let userId = userId {
-            try keychain.delete(key: "user_data_\(userId)")
+        do {
+            try keychain.saveString(key: ConstantsApp.Keychain.currentUserId, value: user.id)
+            try keychain.saveString(key: ConstantsApp.Keychain.userEmail, value: user.email)
+        } catch {
+            throw AuthError.keychainError(error)
         }
     }
     
-    // Pequeña utilidad para generar un nombre a partir del email.
     private func extractNameFromEmail(_ email: String) -> String {
         let components = email.components(separatedBy: "@")
-        if let firstComponent = components.first, !firstComponent.isEmpty {
-            return firstComponent.capitalized
-        }
-        return "Usuario"
+        return components.first?.capitalized ?? "Usuario"
     }
 }

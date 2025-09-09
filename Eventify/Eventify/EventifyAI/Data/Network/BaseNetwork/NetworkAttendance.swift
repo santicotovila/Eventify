@@ -1,59 +1,55 @@
 import Foundation
 
 protocol NetworkAttendanceProtocol {
-    func getAttendances(eventId: String) async throws -> [AttendanceDTO]
-    func getUserAttendance(userId: String, eventId: String) async throws -> AttendanceDTO?
-    func saveAttendance(userId: String, eventId: String, status: AttendanceStatus, userName: String) async throws -> AttendanceDTO
+    func getAttendances(eventId: String) async throws -> [AttendanceModel]
+    func getUserAttendance(userId: String, eventId: String) async throws -> AttendanceModel?
+    func saveAttendance(userId: String, eventId: String, status: AttendanceStatus, userName: String) async throws -> AttendanceModel
 }
 
 final class NetworkAttendance: NetworkAttendanceProtocol {
     
-    private let dateFormatter = ISO8601DateFormatter()
-    
-    private var mockAttendances: [AttendanceDTO] {
-        let currentDate = dateFormatter.string(from: Date())
-        
+    private var mockAttendances: [AttendanceModel] {
         return [
-            AttendanceDTO(
+            AttendanceModel(
                 id: "attendance-1",
                 userId: "user-1",
                 eventId: "event-1",
-                status: "going",
+                status: .going,
                 userName: "Usuario Demo",
                 userEmail: "demo@eventifyai.com",
-                createdAt: currentDate
+                createdAt: Date()
             ),
-            AttendanceDTO(
+            AttendanceModel(
                 id: "attendance-2",
                 userId: "user-2",
                 eventId: "event-1",
-                status: "maybe",
+                status: .maybe,
                 userName: "Carlos Ruiz",
                 userEmail: "carlos@eventifyai.com",
-                createdAt: currentDate
+                createdAt: Date()
             ),
-            AttendanceDTO(
+            AttendanceModel(
                 id: "attendance-3",
                 userId: "user-3",
                 eventId: "event-2",
-                status: "going",
+                status: .going,
                 userName: "María López",
                 userEmail: "maria@eventifyai.com",
-                createdAt: currentDate
+                createdAt: Date()
             ),
-            AttendanceDTO(
+            AttendanceModel(
                 id: "attendance-4",
                 userId: "user-1",
                 eventId: "event-2",
-                status: "notGoing",
+                status: .notGoing,
                 userName: "Usuario Demo",
                 userEmail: "demo@eventifyai.com",
-                createdAt: currentDate
+                createdAt: Date()
             )
         ]
     }
     
-    func getAttendances(eventId: String) async throws -> [AttendanceDTO] {
+    func getAttendances(eventId: String) async throws -> [AttendanceModel] {
         try await Task.sleep(nanoseconds: 800_000_000)
         
         if Int.random(in: 1...20) == 1 {
@@ -67,7 +63,7 @@ final class NetworkAttendance: NetworkAttendanceProtocol {
         return eventAttendances
     }
     
-    func getUserAttendance(userId: String, eventId: String) async throws -> AttendanceDTO? {
+    func getUserAttendance(userId: String, eventId: String) async throws -> AttendanceModel? {
         try await Task.sleep(nanoseconds: 500_000_000)
         
         return mockAttendances.first { attendance in
@@ -75,7 +71,7 @@ final class NetworkAttendance: NetworkAttendanceProtocol {
         }
     }
     
-    func saveAttendance(userId: String, eventId: String, status: AttendanceStatus, userName: String) async throws -> AttendanceDTO {
+    func saveAttendance(userId: String, eventId: String, status: AttendanceStatus, userName: String) async throws -> AttendanceModel {
         try await Task.sleep(nanoseconds: 1_000_000_000)
         
         guard !userId.isEmpty else {
@@ -90,11 +86,11 @@ final class NetworkAttendance: NetworkAttendanceProtocol {
         if let existingAttendance = mockAttendances.first(where: { 
             $0.userId == userId && $0.eventId == eventId 
         }) {
-            let updatedAttendance = AttendanceDTO(
+            let updatedAttendance = AttendanceModel(
                 id: existingAttendance.id,
                 userId: userId,
                 eventId: eventId,
-                status: status.rawValue,
+                status: status,
                 userName: userName,
                 userEmail: existingAttendance.userEmail,
                 createdAt: existingAttendance.createdAt
@@ -102,15 +98,14 @@ final class NetworkAttendance: NetworkAttendanceProtocol {
             return updatedAttendance
         } else {
             let userEmail = getUserEmail(userId: userId)
-            let currentDate = dateFormatter.string(from: Date())
-            let newAttendance = AttendanceDTO(
+            let newAttendance = AttendanceModel(
                 id: "attendance-\(UUID().uuidString)",
                 userId: userId,
                 eventId: eventId,
-                status: status.rawValue,
+                status: status,
                 userName: userName,
                 userEmail: userEmail,
-                createdAt: currentDate
+                createdAt: Date()
             )
             return newAttendance
         }
@@ -129,4 +124,3 @@ final class NetworkAttendance: NetworkAttendanceProtocol {
         }
     }
 }
-
