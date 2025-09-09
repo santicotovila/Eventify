@@ -55,3 +55,32 @@ extension Users {
         )
     }
 }
+
+
+extension Users {
+    struct Public: Content {
+        let id: UUID?
+        let name: String
+        let email: String
+        let isAdmin: Bool
+        let interests: [String]?
+        let lat: Double?
+        let lng: Double?
+        let createdAt: Date?
+        let updatedAt: Date?
+    }
+
+    func toPublic() -> Public {
+        Public(
+            id: id,
+            name: name,
+            email: email,
+            isAdmin: isAdmin,
+            interests: interests,
+            lat: lat,
+            lng: lng,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
+    }
+}
