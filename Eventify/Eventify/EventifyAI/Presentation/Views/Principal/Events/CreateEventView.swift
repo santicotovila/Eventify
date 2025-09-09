@@ -12,8 +12,7 @@ struct CreateEventView: View {
     // Constructor
     init(onEventCreated: (() -> Void)? = nil) {
         self._viewModel = State(wrappedValue: CreateEventViewModel(
-            eventsUseCase: AppFactory.shared.makeEventsUseCase(),
-            loginUseCase: AppFactory.shared.makeLoginUseCase()
+            eventsUseCase: AppFactory.shared.makeEventsUseCase()
         ))
         self.onEventCreated = onEventCreated
     }
@@ -22,74 +21,17 @@ struct CreateEventView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Información del Evento")) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Título *")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        TextField("Ej: Cena de cumpleaños", text: $viewModel.title)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Descripción *")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        TextField("Describe tu evento...", text: $viewModel.description, axis: .vertical)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .lineLimit(3...6)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Ubicación *")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        TextField("Ej: Restaurante El Buen Gusto", text: $viewModel.location)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                    }
-                }
-                
-                Section(header: Text("Fecha y Hora")) {
-                    DatePicker(
-                        "Fecha del evento",
-                        selection: $viewModel.selectedDate,
-                        in: viewModel.minimumDate...,
-                        displayedComponents: [.date, .hourAndMinute]
-                    )
-                    .datePickerStyle(.compact)
-                }
-                
-                Section(header: Text("Vista Previa")) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(viewModel.title.isEmpty ? "Título del evento" : viewModel.title)
-                            .font(.headline)
-                            .foregroundColor(viewModel.title.isEmpty ? .secondary : .primary)
-                        
-                        Text(viewModel.location.isEmpty ? "Ubicación" : viewModel.location)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        Text(DateFormatter.dateTimeFormatter.string(from: viewModel.selectedDate))
-                            .font(.subheadline)
-                            .foregroundColor(.blue)
-                        
-                        if !viewModel.description.isEmpty {
-                            Text(viewModel.description)
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
+                eventInfoSection
+                dateTimeSection
+                previewSection
             }
             .navigationTitle("Nuevo Evento")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancelar") {
-                        dismiss()
+                        onEventCreated?()
                     }
-                    .disabled(viewModel.createState.isLoading)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -98,36 +40,99 @@ struct CreateEventView: View {
                             await viewModel.createEvent()
                         }
                     }
-                    .disabled(!viewModel.isFormValid || viewModel.createState.isLoading)
-                    .fontWeight(.semibold)
+                    .disabled(!viewModel.isFormValid)
                 }
             }
         }
         .alert("Error", isPresented: $viewModel.showAlert) {
-            Button("OK") { }
+            Button("OK") {
+                viewModel.dismissAlert()
+            }
         } message: {
             Text(viewModel.alertMessage)
         }
-        .overlay {
-            if viewModel.createState.isLoading {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                
-                VStack {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(1.2)
-                    Text("Creando evento...")
-                        .foregroundColor(.white)
-                        .padding(.top, 8)
-                }
+        .onChange(of: viewModel.isEventCreated) { created in
+            if created {
+                onEventCreated?()
             }
         }
-        .onChange(of: viewModel.createState) { _, state in
-            if case .success = state {
-                onEventCreated?()
-                dismiss()
+    }
+    
+    // MARK: - Secciones del formulario
+    
+    private var eventInfoSection: some View {
+        Section(header: Text("Información del Evento")) {
+            titleField
+            descriptionField
+            locationField
+        }
+    }
+    
+    private var titleField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Título *")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            TextField("Ej: Cena de cumpleaños", text: $viewModel.eventTitle)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+        }
+    }
+    
+    private var descriptionField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Descripción *")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            TextField("Describe tu evento...", text: $viewModel.eventDescription, axis: .vertical)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .lineLimit(3...6)
+        }
+    }
+    
+    private var locationField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Ubicación *")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            TextField("Ej: Restaurante El Buen Gusto", text: $viewModel.eventLocation)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+        }
+    }
+    
+    private var dateTimeSection: some View {
+        Section(header: Text("Fecha y Hora")) {
+            DatePicker(
+                "Fecha del evento",
+                selection: $viewModel.eventDate,
+                in: Date()...,
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .datePickerStyle(.compact)
+        }
+    }
+    
+    private var previewSection: some View {
+        Section(header: Text("Vista Previa")) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(viewModel.eventTitle.isEmpty ? "Título del evento" : viewModel.eventTitle)
+                    .font(.headline)
+                    .foregroundColor(viewModel.eventTitle.isEmpty ? .secondary : .primary)
+                
+                Text(viewModel.eventLocation.isEmpty ? "Ubicación" : viewModel.eventLocation)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Text(viewModel.eventDate, style: .date)
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                
+                if !viewModel.eventDescription.isEmpty {
+                    Text(viewModel.eventDescription)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
             }
+            .padding(.vertical, 4)
         }
     }
 }
