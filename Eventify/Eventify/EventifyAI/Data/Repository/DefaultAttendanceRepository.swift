@@ -15,51 +15,39 @@ final class DefaultAttendanceRepository: AttendanceRepositoryProtocol {
     
     func getAttendances(for eventId: String) async throws -> [AttendanceModel] {
         do {
-            let attendanceDTOs = try await networkAttendance.getAttendances(eventId: eventId)
-            let attendances = attendanceDTOs.compactMap { AttendanceMapper.toModel(from: $0) }
+            let attendances = try await networkAttendance.getAttendances(eventId: eventId)
             return attendances
         } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
+            throw AttendanceError.networkError(networkError)
         } catch {
-            throw EventError.unknown(error)
+            throw AttendanceError.unknown(error)
         }
     }
     
     func getUserAttendance(userId: String, eventId: String) async throws -> AttendanceModel? {
         do {
-            guard let attendanceDTO = try await networkAttendance.getUserAttendance(userId: userId, eventId: eventId) else {
-                return nil
-            }
-            return AttendanceMapper.toModel(from: attendanceDTO)
+            let attendance = try await networkAttendance.getUserAttendance(userId: userId, eventId: eventId)
+            return attendance
         } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
+            throw AttendanceError.networkError(networkError)
         } catch {
-            throw EventError.unknown(error)
+            throw AttendanceError.unknown(error)
         }
     }
     
     func saveAttendance(userId: String, eventId: String, status: AttendanceStatus, userName: String) async throws -> AttendanceModel {
         do {
-            let attendanceDTO = try await networkAttendance.saveAttendance(
+            let attendance = try await networkAttendance.saveAttendance(
                 userId: userId,
                 eventId: eventId,
                 status: status,
                 userName: userName
             )
-            guard let attendance = AttendanceMapper.toModel(from: attendanceDTO) else {
-                throw DomainError.mappingFailed("No se pudo convertir AttendanceDTO a AttendanceModel")
-            }
             return attendance
         } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
-        } catch let domainError as DomainError {
-            throw domainError
+            throw AttendanceError.networkError(networkError)
         } catch {
-            throw EventError.attendanceUpdateFailed
+            throw AttendanceError.unknown(error)
         }
-    }
-    
-    private func getCurrentUserId() -> String? {
-        return keychain.getString(key: ConstantsApp.Keychain.currentUserId)
     }
 }

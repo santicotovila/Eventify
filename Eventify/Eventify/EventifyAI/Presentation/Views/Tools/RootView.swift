@@ -5,14 +5,15 @@ struct RootView: View {
     @State private var appStateVM: AppStateVM
     
     init() {
-        let loginUseCase = AppFactory.shared.makeLoginUseCase()
+        let loginRepository = DefaultLoginRepository()
+        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
         self._appStateVM = State(wrappedValue: AppStateVM(loginUseCase: loginUseCase))
     }
     
     var body: some View {
         Group {
             if appStateVM.isUserAuthenticated {
-                PrincipalView(loginUseCase: AppFactory.shared.makeLoginUseCase())
+                PrincipalView()
             } else {
                 LoginView()
             }

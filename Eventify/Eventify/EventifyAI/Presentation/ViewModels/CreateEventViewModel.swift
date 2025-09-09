@@ -29,6 +29,13 @@ final class CreateEventViewModel: ObservableObject {
     @Published var isLoading: Bool = false // Para mostrar una animación de carga.
     @Published var errorMessage: String? = nil // Para mostrar un mensaje si algo sale mal.
     @Published var isEventCreated: Bool = false // Lo ponemos a `true` cuando el evento se crea con éxito, para que la vista se pueda cerrar.
+    @Published var showAlert: Bool = false
+    @Published var alertMessage: String = ""
+    
+    // MARK: - Propiedades Computadas
+    var isFormValid: Bool {
+        return !eventTitle.isEmpty && !eventDescription.isEmpty && !eventLocation.isEmpty
+    }
     
     // MARK: - Dependencias
     
@@ -67,10 +74,18 @@ final class CreateEventViewModel: ObservableObject {
             isEventCreated = true
         } catch {
             // 4. Si hay un error, lo guardamos para que la vista muestre una alerta.
-            errorMessage = "Error al crear el evento: \(error.localizedDescription)"
+            alertMessage = "Error al crear el evento: \(error.localizedDescription)"
+            showAlert = true
         }
         
         // 5. Pase lo que pase, dejamos de cargar.
         isLoading = false
+    }
+    
+    // MARK: - Métodos de Conveniencia
+    
+    func dismissAlert() {
+        showAlert = false
+        alertMessage = ""
     }
 }

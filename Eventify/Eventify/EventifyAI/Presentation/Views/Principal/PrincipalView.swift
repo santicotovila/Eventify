@@ -4,16 +4,15 @@ struct PrincipalView: View {
     
     @State private var appStateVM: AppStateVM
     
-    init(loginUseCase: LoginUseCaseProtocol) {
+    init() {
+        let loginRepository = DefaultLoginRepository()
+        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
         self._appStateVM = State(wrappedValue: AppStateVM(loginUseCase: loginUseCase))
     }
     
     var body: some View {
         TabView(selection: $appStateVM.selectedTab) {
-            EventsView(
-                eventsUseCase: AppFactory.shared.makeEventsUseCase(),
-                loginUseCase: AppFactory.shared.makeLoginUseCase()
-            )
+            EventsView()
             .tabItem {
                 Image(systemName: "calendar")
                 Text("Eventos")
@@ -149,5 +148,5 @@ struct ProfileOptionRow: View {
 }
 
 #Preview {
-    PrincipalView(loginUseCase: AppFactory.shared.makeLoginUseCase())
+    PrincipalView()
 }

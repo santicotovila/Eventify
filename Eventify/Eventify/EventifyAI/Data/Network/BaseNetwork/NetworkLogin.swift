@@ -1,39 +1,33 @@
 import Foundation
 
 protocol NetworkLoginProtocol {
-    func signIn(email: String, password: String) async throws -> UserDTO
-    func signUp(email: String, password: String, name: String) async throws -> UserDTO
+    func signIn(email: String, password: String) async throws -> UserModel
+    func signUp(email: String, password: String, name: String) async throws -> UserModel
     func signOut() async throws
     func refreshToken() async throws -> String
 }
 
 final class NetworkLogin: NetworkLoginProtocol {
     
-    private let mockUsers: [UserDTO] = [
-        UserDTO(
+    private let mockUsers: [UserModel] = [
+        UserModel(
             id: "user-1",
             email: "demo@eventifyai.com",
-            displayName: "Usuario Demo",
-            createdAt: "2024-01-01T00:00:00Z",
-            updatedAt: "2024-01-01T00:00:00Z"
+            displayName: "Usuario Demo"
         ),
-        UserDTO(
+        UserModel(
             id: "user-2",
             email: "carlos@eventifyai.com",
-            displayName: "Carlos Ruiz",
-            createdAt: "2024-01-01T00:00:00Z",
-            updatedAt: "2024-01-01T00:00:00Z"
+            displayName: "Carlos Ruiz"
         ),
-        UserDTO(
+        UserModel(
             id: "user-3",
             email: "maria@eventifyai.com",
-            displayName: "María López",
-            createdAt: "2024-01-01T00:00:00Z",
-            updatedAt: "2024-01-01T00:00:00Z"
+            displayName: "María López"
         )
     ]
     
-    func signIn(email: String, password: String) async throws -> UserDTO {
+    func signIn(email: String, password: String) async throws -> UserModel {
         try await Task.sleep(nanoseconds: 1_200_000_000)
         
         guard !email.isEmpty else {
@@ -55,7 +49,7 @@ final class NetworkLogin: NetworkLoginProtocol {
         }
     }
     
-    func signUp(email: String, password: String, name: String) async throws -> UserDTO {
+    func signUp(email: String, password: String, name: String) async throws -> UserModel {
         try await Task.sleep(nanoseconds: 1_500_000_000)
         
         guard !email.isEmpty, email.contains("@") else {
@@ -74,13 +68,10 @@ final class NetworkLogin: NetworkLoginProtocol {
             throw NetworkError.conflict
         }
         
-        let currentDate = ISO8601DateFormatter().string(from: Date())
-        let newUser = UserDTO(
+        let newUser = UserModel(
             id: "user-\(UUID().uuidString)",
             email: email,
-            displayName: name,
-            createdAt: currentDate,
-            updatedAt: currentDate
+            displayName: name
         )
         
         return newUser
@@ -96,4 +87,3 @@ final class NetworkLogin: NetworkLoginProtocol {
         return "mock-jwt-token-\(UUID().uuidString)"
     }
 }
-

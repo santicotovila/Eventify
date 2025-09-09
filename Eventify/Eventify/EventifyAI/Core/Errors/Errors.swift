@@ -92,6 +92,7 @@ enum AuthError: LocalizedError {
     case signOutFailed
     case accountCreationFailed(String)
     case passwordResetFailed
+    case keychainError(Error)
     case unknown(Error)
     
     var errorDescription: String? {
@@ -128,6 +129,8 @@ enum AuthError: LocalizedError {
             return "No se pudo crear la cuenta: \(reason)"
         case .passwordResetFailed:
             return "No se pudo restablecer la contraseña"
+        case .keychainError(let error):
+            return "Error de almacenamiento seguro: \(error.localizedDescription)"
         case .unknown(let error):
             return "Error de autenticación: \(error.localizedDescription)"
         }
@@ -301,5 +304,52 @@ struct ValidationError {
     init(field: String, message: String) {
         self.field = field
         self.message = message
+    }
+}
+
+/// Errores relacionados con asistencia a eventos
+enum AttendanceError: LocalizedError {
+    case attendanceNotFound
+    case attendanceAlreadyExists
+    case invalidAttendanceData(String)
+    case userNotRegistered
+    case attendanceFetchFailed(String)
+    case attendanceSaveFailed(String)
+    case attendanceDeleteFailed(String)
+    case networkError(NetworkError)
+    case unknown(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .attendanceNotFound:
+            return "Registro de asistencia no encontrado"
+        case .attendanceAlreadyExists:
+            return "Ya existe un registro de asistencia para este usuario"
+        case .invalidAttendanceData(let message):
+            return "Datos de asistencia inválidos: \(message)"
+        case .userNotRegistered:
+            return "El usuario no está registrado en este evento"
+        case .attendanceFetchFailed(let reason):
+            return "No se pudo obtener la asistencia: \(reason)"
+        case .attendanceSaveFailed(let reason):
+            return "No se pudo guardar la asistencia: \(reason)"
+        case .attendanceDeleteFailed(let reason):
+            return "No se pudo eliminar la asistencia: \(reason)"
+        case .networkError(let networkError):
+            return "Error de red: \(networkError.localizedDescription)"
+        case .unknown(let error):
+            return "Error de asistencia: \(error.localizedDescription)"
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .userNotRegistered:
+            return "Regístrate primero en el evento antes de marcar tu asistencia"
+        case .attendanceAlreadyExists:
+            return "Puedes actualizar tu estado de asistencia existente"
+        default:
+            return "Intenta nuevamente más tarde"
+        }
     }
 }
