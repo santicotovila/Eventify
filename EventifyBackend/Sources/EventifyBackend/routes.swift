@@ -8,6 +8,7 @@ func routes(_ app: Application) throws {
 
     try app.group("api") { builder in
         try builder.register(collection: AuthController())
+        try app.register(collection: UsersController())
     }
 
     

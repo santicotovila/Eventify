@@ -20,114 +20,78 @@
  * - Manejo de estado global de la aplicación
  */
 
+
+import SwiftUI
+
+
 import SwiftUI
 import TipKit
 
 @main
 struct EventifyAIApp: App {
     
-    @State private var appStateVM: AppStateVM
     @State private var isInitialized = false
     
-    init() {
-        // Inicializar AppState con inyección directa
-        let loginRepository = DefaultLoginRepository()
-        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
-        self._appStateVM = State(wrappedValue: AppStateVM(loginUseCase: loginUseCase))
-        
-        // Configurar TipKit
-        setupTipKit()
-    }
+    
+    
+    
+    
+    /*
+     init() {
+     Task {
+     
+     await setupTipKit()
+     }
+     }*/
     
     var body: some Scene {
         WindowGroup {
             ZStack {
                 if isInitialized {
-                    RootView()
-                        .environmentObject(appStateVM)
+                    PrincipalView()
+                    //      .environmentObject(appStateVM)
                 } else {
-                    SplashView()
+                    SplashView(isInitialized: $isInitialized)
                 }
-            }
-            .task {
-                await initializeApp()
-            }
+            }/*
+              .task {
+              await initializeApp()
+              }*/
         }
     }
     
-    
-    /// Configuración inicial de TipKit
-    private func setupTipKit() {
-        do {
-            try Tips.resetDatastore()
-            try Tips.configure([
-                .displayFrequency(.immediate),
-                .datastoreLocation(.applicationDefault)
-            ])
-        } catch {
-            // Silently handle error
-        }
-    }
-    
-    /// Inicialización asíncrona de la aplicación
-    private func initializeApp() async {
-        // Simular tiempo de carga inicial
-        try? await Task.sleep(for: .milliseconds(1500))
-        
-        // Verificar estado de autenticación
-        appStateVM.checkAuthenticationState()
-        
-        await MainActor.run {
-            withAnimation(.easeInOut(duration: 0.8)) {
-                isInitialized = true
-            }
-        }
-    }
-}
-
-private struct SplashView: View {
-    @State private var scale: CGFloat = 0.8
-    @State private var opacity: Double = 0.0
-    
-    var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            
-            VStack(spacing: 24) {
-                Image(systemName: "calendar.circle.fill")
-                    .font(.system(size: 100))
-                    .foregroundColor(.white)
-                    .scaleEffect(scale)
-                
-                Text("EventifyAI")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .opacity(opacity)
-                
-                Text("Organizando eventos inteligentes")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
-                    .opacity(opacity)
-                
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(1.2)
-                    .opacity(opacity)
-            }
-            .onAppear {
-                withAnimation(.easeInOut(duration: 1.0)) {
-                    scale = 1.0
-                    opacity = 1.0
-                }
-            }
-        }
-    }
+    /*
+     /// Configuración inicial de TipKit
+     private func setupTipKit() async {
+     do {
+     try Tips.resetDatastore()
+     try Tips.configure([
+     .displayFrequency(.immediate),
+     .datastoreLocation(.applicationDefault)
+     ])
+     } catch {
+     // Silently handle error
+     }
+     }
+     */
+    /*
+     //TODO: - Teniendo un splash y launch deberia ser suficiente para cargarla talvez y asi no relentizamos el inicio de usuario, que opinas?
+     
+     /// Inicialización asíncrona de la aplicación
+     private func initializeApp() async {
+     // Simular tiempo de carga inicial
+     try? await Task.sleep(for: .milliseconds(1500))
+     
+     // Verificar estado de autenticación
+     appStateVM.checkAuthenticationState()
+     
+     await MainActor.run {
+     withAnimation(.easeInOut(duration: 0.8)) {
+     isInitialized = true
+     }
+     }
+     }
+     }*/
 }
 
 extension EventifyAIApp {

@@ -3,7 +3,7 @@ import SwiftUI
 struct RootView: View {
     
     @State private var appStateVM: AppStateVM
-    
+     
     init() {
         let loginRepository = DefaultLoginRepository()
         let loginUseCase = LoginUseCase(loginRepository: loginRepository)
