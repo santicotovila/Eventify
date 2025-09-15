@@ -10,7 +10,7 @@ struct UsersDTO: Content {
         let interests: [String]
         
         
-        func toModel(_ hashedPassword: String) -> Users {
+        func toModel(withHashedPassword hashedPassword: String) -> Users {
             Users(
                 name: self.name,
                 email: self.email,
@@ -40,7 +40,7 @@ extension UsersDTO.Create: Validatable {
         validations.add("name",as: String.self,is: .count(3...30),required: true)
         validations.add("email",as: String.self, is: .count(5...40) && .email, required: true)
         validations.add("password",as: String.self,is: .count(8...16) && .alphanumeric, required: true)
-        validations.add("interests", as: [String].self, required: true)
+        validations.add("interests", as: [String].self,is: .count(3...6), required: true)
         
     }
     
