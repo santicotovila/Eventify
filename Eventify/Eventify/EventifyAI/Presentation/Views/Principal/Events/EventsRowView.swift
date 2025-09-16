@@ -4,68 +4,60 @@ struct EventsRowView: View {
     let event: EventModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(event.title)
-                        .font(.headline)
-                        .fontWeight(.medium)
-                        .lineLimit(1)
-                        .foregroundColor(.primary)
-                    
-                    HStack {
-                        Image(systemName: "location")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(event.location)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(event.formattedDate)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Text(event.formattedTime)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(event.isUpcoming ? .blue : .secondary)
-                }
-            }
+        HStack(spacing: 12) {
+            // Imagen del evento
+            RoundedRectangle(cornerRadius: 12)
+                .fill(getEventColor(for: event.title))
+                .frame(width: 60, height: 60)
+                .overlay(
+                    getEventIcon(for: event.title)
+                        .font(.title2)
+                        .foregroundColor(.white)
+                )
             
-            if !event.description.isEmpty {
-                Text(event.description)
-                    .font(.body)
+            // Información del evento
+            VStack(alignment: .leading, spacing: 4) {
+                Text(event.title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                Text(event.formattedDate)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
-                    .lineLimit(2)
             }
             
-            if !event.tags.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(event.tags, id: \.self) { tag in
-                            Text(tag)
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.blue.opacity(0.1))
-                                .foregroundColor(.blue)
-                                .cornerRadius(8)
-                        }
-                    }
-                    .padding(.horizontal, 2)
-                }
-            }
+            Spacer()
         }
         .padding()
-        .background(Color(UIColor.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+    }
+    
+    // Función para obtener color basado en el tipo de evento
+    private func getEventColor(for title: String) -> Color {
+        let lowercased = title.lowercased()
+        if lowercased.contains("cine") { return .blue }
+        if lowercased.contains("parque") || lowercased.contains("paseo") { return .green }
+        if lowercased.contains("picnic") { return .orange }
+        if lowercased.contains("room") || lowercased.contains("escape") { return .yellow }
+        if lowercased.contains("cañas") || lowercased.contains("bar") { return .red }
+        if lowercased.contains("fiesta") || lowercased.contains("party") { return .purple }
+        return .blue
+    }
+    
+    // Función para obtener icono basado en el tipo de evento
+    private func getEventIcon(for title: String) -> Image {
+        let lowercased = title.lowercased()
+        if lowercased.contains("cine") { return Image(systemName: "film") }
+        if lowercased.contains("parque") || lowercased.contains("paseo") { return Image(systemName: "tree") }
+        if lowercased.contains("picnic") { return Image(systemName: "basket") }
+        if lowercased.contains("room") || lowercased.contains("escape") { return Image(systemName: "key") }
+        if lowercased.contains("cañas") || lowercased.contains("bar") { return Image(systemName: "wineglass") }
+        if lowercased.contains("fiesta") || lowercased.contains("party") { return Image(systemName: "party.popper") }
+        return Image(systemName: "calendar")
     }
 }
 

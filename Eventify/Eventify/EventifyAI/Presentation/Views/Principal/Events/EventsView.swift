@@ -27,15 +27,24 @@ struct EventsView: View {
                     EventsContentView(viewModel: viewModel)
                 }
             }
-            .navigationTitle("Mis Eventos")
-            .searchable(text: $viewModel.searchText, prompt: "Buscar eventos...")
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showCreateEvent = true
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
+                ToolbarItem(placement: .principal) {
+                    HStack {
+                        Text("Eventos")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        Button {
+                            showCreateEvent = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.title2)
+                                .foregroundColor(.primary)
+                        }
                     }
                 }
             }

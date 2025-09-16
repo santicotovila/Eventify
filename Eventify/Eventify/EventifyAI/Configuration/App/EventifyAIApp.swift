@@ -1,23 +1,6 @@
 /*
  * EventifyAIApp.swift
  * EventifyAI
- *
- * Aplicación principal de EventifyAI - Sistema de organización de eventos con IA
- * Arquitectura: Clean Architecture + MVVM + @Observable
- * 
- * Desarrollado por: Javier Gómez
- * Fecha: 6 Septiembre 2025
- * Versión: 1.0.0
- *
- * Descripción:
- * App principal que maneja el ciclo de vida de la aplicación,
- * configuración inicial, dependencias y navegación de alto nivel.
- * 
- * Funcionalidades principales:
- * - Gestión de sesiones de usuario
- * - Configuración de dependencias
- * - Navegación entre autenticación y app principal
- * - Manejo de estado global de la aplicación
  */
 
 import SwiftUI
@@ -29,6 +12,7 @@ struct EventifyAIApp: App {
     @State private var appStateVM: AppStateVM
     @State private var isInitialized = false
     
+<<<<<<< Updated upstream
     init() {
         // Inicializar AppState con inyección directa
         let loginRepository = DefaultLoginRepository()
@@ -39,16 +23,23 @@ struct EventifyAIApp: App {
         setupTipKit()
     }
     
+=======
+>>>>>>> Stashed changes
     var body: some Scene {
         WindowGroup {
             ZStack {
                 if isInitialized {
+<<<<<<< Updated upstream
                     RootView()
                         .environmentObject(appStateVM)
+=======
+                    PrincipalView()
+>>>>>>> Stashed changes
                 } else {
                     SplashView()
                 }
             }
+<<<<<<< Updated upstream
             .task {
                 await initializeApp()
             }
@@ -149,3 +140,10 @@ struct AppInfo {
     let developer: String
     let description: String
 }
+=======
+        }
+    }
+    
+}
+
+>>>>>>> Stashed changes
