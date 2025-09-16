@@ -138,7 +138,7 @@ struct ContinueRegistrationView: View {
                         // Sección de preferencias
                         VStack(spacing: 16) {
                             HStack {
-                                Text("🔴 Preferencias")
+                                Text("❤️ Preferencias")
                                     .font(.headline)
                                     .foregroundColor(.white)
                                 Text("(Elige al menos 3)")
