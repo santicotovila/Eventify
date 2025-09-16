@@ -1,0 +1,197 @@
+import SwiftUI
+
+struct RegisterView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var username = ""
+    @State private var email = ""
+    @State private var password = ""
+    @State private var confirmPassword = ""
+    @State private var showContinueRegistration = false
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color.blue.opacity(0.8), Color.purple.opacity(1.2)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header con botón de retroceso
+                HStack {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "arrow.left")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                
+                VStack(spacing: 32) {
+                    // Header con foto de perfil
+                    VStack(spacing: 16) {
+                    // Círculo para añadir foto de perfil
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 120, height: 120)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                            )
+                        
+                        VStack(spacing: 8) {
+                            Image(systemName: "person.badge.plus")
+                                .font(.system(size: 30))
+                                .foregroundColor(.white.opacity(0.8))
+                            
+                            Text("Añadir foto\nde perfil")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                }
+                
+                // Formulario de registro
+                VStack(spacing: 20) {
+                    // Campo de nombre de usuario
+                    HStack {
+                        Image(systemName: "person")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        TextField("Nombre de usuario", text: $username)
+                            .autocapitalization(.none)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(15)
+                    
+                    // Campo de email
+                    HStack {
+                        Image(systemName: "envelope")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        TextField("Email", text: $email)
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(15)
+                    
+                    // Campo de contraseña
+                    HStack {
+                        Image(systemName: "lock")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        SecureField("Contraseña", text: $password)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(15)
+                    
+                    // Campo de repetir contraseña
+                    HStack {
+                        Image(systemName: "lock.fill")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        SecureField("Repetir Contraseña", text: $confirmPassword)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(15)
+                    
+                    // Texto de campos obligatorios
+                    HStack {
+                        Spacer()
+                        Text("* Campos Obligatorios")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    
+                    // Botón continuar
+                    Button(action: {
+                        showContinueRegistration = true
+                    }) {
+                        Text("Continuar")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.white.opacity(0.3))
+                            .foregroundColor(.white)
+                            .cornerRadius(25)
+                    }
+                    .disabled(!isFormValid)
+                    
+                    // Separador
+                    Text("continuar con")
+                        .foregroundColor(.white.opacity(0.7))
+                        .font(.caption)
+                        .padding(.top)
+                    
+                    // Opciones sociales (solo imágenes como solicitaste)
+                    HStack(spacing: 20) {
+                        // Google
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Text("G")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.red)
+                            )
+                        
+                        // Apple
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Image(systemName: "apple.logo")
+                                    .font(.title2)
+                                    .foregroundColor(.black)
+                            )
+                        
+                        // X (Twitter)
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Text("X")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.black)
+                            )
+                    }
+                }
+                .padding(.horizontal, 32)
+                
+                    Spacer()
+                }
+                .padding()
+            }
+        }
+        .fullScreenCover(isPresented: $showContinueRegistration) {
+            ContinueRegistrationView()
+        }
+    }
+    
+    private var isFormValid: Bool {
+        !username.isEmpty && 
+        !email.isEmpty && 
+        !password.isEmpty && 
+        !confirmPassword.isEmpty &&
+        password == confirmPassword &&
+        email.contains("@")
+    }
+}
+
+#Preview {
+    RegisterView()
+}

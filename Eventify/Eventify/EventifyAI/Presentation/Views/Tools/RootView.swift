@@ -2,18 +2,12 @@ import SwiftUI
 
 struct RootView: View {
     
-    @State private var appStateVM: AppStateVM
-    
-    init() {
-        let loginRepository = DefaultLoginRepository()
-        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
-        self._appStateVM = State(wrappedValue: AppStateVM(loginUseCase: loginUseCase))
-    }
+    @EnvironmentObject var appStateVM: AppStateVM
     
     var body: some View {
         Group {
             if appStateVM.isUserAuthenticated {
-                PrincipalView()
+                HomeView()
             } else {
                 LoginView()
             }

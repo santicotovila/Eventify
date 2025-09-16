@@ -8,6 +8,7 @@ struct LoginView: View {
     // Usamos @StateObject porque esta vista "posee" a su ViewModel.
     // El ViewModel será la única fuente de verdad para esta pantalla.
     @StateObject private var viewModel: LoginViewModel
+    @State private var showRegister = false
     
     // MARK: - Inicializador
     // Inyectamos las dependencias que necesita el ViewModel para funcionar.
@@ -25,58 +26,22 @@ struct LoginView: View {
     var body: some View {
         ZStack {
             // Fondo decorativo.
-            LinearGradient(colors: [.blue.opacity(0.6), .purple.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            LinearGradient(colors: [.blue.opacity(0.8), .purple.opacity(1.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {
-                // Cabecera con el logo y nombre de la app.
+                // Cabecera con el logo y nombr
                 VStack(spacing: 16) {
-                    // Logo circular como en el diseño
+                    // Logo
                     ZStack {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 100, height: 100)
+                        
                         
                         VStack(spacing: 6) {
-                            HStack(spacing: 6) {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.orange)
-                                    .frame(width: 16, height: 16)
-                                    .overlay(
-                                        Image(systemName: "ticket")
-                                            .font(.system(size: 8))
-                                            .foregroundColor(.white)
-                                    )
-                                
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.green)
-                                    .frame(width: 16, height: 16)
-                                    .overlay(
-                                        Image(systemName: "qrcode")
-                                            .font(.system(size: 8))
-                                            .foregroundColor(.white)
-                                    )
-                            }
-                            
-                            HStack(spacing: 6) {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.red)
-                                    .frame(width: 16, height: 16)
-                                    .overlay(
-                                        Image(systemName: "heart")
-                                            .font(.system(size: 8))
-                                            .foregroundColor(.white)
-                                    )
-                                
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.blue)
-                                    .frame(width: 16, height: 16)
-                                    .overlay(
-                                        Image(systemName: "calendar")
-                                            .font(.system(size: 8))
-                                            .foregroundColor(.white)
-                                    )
-                            }
+                            Image("Logo-Eventify")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 120, height: 120)
+                                        .clipShape(Circle())
                         }
                     }
                     
@@ -129,7 +94,7 @@ struct LoginView: View {
                     
                     // Botón de registrarse
                     Button("Registrarme") {
-                        // TODO: Navegar a registro
+                        showRegister = true
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -200,6 +165,9 @@ struct LoginView: View {
         // La alerta se muestra solo cuando la propiedad `errorMessage` del ViewModel tiene un valor.
         .alert("Error de Login", isPresented: .constant(viewModel.errorMessage != nil), actions: {}) {
             Text(viewModel.errorMessage ?? "")
+        }
+        .fullScreenCover(isPresented: $showRegister) {
+            RegisterView()
         }
     }
 }
