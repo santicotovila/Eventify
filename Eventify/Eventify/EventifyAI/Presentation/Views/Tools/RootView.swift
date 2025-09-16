@@ -2,7 +2,13 @@ import SwiftUI
 
 struct RootView: View {
     
-    @EnvironmentObject var appStateVM: AppStateVM
+    @State private var appStateVM: AppStateVM
+     
+    init() {
+        let loginRepository = DefaultLoginRepository()
+        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+        self._appStateVM = State(wrappedValue: AppStateVM(loginUseCase: loginUseCase))
+    }
     
     var body: some View {
         Group {

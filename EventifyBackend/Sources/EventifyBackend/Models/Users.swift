@@ -23,10 +23,10 @@ final class Users: Model, @unchecked Sendable {
     var interests: [String]
     
     @Field(key: ConstantsUsers.lat)
-    var lat: Double
+    var lat: Double?
     
     @Field(key: ConstantsUsers.lng)
-    var lng: Double
+    var lng: Double?
     
     @Timestamp(key: ConstantsUsers.createdAt, on: .create)
     var createdAt: Date?

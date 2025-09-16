@@ -25,12 +25,10 @@ struct SplashView: View {
                 // Logo circular con iconos como en el diseño
                 ZStack {
                     Image("Logo-Eventify")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 120, height: 120)
-                                .clipShape(Circle())
-                   
-
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 120, height: 120)
+                        .clipShape(Circle())
                 }
                 .scaleEffect(scale)
                 
@@ -42,6 +40,11 @@ struct SplashView: View {
                     .padding()
                     .scaleEffect(1.6)
                 
+                Text("Organizando eventos inteligentes")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
+                    .opacity(opacity)
+                
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .scaleEffect(1.2)
@@ -50,8 +53,6 @@ struct SplashView: View {
             .onAppear {
                 withAnimation(.easeInOut(duration: 1.0)) {
                     scale = 1.6
-                    // scale, opacity para jugar con los tamaños y la opacidad
-                    
                     opacity = 1.0
                 }
                 
@@ -64,6 +65,7 @@ struct SplashView: View {
         }
     }
 }
-        #Preview {
-            SplashView(isInitialized: .constant(false))
-        }
+
+#Preview {
+    SplashView(isInitialized: .constant(false))
+}
