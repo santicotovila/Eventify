@@ -15,7 +15,7 @@ struct EventifyAIApp: App {
         WindowGroup {
             ZStack {
                 if isInitialized {
-                    PrincipalView()
+                    RootView()
                 } else {
                     SplashView(isInitialized: $isInitialized)
                 }

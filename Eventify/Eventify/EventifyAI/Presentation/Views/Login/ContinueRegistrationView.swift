@@ -101,7 +101,7 @@ struct ContinueRegistrationView: View {
                                     Image(systemName: "calendar")
                                         .foregroundColor(.gray)
                                         .frame(width: 20)
-                                    Text(birthDate == Date() ? "Fecha de nacimiento" : DateFormatter.shortDate.string(from: birthDate))
+                                    Text(birthDate == Date() ? "" : DateFormatter.shortDate.string(from: birthDate))
                                         .foregroundColor(birthDate == Date() ? .gray : .black)
                                     Spacer()
                                     Text("*")
