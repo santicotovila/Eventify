@@ -214,10 +214,13 @@ Las contribuciones son bienvenidas. Por favor:
 
 ## 📞 Contacto
 
-**Javier Gómez** - Estudiante de Bootcamp iOS  
+**Javier Gómez** - Estudiante de Bootcamp iOS javiergomezdev@gmail.com
+**Santiago Soto** - Estudiante de Bootcamp iOS santiagocotovila@outlook.com
+**Manuel Liebana** - Estudiante de Bootcamp iOS manololiebana@gmail.com
+
 Proyecto EventifyAI - Gestión de Eventos con SwiftUI
 
-Enlace del Proyecto: [https://github.com/tu-usuario/EventifyAI](https://github.com/tu-usuario/EventifyAI)
+Enlace del Proyecto: https://github.com/santicotovila/Eventify.git
 
 ---
 
