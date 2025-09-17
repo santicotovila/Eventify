@@ -44,6 +44,7 @@ struct LoginView: View {
                 
                 // Formulario de login.
                 VStack(spacing: 20) {
+<<<<<<< Updated upstream
                     // El `$` en `$viewModel.email` crea un "binding" (un enlace de dos vías).
                     // Si el usuario escribe en el TextField, la propiedad `email` del ViewModel se actualiza.
                     // Si cambiamos la propiedad `email` en el ViewModel, el texto del TextField cambiará.
@@ -51,6 +52,20 @@ struct LoginView: View {
                         .textFieldStyle(CustomTextFieldStyle())
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
+=======
+                    // Campo de usuario con icono
+                    HStack {
+                        Image(systemName: "person")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        TextField("Usuario", text: $viewModel.email)
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                    }
+                    .padding()
+                    .background()
+                    .cornerRadius(15)
+>>>>>>> Stashed changes
                     
                     SecureField("••••••••", text: $viewModel.password)
                         .textFieldStyle(CustomTextFieldStyle())
