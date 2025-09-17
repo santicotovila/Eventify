@@ -10,3 +10,6 @@ Thumbs.db
 # Xcode
 *.xcuserstate
 xcuserdata/
+
+# VS Code
+.vscode/
