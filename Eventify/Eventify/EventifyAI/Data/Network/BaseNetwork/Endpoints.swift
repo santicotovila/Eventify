@@ -36,7 +36,7 @@ enum Endpoints {
         case .refreshToken:
             return "/auth/refresh-token"
             
-        // Events
+        // Eventos
         case .getEvents(let userId):
             return "/users/\(userId)/events"
         case .getEventById(let eventId):

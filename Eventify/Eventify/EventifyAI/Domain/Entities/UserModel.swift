@@ -27,7 +27,7 @@ struct UserModel: Identifiable, Codable, Equatable {
         self.updatedAt = updatedAt
     }
     
-    // Propiedad de conveniencia para compatibilidad
+    // Con esto nos aseguramos de que el display name nunca sea nil porporcionando el nombre la parte delantera del email
     var name: String {
         return displayName ?? extractNameFromEmail()
     }

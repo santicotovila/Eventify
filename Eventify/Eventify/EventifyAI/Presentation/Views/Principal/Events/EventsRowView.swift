@@ -4,14 +4,14 @@ struct EventsRowView: View {
     let event: EventModel
     
     var body: some View {
-        HStack(spacing: 12) {
-            // Imagen del evento
-            RoundedRectangle(cornerRadius: 12)
+        HStack(spacing: 16) {
+            // Imagen/icono del evento
+            RoundedRectangle(cornerRadius: 16)
                 .fill(getEventColor(for: event.title))
-                .frame(width: 60, height: 60)
+                .frame(width: 50, height: 50)
                 .overlay(
                     getEventIcon(for: event.title)
-                        .font(.title2)
+                        .font(.title3)
                         .foregroundColor(.white)
                 )
             
@@ -20,20 +20,23 @@ struct EventsRowView: View {
                 Text(event.title)
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                     .lineLimit(1)
                 
-                Text(event.formattedDate)
+                Text(formatEventDate(event.date))
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.gray)
             }
             
             Spacer()
         }
-        .padding()
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.9))
+                .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
+        )
     }
     
     // Función para obtener color basado en el tipo de evento
@@ -58,6 +61,25 @@ struct EventsRowView: View {
         if lowercased.contains("cañas") || lowercased.contains("bar") { return Image(systemName: "wineglass") }
         if lowercased.contains("fiesta") || lowercased.contains("party") { return Image(systemName: "party.popper") }
         return Image(systemName: "calendar")
+    }
+    
+    // Función para formatear la fecha como en la imagen
+    private func formatEventDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_ES")
+        
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "EEEE"
+        dayFormatter.locale = Locale(identifier: "es_ES")
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "d 'de' MMMM"
+        dateFormatter.locale = Locale(identifier: "es_ES")
+        
+        let dayOfWeek = dayFormatter.string(from: date).capitalized
+        let dateString = dateFormatter.string(from: date)
+        
+        return "\(dayOfWeek), \(dateString)"
     }
 }
 

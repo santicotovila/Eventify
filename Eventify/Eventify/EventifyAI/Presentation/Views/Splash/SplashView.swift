@@ -32,7 +32,7 @@ struct SplashView: View {
                 }
                 .scaleEffect(scale)
                 
-                Text("Eventify")
+                Text("EventifyAI")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -40,8 +40,8 @@ struct SplashView: View {
                     .padding()
                     .scaleEffect(1.6)
                 
-                Text("Organizando eventos inteligentes")
-                    .font(.subheadline)
+                Text("Organizando eventos de manera inteligente")
+                    .font(.headline)
                     .foregroundColor(.white.opacity(0.8))
                     .opacity(opacity)
                 

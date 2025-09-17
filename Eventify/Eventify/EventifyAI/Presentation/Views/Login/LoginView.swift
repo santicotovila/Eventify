@@ -13,7 +13,7 @@ struct LoginView: View {
     // MARK: - Inicializador
     // Inyectamos las dependencias que necesita el ViewModel para funcionar.
     init() {
-        // Creamos el ViewModel pasándole el caso de uso con inyección directa.
+        // Creamos el ViewModel pasandole el caso de uso con inyección directa.
         let loginRepository = DefaultLoginRepository()
         let loginUseCase = LoginUseCase(loginRepository: loginRepository)
         
@@ -34,8 +34,6 @@ struct LoginView: View {
                 VStack(spacing: 16) {
                     // Logo
                     ZStack {
-                        
-                        
                         VStack(spacing: 6) {
                             Image("Logo-Eventify")
                                         .resizable()
@@ -49,7 +47,7 @@ struct LoginView: View {
                         .font(.largeTitle).fontWeight(.bold).foregroundColor(.white)
                 }
                 
-                // Formulario de login.
+                // Formulario de login
                 VStack(spacing: 20) {
                     // Campo de usuario con icono
                     HStack {
@@ -75,7 +73,7 @@ struct LoginView: View {
                     .background(Color.white.opacity(0.9))
                     .cornerRadius(15)
                     
-                    // Botón de acceder
+                    // Boton acceder
                     Button(action: {
                         Task { await viewModel.signIn() }
                     }) {
@@ -92,7 +90,7 @@ struct LoginView: View {
                     .cornerRadius(25)
                     .disabled(!viewModel.isFormValid || viewModel.isLoading)
                     
-                    // Botón de registrarse
+                    // Boton de registrarse
                     Button("Registrarme") {
                         showRegister = true
                     }
@@ -107,7 +105,6 @@ struct LoginView: View {
                     
                     // Recuperar contraseña
                     Button("Recuperar contraseña 🔑") {
-                        // TODO: Implementar recuperación
                     }
                     .foregroundColor(.white.opacity(0.8))
                     .font(.subheadline)

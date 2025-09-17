@@ -15,7 +15,7 @@ final class AppStateVM: ObservableObject {
     
     // MARK: - Dependencias y Suscripciones
     private let loginUseCase: LoginUseCaseProtocol
-    // Guardamos aquí las suscripciones de Combine para que no se "mueran".
+    // Guardamos aquí las suscripciones de Combine para que no "mueran".
     private var cancellables = Set<AnyCancellable>()
     
     init(loginUseCase: LoginUseCaseProtocol) {

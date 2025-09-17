@@ -4,7 +4,7 @@ import SwiftUI
 struct CreateEventView: View {
     
     // Variables que necesita
-    @State private var viewModel: CreateEventViewModel
+    @StateObject private var viewModel: CreateEventViewModel
     @Environment(\.dismiss) var dismiss
     
     let onEventCreated: (() -> Void)?
@@ -15,7 +15,7 @@ struct CreateEventView: View {
         let loginRepository = DefaultLoginRepository()
         let eventsUseCase = EventsUseCase(repository: eventsRepository, loginRepository: loginRepository)
         
-        self._viewModel = State(wrappedValue: CreateEventViewModel(
+        self._viewModel = StateObject(wrappedValue: CreateEventViewModel(
             eventsUseCase: eventsUseCase
         ))
         self.onEventCreated = onEventCreated
@@ -23,28 +23,125 @@ struct CreateEventView: View {
     
     // Lo que se ve en la pantalla
     var body: some View {
-        NavigationView {
-            Form {
-                eventInfoSection
-                dateTimeSection
-                previewSection
-            }
-            .navigationTitle("Nuevo Evento")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancelar") {
-                        onEventCreated?()
+        ZStack {
+            // Fondo con degradado igual al diseño
+            LinearGradient(
+                colors: [Color.blue.opacity(0.8), Color.purple.opacity(1.2)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header personalizado
+                HStack {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "arrow.left")
+                            .font(.title2)
+                            .foregroundColor(.white)
                     }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Crear") {
+                    
+                    Spacer()
+                    
+                    Text("Crea tu evento")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Button(action: {
                         Task {
                             await viewModel.createEvent()
+                            if viewModel.isEventCreated {
+                                onEventCreated?()
+                                dismiss()
+                            }
                         }
+                    }) {
+                        Image(systemName: "checkmark")
+                            .font(.title2)
+                            .foregroundColor(.white)
                     }
                     .disabled(!viewModel.isFormValid)
+                    .opacity(viewModel.isFormValid ? 1.0 : 0.5)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 30)
+                
+                // Formulario
+                ScrollView {
+                    VStack(spacing: 20) {
+                        createFormField(
+                            placeholder: "Título",
+                            text: $viewModel.eventTitle
+                        )
+                        
+                        createFormField(
+                            placeholder: "Descripción",
+                            text: $viewModel.eventDescription,
+                            isMultiline: true
+                        )
+                        
+                        createFormField(
+                            placeholder: "Fecha",
+                            text: $viewModel.dateString,
+                            isDateField: true
+                        )
+                        
+                        createFormField(
+                            placeholder: "Hora",
+                            text: $viewModel.timeString,
+                            isTimeField: true
+                        )
+                        
+                        createFormField(
+                            placeholder: "Lugar",
+                            text: $viewModel.eventLocation
+                        )
+                        
+                        createFormField(
+                            placeholder: "Invitar amigos",
+                            text: $viewModel.inviteString
+                        )
+                        
+                        Spacer(minLength: 40)
+                        
+                        // Botón crear evento
+                        Button(action: {
+                            Task {
+                                await viewModel.createEvent()
+                                if viewModel.isEventCreated {
+                                    onEventCreated?()
+                                    dismiss()
+                                }
+                            }
+                        }) {
+                            HStack {
+                                if viewModel.isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(0.8)
+                                } else {
+                                    Text("Crear evento")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.black.opacity(0.3))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                        .disabled(!viewModel.isFormValid || viewModel.isLoading)
+                        .opacity((viewModel.isFormValid && !viewModel.isLoading) ? 1.0 : 0.6)
+                        
+                        Spacer(minLength: 20)
+                    }
+                    .padding(.horizontal, 20)
                 }
             }
         }
@@ -55,88 +152,91 @@ struct CreateEventView: View {
         } message: {
             Text(viewModel.alertMessage)
         }
-        .onChange(of: viewModel.isEventCreated) { created in
-            if created {
-                onEventCreated?()
-            }
-        }
     }
     
-    // MARK: - Secciones del formulario
+    // MARK: - Helper Functions
     
-    private var eventInfoSection: some View {
-        Section(header: Text("Información del Evento")) {
-            titleField
-            descriptionField
-            locationField
-        }
-    }
-    
-    private var titleField: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Título *")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            TextField("Ej: Cena de cumpleaños", text: $viewModel.eventTitle)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-        }
-    }
-    
-    private var descriptionField: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Descripción *")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            TextField("Describe tu evento...", text: $viewModel.eventDescription, axis: .vertical)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .lineLimit(3...6)
-        }
-    }
-    
-    private var locationField: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Ubicación *")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            TextField("Ej: Restaurante El Buen Gusto", text: $viewModel.eventLocation)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-        }
-    }
-    
-    private var dateTimeSection: some View {
-        Section(header: Text("Fecha y Hora")) {
-            DatePicker(
-                "Fecha del evento",
-                selection: $viewModel.eventDate,
-                in: Date()...,
-                displayedComponents: [.date, .hourAndMinute]
-            )
-            .datePickerStyle(.compact)
-        }
-    }
-    
-    private var previewSection: some View {
-        Section(header: Text("Vista Previa")) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(viewModel.eventTitle.isEmpty ? "Título del evento" : viewModel.eventTitle)
-                    .font(.headline)
-                    .foregroundColor(viewModel.eventTitle.isEmpty ? .secondary : .primary)
-                
-                Text(viewModel.eventLocation.isEmpty ? "Ubicación" : viewModel.eventLocation)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Text(viewModel.eventDate, style: .date)
-                    .font(.subheadline)
-                    .foregroundColor(.blue)
-                
-                if !viewModel.eventDescription.isEmpty {
-                    Text(viewModel.eventDescription)
-                        .font(.body)
-                        .foregroundColor(.secondary)
+    @ViewBuilder
+    private func createFormField(
+        placeholder: String,
+        text: Binding<String>,
+        isMultiline: Bool = false,
+        isDateField: Bool = false,
+        isTimeField: Bool = false
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if isDateField {
+                Button(action: {
+                    // TODO: Mostrar date picker
+                }) {
+                    HStack {
+                        Text(text.wrappedValue.isEmpty ? placeholder : text.wrappedValue)
+                            .foregroundColor(text.wrappedValue.isEmpty ? .white.opacity(0.7) : .white)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.white.opacity(0.1))
+                            )
+                    )
                 }
+            } else if isTimeField {
+                Button(action: {
+                    // TODO: Mostrar time picker
+                }) {
+                    HStack {
+                        Text(text.wrappedValue.isEmpty ? placeholder : text.wrappedValue)
+                            .foregroundColor(text.wrappedValue.isEmpty ? .white.opacity(0.7) : .white)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.white.opacity(0.1))
+                            )
+                    )
+                }
+            } else if isMultiline {
+                TextField(
+                    placeholder,
+                    text: text,
+                    axis: .vertical
+                )
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                        )
+                )
+                .lineLimit(3...6)
+            } else {
+                TextField(placeholder, text: text)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.white.opacity(0.1))
+                            )
+                    )
             }
-            .padding(.vertical, 4)
         }
     }
 }

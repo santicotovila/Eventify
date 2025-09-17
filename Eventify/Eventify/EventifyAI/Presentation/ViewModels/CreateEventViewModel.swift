@@ -22,6 +22,9 @@ final class CreateEventViewModel: ObservableObject {
     @Published var eventDescription: String = ""
     @Published var eventLocation: String = ""
     @Published var eventDate: Date = Date().addingTimeInterval(3600) // Por defecto, la fecha es una hora en el futuro.
+    @Published var dateString: String = ""
+    @Published var timeString: String = ""
+    @Published var inviteString: String = ""
     
     // MARK: - Propiedades de Estado de la UI
     // Estas propiedades nos ayudan a controlar la interfaz de usuario mientras se crea el evento.

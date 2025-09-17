@@ -2,8 +2,12 @@ import SwiftUI
 
 struct ContinueRegistrationView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var firstName = ""
+    @State private var firstName: String
     @State private var lastName = ""
+    
+    init(userName: String = "") {
+        _firstName = State(initialValue: userName)
+    }
     @State private var birthDate = Date()
     @State private var location = ""
     @State private var selectedPreferences: Set<String> = []
@@ -69,7 +73,7 @@ struct ContinueRegistrationView: View {
                             }
                         }
                         
-                        // Formulario de datos personales
+                        // Datos Usuario
                         VStack(spacing: 20) {
                             // Campo de nombre
                             HStack {
@@ -77,22 +81,24 @@ struct ContinueRegistrationView: View {
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
                                 TextField("Nombre", text: $firstName)
+    
                             }
                             .padding()
                             .background(Color.white.opacity(0.9))
                             .cornerRadius(15)
                             
-                            // Campo de apellidos
+                            // Campo de apellido
                             HStack {
-                                Image(systemName: "person")
+                                Image(systemName: "person.fill")
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
-                                TextField("Apellidos", text: $lastName)
+                                TextField("Apellido", text: $lastName)
+                                Text("*")
+                                    .foregroundColor(.red)
                             }
                             .padding()
                             .background(Color.white.opacity(0.9))
                             .cornerRadius(15)
-                            
                             // Campo de fecha de nacimiento
                             Button(action: {
                                 showDatePicker.toggle()
@@ -129,7 +135,7 @@ struct ContinueRegistrationView: View {
                             HStack {
                                 Spacer()
                                 Text("* Campos Obligatorios")
-                                    .font(.caption)
+                                    .font(.caption2)
                                     .foregroundColor(.white.opacity(0.8))
                             }
                         }
@@ -139,10 +145,10 @@ struct ContinueRegistrationView: View {
                         VStack(spacing: 16) {
                             HStack {
                                 Text("❤️ Preferencias")
-                                    .font(.headline)
+                                    .font(.subheadline)
                                     .foregroundColor(.white)
                                 Text("(Elige al menos 3)")
-                                    .font(.caption)
+                                    .font(.caption2)
                                     .foregroundColor(.white.opacity(0.8))
                                 Spacer()
                             }
@@ -159,7 +165,7 @@ struct ContinueRegistrationView: View {
                                         }
                                     }) {
                                         Text(preference)
-                                            .font(.caption)
+                                            .font(.caption2)
                                             .fontWeight(.medium)
                                             .padding(.horizontal, 12)
                                             .padding(.vertical, 8)
@@ -198,23 +204,8 @@ struct ContinueRegistrationView: View {
                             .disabled(!isFormValid)
                             .padding(.horizontal, 32)
                             
-                            Button(action: {
-                                showHomeView = true
-                            }) {
-                                Text("Ya tengo cuenta")
-                                    .fontWeight(.medium)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 50)
-                                    .background(Color.clear)
-                                    .foregroundColor(.white)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 25)
-                                            .stroke(Color.white, lineWidth: 1)
-                                    )
-                            }
-                            .padding(.horizontal, 32)
                         }
-                        .padding(.bottom, 32)
+                
                     }
                 }
             }
@@ -254,5 +245,5 @@ extension DateFormatter {
 }
 
 #Preview {
-    ContinueRegistrationView()
+    ContinueRegistrationView(userName: "Usuario de prueba")
 }
