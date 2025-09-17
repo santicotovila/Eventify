@@ -30,7 +30,7 @@ struct LoginView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {
-                // Cabecera con el logo y nombr
+                // Cabecera con el logo y nombre
                 VStack(spacing: 16) {
                     // Logo
                     ZStack {
