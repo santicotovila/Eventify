@@ -49,6 +49,9 @@ public func configure(_ app: Application) async throws {
     await app.jwt.keys.add(hmac: hmacKey, digestAlgorithm: .sha512)
 
     app.migrations.add(CreateUsers())
+    app.migrations.add(CreateEvents())
+    app.migrations.add(CreateInterests())
+    app.migrations.add(CreateUserInterests())
     
     
     // En production deberíamos quitarlo
