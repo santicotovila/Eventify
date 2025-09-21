@@ -10,7 +10,7 @@ import Vapor
 
 struct UsersController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let users = routes.grouped("api", "users")
+        let users = routes.grouped("users")
         users.get(use: index)                  // GET /api/users
         users.get(":userID", use: show)        // GET /api/users/:userID
     }
