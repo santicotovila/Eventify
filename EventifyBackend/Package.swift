@@ -20,11 +20,7 @@ let package = Package(
         // 🔵 JWT Authentication
         .package(url: "https://github.com/vapor/jwt.git", from: "5.1.0"),
         // 🔵 Redis Queues Driver
-        .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.0.0"),
-        
-        .package(url: "https://github.com/vapor-community/dotenv.git", from: "4.0.0")
-
-        
+        .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.0.0")
     ],
     targets: [
         .executableTarget(
@@ -37,8 +33,7 @@ let package = Package(
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
                 .product(name: "JWT", package: "jwt"),
-                .product(name: "QueuesRedisDriver", package: "queues-redis-driver"),
-                .product(name: "DotEnv", package:"dotenv")
+                .product(name: "QueuesRedisDriver", package: "queues-redis-driver")
             ],
             swiftSettings: swiftSettings
         ),
