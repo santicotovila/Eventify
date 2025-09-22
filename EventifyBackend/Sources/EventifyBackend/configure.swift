@@ -7,94 +7,12 @@ import Vapor
 import JWT
 import Foundation
 
-
-#if canImport(Darwin)
-import Darwin
-#elseif canImport(Glibc)
-import Glibc
-#endif
-
-// Minimal .env loader to avoid external DotEnv dependency.
-private func loadDotEnv(from path: String, overrideExisting: Bool = false) {
-    let url = URL(fileURLWithPath: path)
-    guard FileManager.default.fileExists(atPath: url.path) else { return }
-    guard let contents = try? String(contentsOf: url, encoding: .utf8) else { return }
-    
-    for rawLine in contents.split(whereSeparator: \.isNewline) {
-        var line = String(rawLine).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !line.isEmpty, !line.hasPrefix("#") else { continue }
-        
-        if line.hasPrefix("export ") { line = String(line.dropFirst(7)) }
-        guard let eq = line.firstIndex(of: "=") else { continue }
-        
-        let key = String(line[..<eq]).trimmingCharacters(in: .whitespacesAndNewlines)
-        var value = String(line[line.index(after: eq)...]).trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        if value.hasPrefix("\""), value.hasSuffix("\""), value.count >= 2 {
-            value = String(value.dropFirst().dropLast())
-        } else if value.hasPrefix("'"), value.hasSuffix("'"), value.count >= 2 {
-            value = String(value.dropFirst().dropLast())
-        } else if let hashIndex = value.firstIndex(of: "#") {
-            // Strip inline comments for unquoted values: KEY=value # comment
-            value = String(value[..<hashIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        
-        if !overrideExisting, getenv(key) != nil { continue }
-        setenv(key, value, 1)
-    }
-}
-
-// Walk up from a starting URL until we find a directory that contains Package.swift.
-// Returns nil if not found.
-private func findPackageRoot(startingAt start: URL) -> URL? {
-    var current = start
-    let fm = FileManager.default
-    while true {
-        if fm.fileExists(atPath: current.appendingPathComponent("Package.swift").path) {
-            return current
-        }
-        let parent = current.deletingLastPathComponent()
-        if parent.path == current.path { // reached filesystem root
-            return nil
-        }
-        current = parent
-    }
-}
-
-// configures your application
 public func configure(_ app: Application) async throws {
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-    
-    // Load environment files if present (no external dependency needed).
-    // Priority:
-    // 1) DOTENV_PATH (explicit)
-    // 2) app.directory.workingDirectory/.env(.local)
-    // 3) Package root (nearest ancestor that contains Package.swift)/.env(.local)
-    if let explicitPath = Environment.get("DOTENV_PATH") {
-        loadDotEnv(from: explicitPath)
-    }
-    
-    // Working directory candidates
-    let workingDirURL = URL(fileURLWithPath: app.directory.workingDirectory)
-    loadDotEnv(from: workingDirURL.appendingPathComponent(".env.local").path)
-    loadDotEnv(from: workingDirURL.appendingPathComponent(".env").path)
-    
-    // Try to detect package root via working directory first, then via source file location.
-    if let pkgRootFromWD = findPackageRoot(startingAt: workingDirURL) {
-        loadDotEnv(from: pkgRootFromWD.appendingPathComponent(".env.local").path)
-        loadDotEnv(from: pkgRootFromWD.appendingPathComponent(".env").path)
-    } else {
-        // Fall back to using the compile-time source path to find the package root (useful in Xcode)
-        let sourceFileURL = URL(fileURLWithPath: #filePath)
-        if let pkgRootFromSource = findPackageRoot(startingAt: sourceFileURL) {
-            loadDotEnv(from: pkgRootFromSource.appendingPathComponent(".env.local").path)
-            loadDotEnv(from: pkgRootFromSource.appendingPathComponent(".env").path)
-        }
-    }
-    
+   
+
     guard let jwtKey = Environment.process.JWT_KEY else { fatalError("JWT_KEY not found") }
     guard let _ = Environment.process.API_KEY else { fatalError("API_KEY required") }
+
     
     switch app.environment {
     case .production:

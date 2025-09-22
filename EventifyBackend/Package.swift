@@ -6,6 +6,10 @@ let package = Package(
     platforms: [
        .macOS(.v13)
     ],
+    products: [
+        // Producto ejecutable para que Xcode cree un esquema "runnable"
+        .executable(name: "EventifyBackend", targets: ["EventifyBackend"])
+    ],
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.115.0"),
