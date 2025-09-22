@@ -7,30 +7,31 @@
 
 import Vapor
 
-// Para crear un interés (solo mandas el name; nameClean se calcula en el modelo)
-struct InterestDTO: Content {
-    let name: String
+struct InterestDTO {
+    struct Create: Content, Validatable {
+        let name: String
+        static func validations(_ v: inout Validations) {
+            v.add("name", as: String.self, is: .count(1...), required: true)
+        }
+    }
+
+    // Si usas PATCH, mejor opcional
+    struct Update: Content, Validatable {
+        let name: String?
+        static func validations(_ v: inout Validations) {
+            v.add("name", as: String?.self, is: .nil || .count(1...))
+        }
+    }
+
+    struct Response: Content {
+        let id: UUID
+        let name: String
+        let nameClean: String
+    }
 }
 
-// Para actualizar (opcional, normalmente solo el name)
-struct InterestUpdateDTO: Content {
-    let name: String
-}
-
-// Para responder al cliente
-struct InterestResponseDTO: Content {
-    let id: UUID
-    let name: String
-    let nameClean: String
-}
-
-// Mapeos Modelo -> DTO
 extension Interest {
-    func toResponseDTO() throws -> InterestResponseDTO {
-        InterestResponseDTO(
-            id: try self.requireID(),
-            name: self.name,
-            nameClean: self.nameClean
-        )
+    func toResponseDTO() throws -> InterestDTO.Response {
+        .init(id: try requireID(), name: name, nameClean: nameClean)
     }
 }

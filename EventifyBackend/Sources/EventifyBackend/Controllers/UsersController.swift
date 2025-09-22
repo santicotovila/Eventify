@@ -9,22 +9,22 @@ import Fluent
 import Vapor
 
 struct UsersController: RouteCollection {
-    func boot(routes: RoutesBuilder) throws {
+    func boot(routes: any RoutesBuilder) throws {
         let users = routes.grouped("users")
-        users.get(use: index)                  // GET /api/users
-        users.get(":userID", use: show)        // GET /api/users/:userID
+        users.get(use: index)                  // GET /users
+        users.get(":userID", use: show)        // GET /users/:userID
     }
 
-    // GET /api/users
-    func index(req: Request) async throws -> [Users.Public] {
+    // GET /users
+    func index(req: Request) async throws -> [UsersDTO.Public] {
         let all = try await Users.query(on: req.db).all()
-        return all.map { $0.toPublic() }
+        return try all.map { try $0.toPublicDTO() }
     }
 
-    // GET /api/users/:userID
-    func show(req: Request) async throws -> Users.Public {
+    // GET /users/:userID
+    func show(req: Request) async throws -> UsersDTO.Public {
         guard let user = try await Users.find(req.parameters.get("userID"), on: req.db)
         else { throw Abort(.notFound) }
-        return user.toPublic()
+        return try user.toPublicDTO()
     }
 }

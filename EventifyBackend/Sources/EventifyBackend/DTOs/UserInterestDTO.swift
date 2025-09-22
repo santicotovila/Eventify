@@ -16,7 +16,7 @@ struct UserInterestLinkDTO: Content {
 // Para responder: intereses de un usuario
 struct UserInterestsResponseDTO: Content {
     let userID: UUID
-    let interests: [InterestResponseDTO]
+    let interests: [InterestUsersResponseDTO]
 }
 
 // Para responder: usuarios que tienen un interés

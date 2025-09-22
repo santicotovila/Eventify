@@ -10,7 +10,7 @@
 import Fluent
 
 struct ConstantsInterests {
-    static let schemaInterests: FieldKey = "interests"
+    static let schemaInterests  = "interests"
     static let name: FieldKey = "name"
     static let nameClean: FieldKey = "nameClean"
 }
