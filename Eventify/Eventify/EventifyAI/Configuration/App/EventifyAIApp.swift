@@ -4,6 +4,7 @@
  */
 
 import SwiftUI
+import SwiftData
 import TipKit
 
 @main
@@ -21,6 +22,7 @@ struct EventifyAIApp: App {
                 }
             }
         }
+        .modelContainer(for: [EventDataModel.self])
     }
     
     /// Configuración inicial de TipKit

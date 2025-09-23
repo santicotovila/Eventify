@@ -19,17 +19,17 @@ final class RepositoryTests: XCTestCase {
         
         loginRepository = DefaultLoginRepository(
             networkLogin: mockNetworkLogin,
-            keychain: kcPersistenceKeyChain.shared
+            keychain: KeyChainEventify.shared
         )
         
         eventsRepository = DefaultEventsRepository(
             networkEvents: mockNetworkEvents,
-            keychain: kcPersistenceKeyChain.shared
+            keychain: KeyChainEventify.shared
         )
         
         attendanceRepository = DefaultAttendanceRepository(
             networkAttendance: mockNetworkAttendance,
-            keychain: kcPersistenceKeyChain.shared
+            keychain: KeyChainEventify.shared
         )
     }
     

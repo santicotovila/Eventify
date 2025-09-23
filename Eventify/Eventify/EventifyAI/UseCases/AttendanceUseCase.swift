@@ -41,7 +41,9 @@ final class AttendanceUseCase: AttendanceUseCaseProtocol {
             throw AttendanceUseCaseError.notAuthorized
         }
         
-        guard let event = try await eventsRepository.getEventById(eventId) else {
+        // Buscar evento en la lista simple
+        let allEvents = await eventsRepository.getEvents(filter: "")
+        guard let event = allEvents.first(where: { $0.id == eventId }) else {
             throw AttendanceUseCaseError.eventNotFound
         }
         
@@ -96,7 +98,9 @@ final class AttendanceUseCase: AttendanceUseCaseProtocol {
             throw AttendanceUseCaseError.notAuthorized
         }
         
-        guard let event = try await eventsRepository.getEventById(attendance.eventId) else {
+        // Buscar evento en la lista simple
+        let allEvents = await eventsRepository.getEvents(filter: "")
+        guard let event = allEvents.first(where: { $0.id == attendance.eventId }) else {
             throw AttendanceUseCaseError.eventNotFound
         }
         

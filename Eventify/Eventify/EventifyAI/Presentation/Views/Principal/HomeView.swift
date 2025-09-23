@@ -1,14 +1,27 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject var appState: AppStateVM
+    @Environment(AppStateVM.self) var appState: AppStateVM
     @State private var selectedTab = 0
     @State private var showCreateEvent = false
     @State private var showEventiBot = false
     @State private var previousTab = 0
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        ZStack {
+            // Fondo púrpura 
+            LinearGradient(
+                stops: [
+                    Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
+                    Gradient.Stop(color: Color(red: 0.31, green: 0.27, blue: 0.58), location: 0.40),
+                    Gradient.Stop(color: Color(red: 0.45, green: 0.22, blue: 0.57), location: 1.00),
+                ],
+                startPoint: UnitPoint(x: 0.02, y: 0),
+                endPoint: UnitPoint(x: 1, y: 1)
+            )
+            .ignoresSafeArea()
+            
+            TabView(selection: $selectedTab) {
             EventsHomeView()
                 .tabItem {
                     Image(systemName: "calendar")
@@ -16,7 +29,7 @@ struct HomeView: View {
                 }
                 .tag(0)
             
-            // Tab vacía para Crear - solo activa el sheet
+            // Tab vacía para Crear
             Color.clear
                 .tabItem {
                     Image(systemName: "plus.circle")
@@ -32,24 +45,25 @@ struct HomeView: View {
                 }
                 .tag(2)
             
-            ProfileTabView()
+            ProfileView(loginUseCase: LoginUseCase(loginRepository: DefaultLoginRepository()))
                 .tabItem {
                     Image(systemName: "person.circle")
                     Text("Perfil")
                 }
                 .tag(3)
         }
-        .accentColor(.purple)
+        .accentColor(.gray)
         .onChange(of: selectedTab) { oldValue, newTab in
             handleTabChange(newTab)
         }
         .sheet(isPresented: $showCreateEvent) {
             CreateEventView {
-                // Callback cuando se crea evento
+                // vuelve cuando se crea evento
             }
         }
         .sheet(isPresented: $showEventiBot) {
             AnimatedEventiBotView()
+        }
         }
     }
     
@@ -72,101 +86,8 @@ struct HomeView: View {
 }
 
 struct EventsHomeView: View {
-    
-    @StateObject private var viewModel: EventsViewModel
-    @EnvironmentObject var appState: AppStateVM
-    @State private var showCreateEvent = false
-    
-    init() {
-        let eventsRepository = DefaultEventsRepository()
-        let loginRepository = DefaultLoginRepository()
-        let eventsUseCase = EventsUseCase(repository: eventsRepository, loginRepository: loginRepository)
-        let loginUseCase = LoginUseCase(loginRepository: loginRepository)
-        
-        self._viewModel = StateObject(wrappedValue: EventsViewModel(eventsUseCase: eventsUseCase, loginUseCase: loginUseCase))
-    }
-    
     var body: some View {
-        ZStack {
-            // Fondo con degradado igual al diseño
-            LinearGradient(
-                colors: [Color.blue.opacity(0.8), Color.purple.opacity(1.2)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Header minimalista como en la imagen
-                HStack {
-                    Text("Eventos")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Spacer()
-                    
-                    // Botón de logout como en la imagen
-                    Button(action: {
-                        Task {
-                            await appState.signOut()
-                        }
-                    }) {
-                        Image(systemName: "power")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 20)
-                
-                // Lista de eventos
-                if viewModel.isLoading && viewModel.events.isEmpty {
-                    LoaderView(message: "Cargando eventos...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.events.isEmpty {
-                    EmptyEventsHomeView {
-                        showCreateEvent = true
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(viewModel.events) { event in
-                                NavigationLink(destination: EventDetailView(eventId: event.id)) {
-                                    EventsRowView(event: event)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                    }
-                    .refreshable {
-                        await viewModel.refreshEvents()
-                    }
-                }
-                
-                Spacer()
-            }
-        }
-        .sheet(isPresented: $showCreateEvent) {
-            CreateEventView {
-                Task {
-                    await viewModel.refreshEvents()
-                }
-            }
-        }
-        .alert("Error", isPresented: $viewModel.showAlert) {
-            Button("OK") {
-                viewModel.dismissAlert()
-            }
-        } message: {
-            Text(viewModel.alertMessage)
-        }
-        .task {
-            await viewModel.loadEvents()
-        }
+        EventsListView()
     }
 }
 
@@ -224,9 +145,13 @@ struct AnimatedEventiBotView: View {
         ZStack {
             // Fondo con degradado
             LinearGradient(
-                colors: [Color.blue.opacity(0.8), Color.purple.opacity(1.2)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                stops: [
+                    Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
+                    Gradient.Stop(color: Color(red: 0.31, green: 0.27, blue: 0.58), location: 0.40),
+                    Gradient.Stop(color: Color(red: 0.45, green: 0.22, blue: 0.57), location: 1.00),
+                ],
+                startPoint: UnitPoint(x: 0.02, y: 0),
+                endPoint: UnitPoint(x: 1, y: 1)
             )
             .ignoresSafeArea()
             
@@ -261,7 +186,7 @@ struct AnimatedEventiBotView: View {
                 
                 Spacer()
                 
-                // Botón cerrar discreto
+                // Botón cerrar
                 Button(action: {
                     dismiss()
                 }) {
@@ -303,116 +228,148 @@ struct AnimatedEventiBotView: View {
     }
 }
 
-// Vista de Perfil mejorada
+// Vista de Perfil
 struct ProfileTabView: View {
-    @EnvironmentObject var appState: AppStateVM
+    @Environment(AppStateVM.self) var appState: AppStateVM
     
     var body: some View {
         ZStack {
-            // Fondo con degradado
+            // Fondo púrpura
             LinearGradient(
-                colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                stops: [
+                    Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
+                    Gradient.Stop(color: Color(red: 0.31, green: 0.27, blue: 0.58), location: 0.40),
+                    Gradient.Stop(color: Color(red: 0.45, green: 0.22, blue: 0.57), location: 1.00),
+                ],
+                startPoint: UnitPoint(x: 0.02, y: 0),
+                endPoint: UnitPoint(x: 1, y: 1)
             )
             .ignoresSafeArea()
             
-            NavigationStack {
-                VStack(spacing: 0) {
-                    // Header del perfil
-                    VStack(spacing: 16) {
-                        // Avatar
-                        Circle()
-                            .fill(Color.purple.opacity(0.8))
-                            .frame(width: 80, height: 80)
-                            .overlay(
-                                Text(String(appState.userDisplayName.prefix(1)))
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                            )
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Text("Perfil")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
                         
-                        VStack(spacing: 4) {
-                            Text(appState.userDisplayName)
-                                .font(.title2)
-                                .fontWeight(.semibold)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal)
+           
+                
+                Spacer()
+                
+                // Tarjeta blanca central con avatar centrado arriba
+                VStack(spacing: 0) {
+                    // Avatar centrado en la parte superior
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 100, height: 100)
+                        .overlay(
+                            Circle()
+                                .fill(Color.purple.opacity(0.8))
+                                .frame(width: 90, height: 90)
+                                .overlay(
+                                    Text(String(appState.userDisplayName.prefix(1)))
+                                        .font(.largeTitle)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                )
+                        )
+                        .padding(.top, 20)
+                    
+                    // Información del usuario centrada
+                    VStack(spacing: 12) {
+                        Text(appState.userDisplayName)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                        
+                        if let user = appState.currentUser {
+                            Text(user.email)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        // Información adicional
+                        VStack(spacing: 8) {
+                            Text("+34 876863503")
+                                .font(.subheadline)
+                                .foregroundColor(.black)
                             
-                            if let user = appState.currentUser {
-                                Text(user.email)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
+                            Text("07.06.1995")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
                         }
                     }
                     .padding(.top, 20)
                     .padding(.bottom, 30)
-                    
-                    // Opciones del perfil
-                    VStack(spacing: 20) {
-                        ProfileOptionRow(
-                            icon: "person.circle",
-                            title: "Editar Perfil",
-                            action: {
-                                // TODO: Implementar edición de perfil
-                            }
-                        )
-                        
-                        ProfileOptionRow(
-                            icon: "bell",
-                            title: "Notificaciones",
-                            action: {
-                                // TODO: Implementar configuración de notificaciones
-                            }
-                        )
-                        
-                        ProfileOptionRow(
-                            icon: "gear",
-                            title: "Configuración",
-                            action: {
-                                // TODO: Implementar configuración
-                            }
-                        )
-                        
-                        ProfileOptionRow(
-                            icon: "info.circle",
-                            title: "Acerca de EventifyAI",
-                            action: {
-                                // TODO: Implementar información de la app
-                            }
-                        )
-                        
-                        Divider()
-                            .padding(.vertical, 10)
-                        
-                        // Botón de logout
-                        Button(action: {
-                            Task {
-                                await appState.signOut()
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "power")
-                                    .foregroundColor(.red)
-                                Text("Cerrar Sesión")
-                                    .foregroundColor(.red)
-                                    .fontWeight(.medium)
-                                Spacer()
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.red.opacity(0.1))
-                            )
-                        }
-                        .disabled(appState.isLoading)
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    Spacer()
                 }
-                .navigationTitle("Perfil")
-                .navigationBarTitleDisplayMode(.large)
+                .padding(.vertical, 40)
+                .padding(.horizontal, 20)
+                .frame(width: 328, height: 368, alignment: .topLeading)
+                    .background(.white)
+                    .cornerRadius(8)
+                    .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                    .inset(by: 0.5)
+                    .stroke(Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 1)
+                    )
+                    .padding(.top, 24)
+                    .padding(.horizontal, 30)
+                
+               
+                Button(action: {
+                    // TODO: Implementar edición de datos
+                }) {
+                    Text("Modificar datos personales")
+                    .font(
+                    Font.custom("SF Pro Rounded", size: 20)
+                    .weight(.semibold)
+                    )
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 10)
+                    .frame(width: 295, alignment: .center)
+                    .background(Color(red: 0.57, green: 0.47, blue: 0.7))
+                        .background(ConstantsApp.Colors.gris.opacity(0.05))
+                        .cornerRadius(8)
+                        .shadow(color: .black.opacity(0.35), radius: 5, x: 0, y: 15)
+                }
+                .padding(.horizontal, 30)
+                .padding(.top, 20)
+                
+                Spacer()
+                
+                // Botón de cerrar sesión en la parte inferior
+                Button(action: {
+                    Task {
+                        await appState.signOut()
+                    }
+                }) {
+                    HStack {
+                        Text("Cerrar Sesión")
+                            .font(
+                            Font.custom("SF Pro Rounded", size: 20)
+                            .weight(.semibold)
+                            )
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.white)
+                        Image(systemName: "power")
+                            .foregroundColor(.white)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.red)
+                    .cornerRadius(8)
+                }
+                .padding(.horizontal, 80)
+                .padding(.bottom, 40)
+                .disabled(appState.isLoading)
             }
         }
     }
@@ -456,6 +413,6 @@ struct ProfileOptionRow: View {
     let loginUseCase = LoginUseCase(loginRepository: loginRepository)
     let appState = AppStateVM(loginUseCase: loginUseCase)
     
-    return HomeView()
-        .environmentObject(appState)
+    HomeView()
+        .environment(appState)
 }

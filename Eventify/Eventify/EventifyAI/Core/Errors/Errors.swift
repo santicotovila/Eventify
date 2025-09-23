@@ -1,6 +1,6 @@
 import Foundation
 
-/// Errores relacionados con operaciones de red y conectividad
+// Errores relacionados con operaciones de red y conectividad
 enum NetworkError: LocalizedError {
     case invalidURL
     case noData
@@ -74,7 +74,7 @@ enum NetworkError: LocalizedError {
     }
 }
 
-/// Errores relacionados con autenticación
+// Errores relacionados con autenticación
 enum AuthError: LocalizedError {
     case invalidCredentials
     case userNotFound
@@ -160,7 +160,7 @@ enum AuthError: LocalizedError {
     }
 }
 
-/// Errores relacionados con eventos
+// Errores relacionados con eventos
 enum EventError: LocalizedError {
     case eventNotFound
     case eventAlreadyExists

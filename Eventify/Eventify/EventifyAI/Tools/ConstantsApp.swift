@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import CoreGraphics
 
 struct ConstantsApp {
@@ -35,6 +36,11 @@ struct ConstantsApp {
         static let defaultPadding: CGFloat = 16.0
         static let buttonHeight: CGFloat = 44.0
         static let animationDuration: Double = 0.3
+    }
+    
+    // MARK: - Colors
+    struct Colors {
+        static let gris = Color(red: 0.75, green: 0.78, blue: 0.82) // #BFC7D1
     }
     
     // MARK: - Validation

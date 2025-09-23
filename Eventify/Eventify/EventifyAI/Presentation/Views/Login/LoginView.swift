@@ -1,23 +1,16 @@
 import SwiftUI
 
-// La vista para el Login. En MVVM, la vista es la parte "tonta":
-// solo muestra lo que el ViewModel le dice y le informa de las acciones del usuario.
+
 struct LoginView: View {
     
-    // MARK: - ViewModel
-    // Usamos @StateObject porque esta vista "posee" a su ViewModel.
-    // El ViewModel será la única fuente de verdad para esta pantalla.
-    @StateObject private var viewModel: LoginViewModel
+    @State private var viewModel: LoginViewModel
     @State private var showRegister = false
     
-    // MARK: - Inicializador
-    // Inyectamos las dependencias que necesita el ViewModel para funcionar.
     init() {
-        // Creamos el ViewModel pasandole el caso de uso con inyección directa.
         let loginRepository = DefaultLoginRepository()
         let loginUseCase = LoginUseCase(loginRepository: loginRepository)
         
-        self._viewModel = StateObject(wrappedValue: LoginViewModel(
+        self._viewModel = State(wrappedValue: LoginViewModel(
             loginUseCase: loginUseCase
         ))
     }
@@ -26,8 +19,16 @@ struct LoginView: View {
     var body: some View {
         ZStack {
             // Fondo decorativo.
-            LinearGradient(colors: [.blue.opacity(0.8), .purple.opacity(1.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                .ignoresSafeArea()
+            LinearGradient(
+                stops: [
+                    Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
+                    Gradient.Stop(color: Color(red: 0.31, green: 0.27, blue: 0.58), location: 0.40),
+                    Gradient.Stop(color: Color(red: 0.45, green: 0.22, blue: 0.57), location: 1.00),
+                ],
+                startPoint: UnitPoint(x: 0.02, y: 0),
+                endPoint: UnitPoint(x: 1, y: 1)
+            )
+            .ignoresSafeArea()
             
             VStack(spacing: 32) {
                 // Cabecera con el logo y nombre
@@ -194,6 +195,21 @@ struct CustomTextFieldStyle: TextFieldStyle {
             .background(Color.white.opacity(0.9))
             .cornerRadius(15)
             .font(.body)
+    }
+}
+
+// MARK: - Extensions
+
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        alignment: Alignment = .leading,
+        @ViewBuilder placeholder: () -> Content) -> some View {
+
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
     }
 }
 

@@ -3,11 +3,11 @@ import Foundation
 final class DefaultAttendanceRepository: AttendanceRepositoryProtocol {
     
     private let networkAttendance: NetworkAttendanceProtocol
-    private let keychain: kcPersistenceKeyChain
+    private let keychain: KeyChainEventify
     
     init(
         networkAttendance: NetworkAttendanceProtocol = NetworkAttendance(),
-        keychain: kcPersistenceKeyChain = .shared
+        keychain: KeyChainEventify = .shared
     ) {
         self.networkAttendance = networkAttendance
         self.keychain = keychain
