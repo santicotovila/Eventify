@@ -14,13 +14,14 @@ import Fluent
 struct EventAttendeesController: RouteCollection, Sendable {
     func boot(routes: any RoutesBuilder) throws {
         let rsvp = routes.grouped("rsvp")
-        rsvp.post(use: createWithUserID) // versión simple (body trae userID)
+        rsvp.post(use: createWithUserID) // pública (body trae userID)
 
-        // Con JWT: /events/:eventID/rsvp
-        routes.group(":eventID") { e in
-            e.post("rsvp", use: createFromJWT)
-            e.put("rsvp", use: updateFromJWT)
-        }
+        // Protegidas con JWT: /:eventID/rsvp
+        routes.grouped(JWTUserAuthenticator(), Users.guardMiddleware())
+            .group(":eventID") { e in
+                e.post("rsvp", use: createFromJWT)
+                e.put("rsvp", use: updateFromJWT)
+            }
     }
 
     // POST /rsvp  (con userID en el body)

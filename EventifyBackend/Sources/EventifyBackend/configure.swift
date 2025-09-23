@@ -53,6 +53,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateInterests())
     app.migrations.add(CreateUserInterests())
     app.migrations.add(CreateEventAttendees())
+    app.migrations.add(PopulateData())
     
     
     // En production deberíamos quitarlo
