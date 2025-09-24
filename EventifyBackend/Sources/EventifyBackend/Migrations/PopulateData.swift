@@ -15,7 +15,6 @@ struct PopulateData: AsyncMigration {
     
     
     func prepare(on database: any Database) async throws {
-        // MARK: - Heroes
         let nameInterests = ["Deportes",
                              "Juegos",
                              "Ferias",

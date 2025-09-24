@@ -15,7 +15,7 @@ struct InterestDTO {
         }
     }
 
-    // Si usas PATCH, mejor opcional
+
     struct Update: Content, Validatable {
         let name: String?
         static func validations(_ v: inout Validations) {

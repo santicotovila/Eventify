@@ -56,7 +56,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(PopulateData())
     
     
-    // En production deberíamos quitarlo
+    
     try await app.autoMigrate()
 
     // register routes

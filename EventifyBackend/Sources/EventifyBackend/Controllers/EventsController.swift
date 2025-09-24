@@ -13,7 +13,7 @@ struct EventsController: RouteCollection, Sendable {
     func boot(routes: any RoutesBuilder) throws {
         let events = routes.grouped("events")
         events.get(use: list)
-        events.post(use: create) // puedes proteger con auth si quieres
+        events.post(use: create) 
         events.group(":eventID") { e in
             e.get(use: detail)
             e.patch(use: update)
@@ -36,7 +36,7 @@ struct EventsController: RouteCollection, Sendable {
         try EventsDTO.Create.validate(content: req)
         let dto = try req.content.decode(EventsDTO.Create.self)
 
-        // Coherencia lat/lng juntos
+        
         if (dto.lat == nil) != (dto.lng == nil) {
             throw Abort(.badRequest, reason: "lat y lng deben venir juntos")
         }
