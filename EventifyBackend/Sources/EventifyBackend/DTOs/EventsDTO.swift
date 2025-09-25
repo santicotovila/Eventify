@@ -15,6 +15,8 @@ struct EventsDTO: Content {
         let name: String
         let category: String
         let userID: UUID
+        let eventDate: Date?
+        let location: String
         let lat: Double?
         let lng: Double?
 
@@ -24,7 +26,10 @@ struct EventsDTO: Content {
                 category: category,
                 userID: userID,
                 lat: lat,
-                lng: lng
+                lng: lng,
+                eventDate: eventDate,
+                location: location
+                
             )
         }
     }
@@ -32,8 +37,10 @@ struct EventsDTO: Content {
     struct Update: Content {
         let name: String?
         let category: String?
+        let eventDate: Date?
         let lat: Double?
         let lng: Double?
+        let location: String?
     }
 
     struct Public: Content {
@@ -45,6 +52,8 @@ struct EventsDTO: Content {
         let userID: UUID
         let createdAt: Date?
         let updatedAt: Date?
+        let eventDate: Date?
+        let location: String?
     }
 
 
@@ -66,6 +75,7 @@ extension EventsDTO.Update: Validatable {
         v.add("category", as: String?.self, is: .nil || .count(1...))
         v.add("lat", as: Double?.self, is: .nil || .range(-90...90))
         v.add("lng", as: Double?.self, is: .nil || .range(-180...180))
+        
     }
 }
 
@@ -79,7 +89,9 @@ extension Events {
             lng: lng,
             userID: $user.id,
             createdAt: createdAt,
-            updatedAt: updatedAt
+            updatedAt: updatedAt,
+            eventDate: eventDate,
+            location: location
         )
     }
 }

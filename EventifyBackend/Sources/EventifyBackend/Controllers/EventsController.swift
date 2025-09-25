@@ -13,7 +13,7 @@ struct EventsController: RouteCollection, Sendable {
     func boot(routes: any RoutesBuilder) throws {
         let events = routes.grouped("events")
         events.get(use: list)
-        events.post(use: create) // puedes proteger con auth si quieres
+        events.post(use: create) 
         events.group(":eventID") { e in
             e.get(use: detail)
             e.patch(use: update)
@@ -36,7 +36,7 @@ struct EventsController: RouteCollection, Sendable {
         try EventsDTO.Create.validate(content: req)
         let dto = try req.content.decode(EventsDTO.Create.self)
 
-        // Coherencia lat/lng juntos
+        
         if (dto.lat == nil) != (dto.lng == nil) {
             throw Abort(.badRequest, reason: "lat y lng deben venir juntos")
         }
@@ -46,23 +46,11 @@ struct EventsController: RouteCollection, Sendable {
         return try model.toPublicDTO()
     }
 
-    struct EventUpdateDTO: Content, Validatable {
-        let name: String?
-        let category: String?
-        let lat: Double?
-        let lng: Double?
-
-        static func validations(_ v: inout Validations) {
-            v.add("name", as: String?.self, is: .nil || .count(1...))
-            v.add("category", as: String?.self, is: .nil || .count(1...))
-            v.add("lat", as: Double?.self, is: .nil || .range(-90...90))
-            v.add("lng", as: Double?.self, is: .nil || .range(-180...180))
-        }
-    }
+ 
 
     func update(_ req: Request) async throws -> EventsDTO.Public {
-        try EventUpdateDTO.validate(content: req)
-        let dto = try req.content.decode(EventUpdateDTO.self)
+        try EventsDTO.Update.validate(content: req)
+        let dto = try req.content.decode(EventsDTO.Update.self)
         let event = try await find(req)
 
         if let name = dto.name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty {

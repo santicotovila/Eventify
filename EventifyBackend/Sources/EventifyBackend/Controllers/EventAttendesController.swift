@@ -5,7 +5,6 @@
 //  Created by Santiago Coto Vila on 22/9/25.
 //
 
-
 import Vapor
 import Fluent
 
@@ -16,7 +15,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
         let rsvp = routes.grouped("rsvp")
         rsvp.post(use: createWithUserID) // pública (body trae userID)
 
-        // Protegidas con JWT: /:eventID/rsvp
+        // Protegidas con JWT /:eventID/rsvp
         routes.grouped(JWTUserAuthenticator(), Users.guardMiddleware())
             .group(":eventID") { e in
                 e.post("rsvp", use: createFromJWT)
@@ -35,7 +34,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
         guard try await Users.find(dto.userID, on: req.db) != nil
         else { throw Abort(.notFound, reason: "Usuario no existe") }
 
-        // Unicidad por (event, user): si existe, actualizamos; si no, creamos
+        // Unicidad por (event y user), si existe,actualizamos sino creamos.
         if let existing = try await EventAttendee.query(on: req.db)
             .filter(\.$event.$id == dto.eventID)
             .filter(\.$user.$id == dto.userID)
@@ -51,35 +50,23 @@ struct EventAttendeesController: RouteCollection, Sendable {
         return try record.toPublicDTO()
     }
 
-    // POST /events/:eventID/rsvp (JWT)
     func createFromJWT(_ req: Request) async throws -> EventAttendeesDTO.Public {
         try EventAttendeesDTO.CreateFromJWT.validate(content: req)
         let dto = try req.content.decode(EventAttendeesDTO.CreateFromJWT.self)
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
 
-        // Sanidad: eventID en URL y en body deben coincidir si das ambos
+       
         if let urlID = req.parameters.get("eventID", as: UUID.self), urlID != dto.eventID {
             throw Abort(.badRequest, reason: "eventID URL != body")
         }
 
-        // Upsert por unicidad (event,user)
-        if let existing = try await EventAttendee.query(on: req.db)
-            .filter(\.$event.$id == dto.eventID)
-            .filter(\.$user.$id == userID)
-            .first()
-        {
-            existing.status = dto.status.rawValue
-            try await existing.save(on: req.db)
-            return try existing.toPublicDTO()
-        }
 
         let record = EventAttendee(eventID: dto.eventID, userID: userID, status: dto.status)
         try await record.create(on: req.db)
         return try record.toPublicDTO()
     }
 
-    // PUT /events/:eventID/rsvp (JWT) - solo cambia estado
     func updateFromJWT(_ req: Request) async throws -> EventAttendeesDTO.Public {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
