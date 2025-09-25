@@ -29,11 +29,11 @@ final class Events: Model, @unchecked Sendable {
     @Parent(key: ConstantsEvents.userID)
     var user: Users
     
-    @Field(key: ConstantsEvents.dateEvent)
-    var dateEvent: Date?
+    @Field(key: ConstantsEvents.eventDate)
+    var eventDate: Date?
     
-    @Field(key: ConstantsEvents.locationName)
-    var locationName: String?
+    @Field(key: ConstantsEvents.location)
+    var location: String?
     
     @Timestamp(key: ConstantsEvents.createdAt, on: .create)
     var createdAt: Date?
@@ -44,12 +44,12 @@ final class Events: Model, @unchecked Sendable {
     init() {}
     
     
-    init(name:String, category:String,userID:UUID,lat:Double? = nil ,lng:Double? = nil, dateEvent: Date? = nil, locationName: String? = nil) {
+    init(name:String, category:String,userID:UUID,lat:Double? = nil ,lng:Double? = nil, eventDate: Date? = nil, location: String? = nil) {
         self.name = name
         self.category = category
         self.$user.id = userID
-        self.dateEvent = dateEvent
-        self.locationName = locationName
+        self.eventDate = eventDate
+        self.location = location
         self.lat = lat
         self.lng = lng
     }

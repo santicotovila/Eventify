@@ -15,8 +15,8 @@ struct EventsDTO: Content {
         let name: String
         let category: String
         let userID: UUID
-        let dateEvent: Date?
-        let locationName: String
+        let eventDate: Date?
+        let location: String
         let lat: Double?
         let lng: Double?
 
@@ -27,8 +27,8 @@ struct EventsDTO: Content {
                 userID: userID,
                 lat: lat,
                 lng: lng,
-                dateEvent: dateEvent,
-                locationName: locationName
+                eventDate: eventDate,
+                location: location
                 
             )
         }
@@ -37,10 +37,10 @@ struct EventsDTO: Content {
     struct Update: Content {
         let name: String?
         let category: String?
-        let dateEvent: Date?
+        let eventDate: Date?
         let lat: Double?
         let lng: Double?
-        let locationName: String?
+        let location: String?
     }
 
     struct Public: Content {
@@ -52,8 +52,8 @@ struct EventsDTO: Content {
         let userID: UUID
         let createdAt: Date?
         let updatedAt: Date?
-        let dateEvent: Date?
-        let locationName: String?
+        let eventDate: Date?
+        let location: String?
     }
 
 
@@ -90,8 +90,8 @@ extension Events {
             userID: $user.id,
             createdAt: createdAt,
             updatedAt: updatedAt,
-            dateEvent: dateEvent,
-            locationName: locationName
+            eventDate: eventDate,
+            location: location
         )
     }
 }
