@@ -18,7 +18,9 @@ struct CreateEvents: AsyncMigration {
             .field(ConstantsEvents.createdAt,.date)
             .field(ConstantsEvents.userID, .uuid, .required, .references(ConstantsUsers.schemaUsers, .id))
             .field(ConstantsEvents.updatedAt,.date)
+            .field(ConstantsEvents.dateEvent, .date)
             .field(ConstantsEvents.category, .string, .required)
+            .field(ConstantsEvents.locationName, .string)
             .create()
     }
 

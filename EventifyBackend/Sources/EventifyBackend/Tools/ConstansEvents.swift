@@ -15,6 +15,8 @@ struct ConstantsEvents {
     static let category: FieldKey = "category"
     static let createdAt: FieldKey = "created_at"
     static let updatedAt: FieldKey = "updated_at"
+    static let dateEvent: FieldKey = "dateEvent"
     static let lat: FieldKey = "lat"
     static let lng: FieldKey = "lng"
+    static let locationName: FieldKey = "locationName"
 }

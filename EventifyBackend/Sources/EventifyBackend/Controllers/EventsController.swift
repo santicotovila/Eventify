@@ -46,23 +46,11 @@ struct EventsController: RouteCollection, Sendable {
         return try model.toPublicDTO()
     }
 
-    struct EventUpdateDTO: Content, Validatable {
-        let name: String?
-        let category: String?
-        let lat: Double?
-        let lng: Double?
-
-        static func validations(_ v: inout Validations) {
-            v.add("name", as: String?.self, is: .nil || .count(1...))
-            v.add("category", as: String?.self, is: .nil || .count(1...))
-            v.add("lat", as: Double?.self, is: .nil || .range(-90...90))
-            v.add("lng", as: Double?.self, is: .nil || .range(-180...180))
-        }
-    }
+ 
 
     func update(_ req: Request) async throws -> EventsDTO.Public {
-        try EventUpdateDTO.validate(content: req)
-        let dto = try req.content.decode(EventUpdateDTO.self)
+        try EventsDTO.Update.validate(content: req)
+        let dto = try req.content.decode(EventsDTO.Update.self)
         let event = try await find(req)
 
         if let name = dto.name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty {
