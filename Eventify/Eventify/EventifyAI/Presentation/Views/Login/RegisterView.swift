@@ -182,7 +182,11 @@ struct RegisterView: View {
             }
         }
         .fullScreenCover(isPresented: $showContinueRegistration) {
-            ContinueRegistrationView()
+            ContinueRegistrationView(
+                userName: username,
+                email: email,
+                password: password
+            )
         }
     }
     

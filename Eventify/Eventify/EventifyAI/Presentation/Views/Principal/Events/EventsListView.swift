@@ -1,7 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct EventsListView: View {
     @Environment(AppStateVM.self) var appState
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @State var viewModel: EventsViewModel
     
     init(viewModel: EventsViewModel = EventsViewModel()) {
@@ -9,8 +12,7 @@ struct EventsListView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack {
+        ZStack {
                 
                 LinearGradient(
                     stops: [
@@ -32,33 +34,6 @@ struct EventsListView: View {
                             .foregroundColor(.white)
                         
                         Spacer()
-                        
-                       
-                        NavigationLink {
-                            CreateEventView {
-                                Task {
-                                    await viewModel.getEvents()
-                                }
-                            }
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 14, weight: .semibold))
-                                Text("Crea tu evento")
-                                    .font(.system(size: 14, weight: .semibold))
-                            }
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.white.opacity(0.2))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                    )
-                            )
-                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
@@ -115,26 +90,13 @@ struct EventsListView: View {
                     }
                 }
             }
-            .searchable(text: $viewModel.filterUI, prompt: "Buscar eventos por título")
-            .onChange(of: viewModel.filterUI) { oldValue, newValue in
-                if !newValue.isEmpty {
-                    if newValue.count > 2 {
-                        Task {
-                            await viewModel.getEvents(newSearch: newValue)
-                        }
-                    }
-                } else {
-                    Task {
-                        await viewModel.getEvents(newSearch: "")
-                    }
-                }
-            }
-            .task {
-                await viewModel.getEvents()
+            .onAppear {
+                // Inyectar modelContext al ViewModel
+                viewModel.setModelContext(modelContext)
             }
         }
     }
-}
+
 
 #Preview {
     let loginRepository = DefaultLoginRepository()

@@ -1,8 +1,8 @@
 import Foundation
 import SwiftData
 
-/// SwiftData model para persistencia local de eventos
-/// Actúa como caché local manteniendo la arquitectura Clean
+// SwiftData model para persistencia local de eventos
+// Actúa como caché local manteniendo la arquitectura Clean
 @Model
 final class EventDataModel {
     

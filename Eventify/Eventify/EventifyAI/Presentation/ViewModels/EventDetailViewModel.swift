@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 @MainActor
 @Observable
@@ -10,11 +11,17 @@ final class EventDetailViewModel {
     
     private let eventId: String
     @ObservationIgnored
-    private let eventsUseCase: EventsUseCaseProtocol
+    private var eventsUseCase: EventsUseCaseProtocol
     
     init(eventId: String, eventsUseCase: EventsUseCaseProtocol = EventsUseCase()) {
         self.eventId = eventId
         self.eventsUseCase = eventsUseCase
+    }
+    
+    // Método para inyectar modelContext después de init
+    func setModelContext(_ modelContext: ModelContext) {
+        // Recrear UseCase con contexto
+        self.eventsUseCase = EventsUseCase(modelContext: modelContext)
     }
     
     func loadEventDetail() async {
@@ -43,5 +50,24 @@ final class EventDetailViewModel {
         }
         
         isLoading = false
+    }
+    
+    func deleteEvent() async -> Bool {
+        guard let event = event else { return false }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        let success = await eventsUseCase.deleteEvent(event.id)
+        
+        if success {
+            print("Evento eliminado: \(event.title)")
+        } else {
+            errorMessage = "No se pudo eliminar el evento"
+            print("Error al eliminar evento: \(event.title)")
+        }
+        
+        isLoading = false
+        return success
     }
 }

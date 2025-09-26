@@ -1,10 +1,12 @@
 import SwiftUI
+import SwiftData
 
 // Pantalla que muestra el detalle completo de un evento y permite votar
 struct EventDetailView: View {
     
     @State private var viewModel: EventDetailViewModel
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var modelContext
     
     init(eventId: String) {
         self._viewModel = State(wrappedValue: EventDetailViewModel(eventId: eventId))
@@ -82,6 +84,61 @@ struct EventDetailView: View {
                             }
                         }
                         .padding(.horizontal)
+                        
+                        // Botón de eliminar evento
+                        if let event = viewModel.event {
+                            VStack(spacing: 16) {
+                                Button(action: {
+                                    Task {
+                                        let deleted = await viewModel.deleteEvent()
+                                        if deleted {
+                                            dismiss()
+                                        }
+                                    }
+                                }) {
+                                    HStack(spacing: 12) {
+                                        if viewModel.isLoading {
+                                            ProgressView()
+                                                .scaleEffect(0.9)
+                                                .tint(.white)
+                                        } else {
+                                            Image(systemName: "trash")
+                                                .font(.system(size: 18, weight: .semibold))
+                                        }
+                                        
+                                        Text(viewModel.isLoading ? "Eliminando..." : "Eliminar evento")
+                                            .font(.system(size: 17, weight: .semibold))
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 56)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 28)
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color.red.opacity(0.8),
+                                                        Color.red.opacity(0.6)
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 28)
+                                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                            )
+                                    )
+                                    .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                }
+                                .disabled(viewModel.isLoading)
+                                .opacity(viewModel.isLoading ? 0.6 : 1.0)
+                                .scaleEffect(viewModel.isLoading ? 0.98 : 1.0)
+                                .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
+                            }
+                            .padding(.horizontal, 24)
+                            .padding(.top, 32)
+                        }
                     }
                     .padding(.bottom, 20)
                 }
@@ -120,6 +177,26 @@ struct EventDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Inicio")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+        .onAppear {
+            // Inyectar modelContext al ViewModel
+            viewModel.setModelContext(modelContext)
+        }
         .task {
             await viewModel.loadEventDetail()
         }

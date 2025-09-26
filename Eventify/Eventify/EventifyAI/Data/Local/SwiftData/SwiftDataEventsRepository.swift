@@ -42,4 +42,23 @@ final class SwiftDataEventsRepository: EventsRepositoryProtocol {
             return []
         }
     }
+    
+    func deleteEvent(_ eventId: String) async -> Bool {
+        do {
+            let descriptor = FetchDescriptor<EventDataModel>(
+                predicate: #Predicate { $0.id == eventId }
+            )
+            let events = try modelContext.fetch(descriptor)
+            
+            if let eventToDelete = events.first {
+                modelContext.delete(eventToDelete)
+                try modelContext.save()
+                return true
+            }
+            
+            return false
+        } catch {
+            return false
+        }
+    }
 }

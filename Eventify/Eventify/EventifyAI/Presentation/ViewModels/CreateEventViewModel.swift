@@ -1,5 +1,5 @@
 import Foundation
-
+import SwiftData
 
 @Observable
 final class CreateEventViewModel {
@@ -17,10 +17,16 @@ final class CreateEventViewModel {
     }
     
     @ObservationIgnored
-    private let eventsUseCase: EventsUseCaseProtocol
+    private var eventsUseCase: EventsUseCaseProtocol
     
     init(eventsUseCase: EventsUseCaseProtocol = EventsUseCase()) {
         self.eventsUseCase = eventsUseCase
+    }
+    
+    // Método para inyectar modelContext después de init
+    func setModelContext(_ modelContext: ModelContext) {
+        // Recrear UseCase con contexto
+        self.eventsUseCase = EventsUseCase(modelContext: modelContext)
     }
     @MainActor
     func createEvent() async {
@@ -39,6 +45,8 @@ final class CreateEventViewModel {
         let success = await eventsUseCase.createEvent(newEvent)
         if success {
             isEventCreated = true
+            // Notificar que se creó un evento para actualizar listas
+            NotificationCenter.default.postEventWasCreated(event: newEvent)
         } else {
             errorMessage = "Error al crear el evento"
         }

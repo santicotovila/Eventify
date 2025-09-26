@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftData
 
 struct CreateEventView: View {
     
     @State private var viewModel: CreateEventViewModel
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var modelContext
     
     let onEventCreated: (() -> Void)?
     
@@ -13,8 +15,7 @@ struct CreateEventView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack {
+        ZStack {
                 // Fondo púrpura como en las imágenes
                 LinearGradient(
                     stops: [
@@ -242,26 +243,19 @@ struct CreateEventView: View {
                     .padding(.bottom, 40)
                 }
             }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancelar") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
-                }
-            }
             .onChange(of: viewModel.isEventCreated) { _, created in
                 if created {
                     onEventCreated?()
                     dismiss()
                 }
             }
+            .onAppear {
+                // Inyectar modelContext al ViewModel
+                viewModel.setModelContext(modelContext)
+            }
         }
     }
-}
+
 
 // Vista auxiliar para los campos del formulario con estilo de los mocks
 struct CreateEventField: View {
