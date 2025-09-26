@@ -1,3 +1,10 @@
+//
+//  Codable+Dictionary.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 15/9/25.
+//
+
 import Foundation
 
 /// Extensiones para convertir entre Codable y Dictionary para APIs JSON
