@@ -50,8 +50,3 @@ extension EventAttendeesDTO.CreateFromJWT: Validatable {
         v.add("eventID", as: UUID.self, required: true)
     }
 }
-extension EventAttendeesDTO.Update: Validatable {
-    static func validations(_ v: inout Validations) {
-        // valida el enum directamernte
-    }
-}
