@@ -9,6 +9,7 @@ struct AuthController: RouteCollection {
             builder.post("register", use: register)
             builder.group(Users.authenticator(),Users.guardMiddleware()) { builder in
                 builder.post("login",use: login)
+                
             }
         }
     }
@@ -77,6 +78,7 @@ extension AuthController {
             withRequest: req
         )
     }
+    
     
     private func generateJWTTokens(
         for username: String,

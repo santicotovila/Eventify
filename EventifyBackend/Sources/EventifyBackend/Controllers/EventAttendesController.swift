@@ -20,6 +20,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
             .group(":eventID") { e in
                 e.post("rsvp", use: createFromJWT)
                 e.put("rsvp", use: updateFromJWT)
+                e.delete("rsvp", use: deleteFromJWT)
             }
     }
 
@@ -71,7 +72,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
 
-        try EventAttendeesDTO.Update.validate(content: req)
+       // try EventAttendeesDTO.Update.validate(content: req)
         let dto = try req.content.decode(EventAttendeesDTO.Update.self)
 
         guard let eventID = req.parameters.get("eventID", as: UUID.self)
@@ -89,6 +90,28 @@ struct EventAttendeesController: RouteCollection, Sendable {
         try await existing.save(on: req.db)
         return try existing.toPublicDTO()
     }
+    
+    func deleteFromJWT(_ req: Request) async throws -> HTTPStatus {
+        let user = try req.auth.require(Users.self)
+        let userID = try user.requireID()
+
+        guard let eventID = req.parameters.get("eventID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Falta eventID en URL")
+        }
+
+        guard let existing = try await EventAttendee.query(on: req.db)
+            .filter(\.$event.$id == eventID)
+            .filter(\.$user.$id == userID)
+            .first()
+        else {
+            
+            throw Abort(.notFound, reason: "No tenías RSVP para este evento")
+        }
+
+        try await existing.delete(on: req.db)
+        return .noContent
+    }
+
 }
 
 // MARK: - Mapper a DTO

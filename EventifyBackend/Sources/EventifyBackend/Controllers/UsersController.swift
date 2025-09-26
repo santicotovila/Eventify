@@ -12,7 +12,11 @@ struct UsersController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let users = routes.grouped("users")
         users.get(use: index)
-        users.get(":userID", use: show)
+
+        users.group(":userID") { u in
+            u.get(use: show)
+            u.delete(use: delete)
+        }
     }
 
     
@@ -27,4 +31,14 @@ struct UsersController: RouteCollection {
         else { throw Abort(.notFound) }
         return try user.toPublicDTO()
     }
+    
+    
+    
+    func delete(_ req: Request) async throws -> HTTPStatus {
+        guard let user = try await Users.find(req.parameters.get("userID"), on: req.db)
+        else { throw Abort(.notFound)}
+         try await user.delete(on: req.db)
+         return .noContent
+     }
+    
 }
