@@ -17,6 +17,7 @@ struct EventsController: RouteCollection, Sendable {
         events.group(":eventID") { e in
             e.get(use: detail)
             e.patch(use: update)
+            e.delete(use: delete)
         }
     }
 
@@ -78,5 +79,11 @@ struct EventsController: RouteCollection, Sendable {
         }
         return event
     }
+    
+    func delete(_ req: Request) async throws -> HTTPStatus {
+        let event = try await find(req)
+        try await event.delete(on: req.db)
+        return .noContent }
+
 }
 
