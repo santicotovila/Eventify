@@ -17,6 +17,7 @@ struct RootView: View {
                     .environment(appStateVM)
             } else {
                 LoginView()
+                    .environment(appStateVM)
             }
         }
         .onAppear {

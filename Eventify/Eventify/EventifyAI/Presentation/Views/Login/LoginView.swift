@@ -12,6 +12,7 @@ struct LoginView: View {
     
     @State private var viewModel: LoginViewModel
     @State private var showRegister = false
+    @Environment(AppStateVM.self) var appState: AppStateVM
     
     init() {
         let loginRepository = DefaultLoginRepository()
@@ -172,6 +173,7 @@ struct LoginView: View {
         }
         .fullScreenCover(isPresented: $showRegister) {
             RegisterView()
+                .environment(appState)
         }
     }
 }

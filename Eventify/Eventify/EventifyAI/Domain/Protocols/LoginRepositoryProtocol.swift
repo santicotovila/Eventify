@@ -15,4 +15,5 @@ protocol LoginRepositoryProtocol {
     func refreshToken() async throws -> String
     func isUserAuthenticated() -> Bool
     func getUserToken() -> String?
+    func saveUser(_ user: UserModel) throws
 }

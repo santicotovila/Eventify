@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RegisterView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppStateVM.self) var appState: AppStateVM
     @State private var username = ""
     @State private var email = ""
     @State private var password = ""
@@ -111,9 +112,11 @@ struct RegisterView: View {
                     .background(Color.white.opacity(0.9))
                     .cornerRadius(15)
                     
-                    // Texto de campos obligatorios
-                    HStack {
-                        Spacer()
+                    // Texto de campos obligatorios y requisitos
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("* Contraseña mínimo 8 caracteres")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.8))
                         Text("* Campos Obligatorios")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.8))
@@ -185,7 +188,8 @@ struct RegisterView: View {
             ContinueRegistrationView(
                 userName: username,
                 email: email,
-                password: password
+                password: password,
+                loginUseCase: appState.loginUseCase
             )
         }
     }
@@ -196,6 +200,7 @@ struct RegisterView: View {
         !password.isEmpty && 
         !confirmPassword.isEmpty &&
         password == confirmPassword &&
+        password.count >= 8 &&
         email.contains("@")
     }
 }

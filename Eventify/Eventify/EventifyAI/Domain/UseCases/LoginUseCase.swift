@@ -14,6 +14,7 @@ protocol LoginUseCaseProtocol {
     func getCurrentUser() -> UserModel?
     func isUserAuthenticated() -> Bool
     func refreshToken() async throws -> String
+    func saveUser(_ user: UserModel) throws
 }
 
 // Contiene la lógica de negocio pura para la autenticación.
@@ -131,6 +132,10 @@ final class LoginUseCase: LoginUseCaseProtocol {
     private func isStrongPassword(_ password: String) -> Bool {
         // En una app real, aquí habría una lógica más compleja (mayúsculas, números, etc.)
         return password.count >= ConstantsApp.Validation.minPasswordLength
+    }
+    
+    func saveUser(_ user: UserModel) throws {
+        try loginRepository.saveUser(user)
     }
 }
 

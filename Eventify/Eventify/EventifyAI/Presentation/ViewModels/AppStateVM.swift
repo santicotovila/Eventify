@@ -20,7 +20,7 @@ final class AppStateVM {
     var isLoading: Bool = false
     
     @ObservationIgnored
-    private let loginUseCase: LoginUseCaseProtocol
+    let loginUseCase: LoginUseCaseProtocol
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     

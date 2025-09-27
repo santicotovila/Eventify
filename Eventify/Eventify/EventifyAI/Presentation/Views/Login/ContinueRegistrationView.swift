@@ -8,18 +8,19 @@ struct ContinueRegistrationView: View {
     // Datos del registro anterior
     private let userEmail: String
     private let userPassword: String
+    private let loginUseCase: LoginUseCaseProtocol
     
-    init(userName: String = "", email: String = "", password: String = "") {
+    init(userName: String = "", email: String = "", password: String = "", loginUseCase: LoginUseCaseProtocol) {
         _firstName = State(initialValue: userName)
         self.userEmail = email
         self.userPassword = password
+        self.loginUseCase = loginUseCase
     }
     @State private var birthDate = Date()
     @State private var location = ""
     @State private var selectedPreferences: Set<InterestModel> = []
     @State private var availableInterests: [InterestModel] = []
     @State private var showDatePicker = false
-    @State private var showHomeView = false
     @State private var isLoadingInterests = false
     @State private var isRegistering = false
     @State private var errorMessage: String?
@@ -255,9 +256,6 @@ struct ContinueRegistrationView: View {
                 .padding()
             }
         }
-        .fullScreenCover(isPresented: $showHomeView) {
-            HomeView()
-        }
         .onAppear {
             loadInterests()
         }
@@ -315,10 +313,17 @@ struct ContinueRegistrationView: View {
             )
             
             await MainActor.run {
-                print("Registro exitoso - Access Token: \(response.accessToken)")
+                let user = UserModel(
+                    id: UUID().uuidString,
+                    email: email,
+                    displayName: fullName
+                )
+                
+                try? self.loginUseCase.saveUser(user)
+                NotificationCenter.default.post(name: .userDidSignIn, object: user)
                 
                 self.isRegistering = false
-                self.showHomeView = true
+                self.dismiss()
             }
             
         } catch {
@@ -340,5 +345,7 @@ extension DateFormatter {
 }
 
 #Preview {
-    ContinueRegistrationView(userName: "Usuario de prueba")
+    let loginRepository = DefaultLoginRepository()
+    let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+    return ContinueRegistrationView(userName: "Usuario de prueba", loginUseCase: loginUseCase)
 }
