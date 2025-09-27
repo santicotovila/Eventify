@@ -13,6 +13,8 @@ enum NetworkError: LocalizedError {
     case requestFailed(HttpResponseCodes)
     case noInternetConnection
     case unauthorized
+    case conflict
+    case internalServerError
     case unknown(Error)
     
     var errorDescription: String? {
@@ -27,6 +29,10 @@ enum NetworkError: LocalizedError {
             return "Sin conexión a internet"
         case .unauthorized:
             return "No autorizado"
+        case .conflict:
+            return "Conflicto en el servidor"
+        case .internalServerError:
+            return "Error interno del servidor"
         case .unknown:
             return "Error de red"
         }
@@ -37,6 +43,7 @@ enum AuthError: LocalizedError {
     case invalidCredentials
     case emailAlreadyInUse
     case weakPassword
+    case networkError(NetworkError)
     case unknown(Error)
     
     var errorDescription: String? {
@@ -47,6 +54,8 @@ enum AuthError: LocalizedError {
             return "Email ya registrado"
         case .weakPassword:
             return "Contraseña debe tener al menos 6 caracteres"
+        case .networkError(let networkError):
+            return networkError.localizedDescription
         case .unknown:
             return "Error de autenticación"
         }

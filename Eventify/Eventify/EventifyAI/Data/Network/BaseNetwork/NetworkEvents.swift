@@ -22,20 +22,24 @@ final class NetworkEvents: NetworkEventsProtocol {
     private struct BackendEventResponse: Codable {
         let id: UUID
         let name: String
-        let category: UUID
+        let category: String
+        let lat: Double?
+        let lng: Double?
         let userID: UUID
-        let lat: Double
-        let lng: Double
-        let createdAt: String
-        let updatedAt: String
+        let createdAt: Date?
+        let updatedAt: Date?
+        let eventDate: Date?
+        let location: String?
     }
     
     private struct BackendEventRequest: Codable {
         let name: String
-        let category: UUID
+        let category: String
         let userID: UUID
-        let lat: Double
-        let lng: Double
+        let eventDate: Date?
+        let location: String
+        let lat: Double?
+        let lng: Double?
     }
     
     
@@ -72,12 +76,12 @@ final class NetworkEvents: NetworkEventsProtocol {
                     id: backendEvent.id.uuidString,
                     title: backendEvent.name,
                     description: "Descripción del evento",
-                    date: ISO8601DateFormatter().date(from: backendEvent.createdAt) ?? Date(),
-                    location: "Lat: \(backendEvent.lat), Lng: \(backendEvent.lng)",
+                    date: backendEvent.eventDate ?? backendEvent.createdAt ?? Date(),
+                    location: backendEvent.location ?? "Ubicación no especificada",
                     organizerId: backendEvent.userID.uuidString,
                     organizerName: "Usuario",
                     userID: backendEvent.userID.uuidString,
-                    category: backendEvent.category.uuidString,
+                    category: backendEvent.category,
                     lat: backendEvent.lat,
                     lng: backendEvent.lng
                 )
@@ -123,12 +127,12 @@ final class NetworkEvents: NetworkEventsProtocol {
                 id: backendEvent.id.uuidString,
                 title: backendEvent.name,
                 description: "Descripción del evento",
-                date: ISO8601DateFormatter().date(from: backendEvent.createdAt) ?? Date(),
-                location: "Lat: \(backendEvent.lat), Lng: \(backendEvent.lng)",
+                date: backendEvent.eventDate ?? backendEvent.createdAt ?? Date(),
+                location: backendEvent.location ?? "Ubicación no especificada",
                 organizerId: backendEvent.userID.uuidString,
                 organizerName: "Usuario",
                 userID: backendEvent.userID.uuidString,
-                category: backendEvent.category.uuidString,
+                category: backendEvent.category,
                 lat: backendEvent.lat,
                 lng: backendEvent.lng
             )
@@ -146,11 +150,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         
         // Validar que tenemos los campos requeridos
         guard let userID = event.userID,
-              let userUUID = UUID(uuidString: userID),
-              let category = event.category,
-              let categoryUUID = UUID(uuidString: category),
-              let lat = event.lat,
-              let lng = event.lng else {
+              let userUUID = UUID(uuidString: userID) else {
             throw NetworkError.requestFailed(.badRequest)
         }
         
@@ -160,10 +160,12 @@ final class NetworkEvents: NetworkEventsProtocol {
         
         let backendRequest = BackendEventRequest(
             name: event.name ?? event.title,
-            category: categoryUUID,
+            category: event.category ?? "general",
             userID: userUUID,
-            lat: lat,
-            lng: lng
+            eventDate: event.date,
+            location: event.location,
+            lat: event.lat,
+            lng: event.lng
         )
         
         do {
@@ -190,12 +192,12 @@ final class NetworkEvents: NetworkEventsProtocol {
                 id: backendEvent.id.uuidString,
                 title: backendEvent.name,
                 description: event.description,
-                date: ISO8601DateFormatter().date(from: backendEvent.createdAt) ?? Date(),
-                location: event.location,
+                date: backendEvent.eventDate ?? backendEvent.createdAt ?? Date(),
+                location: backendEvent.location ?? event.location,
                 organizerId: backendEvent.userID.uuidString,
                 organizerName: event.organizerName,
                 userID: backendEvent.userID.uuidString,
-                category: backendEvent.category.uuidString,
+                category: backendEvent.category,
                 lat: backendEvent.lat,
                 lng: backendEvent.lng
             )
@@ -214,11 +216,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         
         // Validar campos requeridos
         guard let userID = event.userID,
-              let userUUID = UUID(uuidString: userID),
-              let category = event.category,
-              let categoryUUID = UUID(uuidString: category),
-              let lat = event.lat,
-              let lng = event.lng else {
+              let userUUID = UUID(uuidString: userID) else {
             throw NetworkError.requestFailed(.badRequest)
         }
         
@@ -228,10 +226,12 @@ final class NetworkEvents: NetworkEventsProtocol {
         
         let backendRequest = BackendEventRequest(
             name: event.name ?? event.title,
-            category: categoryUUID,
+            category: event.category ?? "general",
             userID: userUUID,
-            lat: lat,
-            lng: lng
+            eventDate: event.date,
+            location: event.location,
+            lat: event.lat,
+            lng: event.lng
         )
         
         do {
@@ -258,12 +258,12 @@ final class NetworkEvents: NetworkEventsProtocol {
                 id: backendEvent.id.uuidString,
                 title: backendEvent.name,
                 description: event.description,
-                date: ISO8601DateFormatter().date(from: backendEvent.updatedAt) ?? Date(),
-                location: event.location,
+                date: backendEvent.eventDate ?? backendEvent.updatedAt ?? Date(),
+                location: backendEvent.location ?? event.location,
                 organizerId: backendEvent.userID.uuidString,
                 organizerName: event.organizerName,
                 userID: backendEvent.userID.uuidString,
-                category: backendEvent.category.uuidString,
+                category: backendEvent.category,
                 lat: backendEvent.lat,
                 lng: backendEvent.lng
             )
