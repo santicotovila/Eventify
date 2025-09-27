@@ -15,10 +15,6 @@ enum Endpoints {
     case updateEvent(eventId: String)
     case deleteEvent(eventId: String)
     
-    // MARK: - Attendance
-    case getAttendances(eventId: String)
-    case saveAttendance(eventId: String)
-    case updateAttendance(eventId: String, attendanceId: String)
     
     // MARK: - User Profile
     case getUserProfile(userId: String)
@@ -48,13 +44,6 @@ enum Endpoints {
         case .deleteEvent(let eventId):
             return "/events/\(eventId)"
             
-        // Attendance
-        case .getAttendances(let eventId):
-            return "/events/\(eventId)/attendances"
-        case .saveAttendance(let eventId):
-            return "/events/\(eventId)/attendances"
-        case .updateAttendance(let eventId, let attendanceId):
-            return "/events/\(eventId)/attendances/\(attendanceId)"
             
         // User Profile
         case .getUserProfile(let userId):
