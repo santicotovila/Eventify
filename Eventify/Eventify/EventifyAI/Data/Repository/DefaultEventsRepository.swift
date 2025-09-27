@@ -1,3 +1,10 @@
+//
+//  DefaultEventsRepository.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 15/9/25.
+//
+
 import Foundation
 
 final class EventsRepository: EventsRepositoryProtocol {

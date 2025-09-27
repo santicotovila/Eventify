@@ -166,7 +166,6 @@ struct CreateEventView: View {
                         }
                         .padding(.horizontal, 24)
                         
-                        // Botón de crear con estilo de los mocks
                         VStack(spacing: 16) {
                             Button(action: {
                                 Task {
@@ -215,7 +214,6 @@ struct CreateEventView: View {
                             
                             // Botón de invitar amigos (como en los mocks)
                             Button(action: {
-                                // TODO: Implementar invitar amigos
                             }) {
                                 HStack(spacing: 12) {
                                     Image(systemName: "person.2.fill")

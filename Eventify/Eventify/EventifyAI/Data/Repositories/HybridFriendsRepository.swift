@@ -82,7 +82,6 @@ final class HybridFriendsRepository {
         realFriends.append(user)
         print("Amigo añadido: \(user.name)")
         
-        // TODO: Guardar en SwiftData cuando esté implementado
         
         return true
     }
@@ -102,7 +101,6 @@ final class HybridFriendsRepository {
             let removedFriend = realFriends.remove(at: index)
             print("Amigo eliminado: \(removedFriend.name)")
             
-            // TODO: Eliminar de SwiftData cuando esté implementado
             
             return true
         }

@@ -17,7 +17,6 @@ final class MockEventRepository: EventRepositoryProtocol {
     var shouldThrowError = false
     var errorToThrow: Error = NetworkError.serverError(500)
     
-    // MARK: - EventRepositoryProtocol Implementation
     
     func createEvent(_ event: Event) async throws -> Event {
         createEventCalled = true

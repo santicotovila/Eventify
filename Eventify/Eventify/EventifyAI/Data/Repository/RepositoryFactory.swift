@@ -152,8 +152,15 @@ final class NetworkEventsRepository: EventsRepositoryProtocol {
     
     func getEvents(filter: String) async -> [EventModel] {
         do {
-            return try await networkEvents.getEvents(userId: "current-user")
+            // Obtener el userID real del usuario autenticado
+            guard let currentUser = KeyChainEventify.shared.getCurrentUser() else {
+                print("No hay usuario autenticado")
+                return []
+            }
+            
+            return try await networkEvents.getEvents(userId: currentUser.id)
         } catch {
+            print("Error al obtener eventos del backend: \(error)")
             return []
         }
     }

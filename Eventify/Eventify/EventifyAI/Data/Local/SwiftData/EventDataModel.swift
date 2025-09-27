@@ -69,7 +69,6 @@ final class EventDataModel {
     }
 }
 
-// MARK: - Domain Mapping
 
 extension EventDataModel {
     

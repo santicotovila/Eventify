@@ -1,6 +1,11 @@
-import Foundation
+//
+//  RegisterRequestModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 6/9/25.
+//
 
-// Modelo para enviar datos de registro al backend
+import Foundation
 struct RegisterRequestModel: Codable {
     let name: String
     let email: String

@@ -1,3 +1,10 @@
+//
+//  StatusModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 6/9/25.
+//
+
 import Foundation
 
 enum StatusModel {

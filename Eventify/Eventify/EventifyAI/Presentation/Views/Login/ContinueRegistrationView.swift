@@ -315,7 +315,6 @@ struct ContinueRegistrationView: View {
             )
             
             await MainActor.run {
-                // Guardar tokens (implementar KeyChain después)
                 print("Registro exitoso - Access Token: \(response.accessToken)")
                 
                 self.isRegistering = false

@@ -1,3 +1,10 @@
+//
+//  CreateEventViewModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 12/9/25.
+//
+
 import Foundation
 import SwiftData
 
@@ -25,7 +32,6 @@ final class CreateEventViewModel {
     
     // Método para inyectar modelContext después de init
     func setModelContext(_ modelContext: ModelContext) {
-        // Recrear UseCase con contexto
         self.eventsUseCase = EventsUseCase(modelContext: modelContext)
     }
     @MainActor
@@ -33,19 +39,34 @@ final class CreateEventViewModel {
         isLoading = true
         errorMessage = nil
         
+        // Obtener el usuario actual del keychain
+        guard let currentUser = KeyChainEventify.shared.getCurrentUser() else {
+            errorMessage = "No hay usuario autenticado"
+            isLoading = false
+            return
+        }
+        
+        // Usar una categoría real del backend (Aprendizaje)
+        let defaultCategoryId = "03E25929-9A94-42BC-AE1B-121948A74829" // Categoría "Aprendizaje" 
+        let defaultLatitude = 40.4168 // Madrid por defecto
+        let defaultLongitude = -3.7038 // Madrid por defecto
+        
         let newEvent = EventModel(
             title: eventTitle,
             description: eventDescription,
             date: eventDate,
             location: eventLocation,
-            organizerId: "user-1",
-            organizerName: "Usuario"
+            organizerId: currentUser.id,
+            organizerName: currentUser.displayName ?? "Usuario",
+            userID: currentUser.id,
+            category: defaultCategoryId,
+            lat: defaultLatitude,
+            lng: defaultLongitude
         )
         
         let success = await eventsUseCase.createEvent(newEvent)
         if success {
             isEventCreated = true
-            // Notificar que se creó un evento para actualizar listas
             NotificationCenter.default.postEventWasCreated(event: newEvent)
         } else {
             errorMessage = "Error al crear el evento"

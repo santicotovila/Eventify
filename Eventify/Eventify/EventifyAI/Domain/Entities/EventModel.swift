@@ -1,22 +1,30 @@
-import Foundation
+//
+//  EventModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 6/9/25.
+//
 
-// Esta clase representa un evento que alguien creó
-// Tiene toda la info del evento como título, fecha, lugar, etc.
+import Foundation
 struct EventModel: Identifiable, Codable, Equatable {
     let id: String
     let title: String
+    let name: String? // Backend usa 'name'
     let description: String
     let date: Date
     let location: String
     let organizerId: String
     let organizerName: String
+    let userID: String? // Backend requiere userID
+    let category: String? // Backend requiere category UUID
+    let lat: Double? // Backend requiere coordenadas
+    let lng: Double? // Backend requiere coordenadas
     let isAllDay: Bool
     let tags: [String]
     let maxAttendees: Int?
     let createdAt: Date
     let updatedAt: Date
     
-    // Estas funciones nos ayudan a mostrar la info de manera bonita
     var isUpcoming: Bool {
         date > Date()
     }
@@ -29,15 +37,19 @@ struct EventModel: Identifiable, Codable, Equatable {
         DateFormatter.timeFormatter.string(from: date)
     }
     
-    // Esto crea un evento nuevo con toda su info
-    init(id: String = UUID().uuidString, title: String, description: String, date: Date, location: String, organizerId: String, organizerName: String, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil) {
+    init(id: String = UUID().uuidString, title: String, description: String, date: Date, location: String, organizerId: String, organizerName: String, userID: String? = nil, category: String? = nil, lat: Double? = nil, lng: Double? = nil, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil) {
         self.id = id
         self.title = title
+        self.name = title // name = title para compatibilidad con backend
         self.description = description
         self.date = date
         self.location = location
         self.organizerId = organizerId
         self.organizerName = organizerName
+        self.userID = userID
+        self.category = category
+        self.lat = lat
+        self.lng = lng
         self.isAllDay = isAllDay
         self.tags = tags
         self.maxAttendees = maxAttendees
@@ -49,11 +61,16 @@ struct EventModel: Identifiable, Codable, Equatable {
     init(id: String, title: String, description: String, date: Date, location: String, organizerId: String, organizerName: String, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil, createdAt: Date, updatedAt: Date) {
         self.id = id
         self.title = title
+        self.name = title
         self.description = description
         self.date = date
         self.location = location
         self.organizerId = organizerId
         self.organizerName = organizerName
+        self.userID = organizerId
+        self.category = nil
+        self.lat = nil
+        self.lng = nil
         self.isAllDay = isAllDay
         self.tags = tags
         self.maxAttendees = maxAttendees

@@ -1,6 +1,11 @@
-import Foundation
+//
+//  LoginUseCase.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 8/9/25.
+//
 
-// El "contrato" que define qué debe hacer nuestro caso de uso de login.
+import Foundation
 // Usar un protocolo facilita los tests y desacopla el código.
 protocol LoginUseCaseProtocol {
     func signIn(email: String, password: String) async throws -> UserModel

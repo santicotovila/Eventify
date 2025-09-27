@@ -1,6 +1,11 @@
-import Foundation
+//
+//  InterestModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 6/9/25.
+//
 
-// Modelo de interés que coincide con InterestDTO.Response del backend
+import Foundation
 struct InterestModel: Identifiable, Codable, Hashable {
     let id: String // UUID como string
     let name: String

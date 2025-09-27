@@ -1,7 +1,11 @@
-import Foundation
+//
+//  AttendanceModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 6/9/25.
+//
 
-// Estas son las opciones para responder si vas a un evento
-// Solo puedes elegir sí, no, o tal vez
+import Foundation
 enum AttendanceStatus: String, CaseIterable, Codable {
     case going = "going"
     case notGoing = "notGoing"

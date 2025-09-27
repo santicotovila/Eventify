@@ -1,3 +1,10 @@
+//
+//  LoginView.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 10/9/25.
+//
+
 import SwiftUI
 
 
@@ -160,7 +167,6 @@ struct LoginView: View {
             }
             .padding()
         }
-        // La alerta se muestra solo cuando la propiedad `errorMessage` del ViewModel tiene un valor.
         .alert("Error de Login", isPresented: .constant(viewModel.errorMessage != nil), actions: {}) {
             Text(viewModel.errorMessage ?? "")
         }
@@ -172,7 +178,6 @@ struct LoginView: View {
 
 // MARK: - Estilos Personalizados
 
-// Un estilo propio para que los botones principales se vean todos iguales.
 struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

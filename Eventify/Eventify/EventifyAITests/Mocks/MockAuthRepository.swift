@@ -16,7 +16,6 @@ final class MockAuthRepository: AuthRepositoryProtocol {
     var shouldThrowError = false
     var errorToThrow: Error = AuthError.unknownAuthError
     
-    // MARK: - AuthRepositoryProtocol Implementation
     
     func signIn(email: String, password: String) async throws -> User {
         signInCalled = true

@@ -1,7 +1,11 @@
-import Foundation
+//
+//  UserModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 6/9/25.
+//
 
-// Esta clase representa a un usuario en nuestra app
-// Guarda la info básica de la persona que se registró
+import Foundation
 struct UserModel: Identifiable, Codable, Equatable {
     let id: String
     let email: String

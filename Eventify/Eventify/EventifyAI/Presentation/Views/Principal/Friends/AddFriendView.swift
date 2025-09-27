@@ -149,7 +149,6 @@ struct AddFriendView: View {
             onFriendAdded()
             
             // Mostrar feedback visual (opcional)
-            // TODO: Añadir haptic feedback o animación
         }
     }
 }

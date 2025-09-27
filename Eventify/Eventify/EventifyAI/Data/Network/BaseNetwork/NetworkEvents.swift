@@ -1,3 +1,10 @@
+//
+//  NetworkEvents.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 14/9/25.
+//
+
 import Foundation
 
 protocol NetworkEventsProtocol {
@@ -9,123 +16,292 @@ protocol NetworkEventsProtocol {
 }
 
 final class NetworkEvents: NetworkEventsProtocol {
+    private let session = URLSession.shared
+    private let baseURL = "http://localhost:8080/api" // URL del backend
     
-    // MARK: - Mock Data
-    private var mockEvents: [EventModel] {
-        let baseDate = Date()
-        let date1 = Calendar.current.date(byAdding: .day, value: 3, to: baseDate) ?? baseDate
-        let date2 = Calendar.current.date(byAdding: .day, value: 7, to: baseDate) ?? baseDate
-        let date3 = Calendar.current.date(byAdding: .day, value: 10, to: baseDate) ?? baseDate
-        
-        return [
-            EventModel(
-                id: "event-1",
-                title: "Reunión de Equipo",
-                description: "Revisión semanal del proyecto EventifyAI",
-                date: date1,
-                location: "Sala de conferencias A",
-                organizerId: "user-1",
-                organizerName: "Ana García"
-            ),
-            EventModel(
-                id: "event-2",
-                title: "Workshop iOS",
-                description: "Taller de desarrollo de aplicaciones iOS con SwiftUI",
-                date: date2,
-                location: "Laboratorio 3",
-                organizerId: "user-2",
-                organizerName: "Carlos Ruiz"
-            ),
-            EventModel(
-                id: "event-3",
-                title: "Almuerzo de Networking",
-                description: "Evento de networking para desarrolladores",
-                date: date3,
-                location: "Restaurante Central",
-                organizerId: "user-3",
-                organizerName: "María López"
-            )
-        ]
+    private struct BackendEventResponse: Codable {
+        let id: UUID
+        let name: String
+        let category: UUID
+        let userID: UUID
+        let lat: Double
+        let lng: Double
+        let createdAt: String
+        let updatedAt: String
     }
     
-    // MARK: - Network Methods
+    private struct BackendEventRequest: Codable {
+        let name: String
+        let category: UUID
+        let userID: UUID
+        let lat: Double
+        let lng: Double
+    }
+    
     
     func getEvents(userId: String) async throws -> [EventModel] {
-        // Simular delay de red
-        try await Task.sleep(nanoseconds: 1_000_000_000) // 1 segundo
-        
-        // Simular posible error de red (10% de probabilidad)
-        if Int.random(in: 1...10) == 1 {
-            throw NetworkError.internalServerError
+        guard let userUUID = UUID(uuidString: userId),
+              let url = URL(string: "\(baseURL)/users/\(userUUID)/events") else {
+            throw NetworkError.invalidURL
         }
         
-        // Filtrar eventos por usuario (mock)
-        return mockEvents.filter { event in
-            event.organizerId == userId || userId == "user-1" // user-1 ve todos los eventos
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.GET.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.unknown(URLError(.badServerResponse))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                    throw NetworkError.requestFailed(responseCode)
+                } else {
+                    throw NetworkError.unknown(URLError(.badServerResponse))
+                }
+            }
+            
+            let backendEvents = try JSONDecoder().decode([BackendEventResponse].self, from: data)
+            
+            // Convertir a nuestro modelo EventModel
+            return backendEvents.map { backendEvent in
+                EventModel(
+                    id: backendEvent.id.uuidString,
+                    title: backendEvent.name,
+                    description: "Descripción del evento",
+                    date: ISO8601DateFormatter().date(from: backendEvent.createdAt) ?? Date(),
+                    location: "Lat: \(backendEvent.lat), Lng: \(backendEvent.lng)",
+                    organizerId: backendEvent.userID.uuidString,
+                    organizerName: "Usuario",
+                    userID: backendEvent.userID.uuidString,
+                    category: backendEvent.category.uuidString,
+                    lat: backendEvent.lat,
+                    lng: backendEvent.lng
+                )
+            }
+            
+        } catch {
+            print("Error fetching events: \(error)")
+            throw NetworkError.decodingError(error)
         }
     }
     
     func getEventById(eventId: String) async throws -> EventModel? {
-        // Simular delay de red
-        try await Task.sleep(nanoseconds: 500_000_000) // 0.5 segundos
+        guard let eventUUID = UUID(uuidString: eventId),
+              let url = URL(string: "\(baseURL)/events/\(eventUUID)") else {
+            throw NetworkError.invalidURL
+        }
         
-        return mockEvents.first(where: { $0.id == eventId })
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.GET.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.unknown(URLError(.badServerResponse))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 404 {
+                    return nil
+                }
+                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                    throw NetworkError.requestFailed(responseCode)
+                } else {
+                    throw NetworkError.unknown(URLError(.badServerResponse))
+                }
+            }
+            
+            let backendEvent = try JSONDecoder().decode(BackendEventResponse.self, from: data)
+            
+            return EventModel(
+                id: backendEvent.id.uuidString,
+                title: backendEvent.name,
+                description: "Descripción del evento",
+                date: ISO8601DateFormatter().date(from: backendEvent.createdAt) ?? Date(),
+                location: "Lat: \(backendEvent.lat), Lng: \(backendEvent.lng)",
+                organizerId: backendEvent.userID.uuidString,
+                organizerName: "Usuario",
+                userID: backendEvent.userID.uuidString,
+                category: backendEvent.category.uuidString,
+                lat: backendEvent.lat,
+                lng: backendEvent.lng
+            )
+            
+        } catch {
+            print("Error fetching event: \(error)")
+            throw NetworkError.decodingError(error)
+        }
     }
     
     func createEvent(event: EventModel) async throws -> EventModel {
-        // Simular delay de red
-        try await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 segundos
+        guard let url = URL(string: "\(baseURL)/events") else {
+            throw NetworkError.invalidURL
+        }
         
-        // Simular posible error de validación
-        if event.title.isEmpty {
+        // Validar que tenemos los campos requeridos
+        guard let userID = event.userID,
+              let userUUID = UUID(uuidString: userID),
+              let category = event.category,
+              let categoryUUID = UUID(uuidString: category),
+              let lat = event.lat,
+              let lng = event.lng else {
             throw NetworkError.requestFailed(.badRequest)
         }
         
-        // Crear evento con nuevo ID
-        let newEvent = EventModel(
-            id: "event-\(UUID().uuidString)",
-            title: event.title,
-            description: event.description,
-            date: event.date,
-            location: event.location,
-            organizerId: event.organizerId,
-            organizerName: event.organizerName
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.POST.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let backendRequest = BackendEventRequest(
+            name: event.name ?? event.title,
+            category: categoryUUID,
+            userID: userUUID,
+            lat: lat,
+            lng: lng
         )
         
-        return newEvent
+        do {
+            let jsonData = try JSONEncoder().encode(backendRequest)
+            request.httpBody = jsonData
+            
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.unknown(URLError(.badServerResponse))
+            }
+            
+            guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                    throw NetworkError.requestFailed(responseCode)
+                } else {
+                    throw NetworkError.unknown(URLError(.badServerResponse))
+                }
+            }
+            
+            let backendEvent = try JSONDecoder().decode(BackendEventResponse.self, from: data)
+            
+            return EventModel(
+                id: backendEvent.id.uuidString,
+                title: backendEvent.name,
+                description: event.description,
+                date: ISO8601DateFormatter().date(from: backendEvent.createdAt) ?? Date(),
+                location: event.location,
+                organizerId: backendEvent.userID.uuidString,
+                organizerName: event.organizerName,
+                userID: backendEvent.userID.uuidString,
+                category: backendEvent.category.uuidString,
+                lat: backendEvent.lat,
+                lng: backendEvent.lng
+            )
+            
+        } catch {
+            print("Error creating event: \(error)")
+            throw NetworkError.decodingError(error)
+        }
     }
     
     func updateEvent(eventId: String, event: EventModel) async throws -> EventModel {
-        // Simular delay de red
-        try await Task.sleep(nanoseconds: 1_000_000_000) // 1 segundo
-        
-        // Verificar que el evento existe
-        guard mockEvents.contains(where: { $0.id == eventId }) else {
-            throw NetworkError.notFound
+        guard let eventUUID = UUID(uuidString: eventId),
+              let url = URL(string: "\(baseURL)/events/\(eventUUID)") else {
+            throw NetworkError.invalidURL
         }
         
-        let updatedEvent = EventModel(
-            id: eventId,
-            title: event.title,
-            description: event.description,
-            date: event.date,
-            location: event.location,
-            organizerId: event.organizerId,
-            organizerName: event.organizerName
+        // Validar campos requeridos
+        guard let userID = event.userID,
+              let userUUID = UUID(uuidString: userID),
+              let category = event.category,
+              let categoryUUID = UUID(uuidString: category),
+              let lat = event.lat,
+              let lng = event.lng else {
+            throw NetworkError.requestFailed(.badRequest)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.PUT.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let backendRequest = BackendEventRequest(
+            name: event.name ?? event.title,
+            category: categoryUUID,
+            userID: userUUID,
+            lat: lat,
+            lng: lng
         )
         
-        return updatedEvent
+        do {
+            let jsonData = try JSONEncoder().encode(backendRequest)
+            request.httpBody = jsonData
+            
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.unknown(URLError(.badServerResponse))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                    throw NetworkError.requestFailed(responseCode)
+                } else {
+                    throw NetworkError.unknown(URLError(.badServerResponse))
+                }
+            }
+            
+            let backendEvent = try JSONDecoder().decode(BackendEventResponse.self, from: data)
+            
+            return EventModel(
+                id: backendEvent.id.uuidString,
+                title: backendEvent.name,
+                description: event.description,
+                date: ISO8601DateFormatter().date(from: backendEvent.updatedAt) ?? Date(),
+                location: event.location,
+                organizerId: backendEvent.userID.uuidString,
+                organizerName: event.organizerName,
+                userID: backendEvent.userID.uuidString,
+                category: backendEvent.category.uuidString,
+                lat: backendEvent.lat,
+                lng: backendEvent.lng
+            )
+            
+        } catch {
+            print("Error updating event: \(error)")
+            throw NetworkError.decodingError(error)
+        }
     }
     
     func deleteEvent(eventId: String) async throws {
-        // Simular delay de red
-        try await Task.sleep(nanoseconds: 800_000_000) // 0.8 segundos
-        
-        // Verificar que el evento existe
-        guard mockEvents.contains(where: { $0.id == eventId }) else {
-            throw NetworkError.notFound
+        guard let eventUUID = UUID(uuidString: eventId),
+              let url = URL(string: "\(baseURL)/events/\(eventUUID)") else {
+            throw NetworkError.invalidURL
         }
         
-        // Simular eliminación exitosa
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.DELETE.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let (_, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.unknown(URLError(.badServerResponse))
+            }
+            
+            guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
+                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                    throw NetworkError.requestFailed(responseCode)
+                } else {
+                    throw NetworkError.unknown(URLError(.badServerResponse))
+                }
+            }
+            
+        } catch {
+            print("Error deleting event: \(error)")
+            throw NetworkError.decodingError(error)
+        }
     }
 }

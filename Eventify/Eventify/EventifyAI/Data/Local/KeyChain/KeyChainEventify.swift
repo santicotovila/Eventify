@@ -1,3 +1,10 @@
+//
+//  KeyChainEventify.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 16/9/25.
+//
+
 import Foundation
 import Security
 
@@ -101,7 +108,6 @@ final class KeyChainEventify {
         }
     }
     
-    // MARK: - Generic Keychain Operations
     
     func save(key: String, data: Data) throws {
         let query = [
@@ -180,7 +186,6 @@ final class KeyChainEventify {
         print("KeyChain limpiado completamente")
     }
     
-    // MARK: - Utility Methods
     
     func exists(key: String) -> Bool {
         return get(key: key) != nil
