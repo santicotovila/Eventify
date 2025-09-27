@@ -75,27 +75,9 @@ struct ProfileView: View {
                             .padding(.top, 20)
                         
                         // Email
-                        if let user = viewModel.currentUser {
-                            Text(user.email)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        
-                        // Información adicional exacta como Figma
-                        VStack(spacing: 8) {
-                            Text(viewModel.phoneNumber)
-                                .font(.body)
-                                .foregroundColor(.black)
-                            
-                            Text("Jaén")
-                                .font(.body)
-                                .foregroundColor(.black)
-                            
-                            Text(viewModel.formattedBirthDate)
-                                .font(.body)
-                                .foregroundColor(.gray)
-                        }
-                        .padding(.top, 16)
+                        Text(viewModel.userEmail)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
                     }
                     
                     Spacer()
@@ -171,8 +153,9 @@ struct EditProfileView: View {
             Form {
                 Section("Información Personal") {
                     TextField("Nombre", text: $viewModel.displayName)
-                    TextField("Teléfono", text: $viewModel.phoneNumber)
-                    DatePicker("Fecha de Nacimiento", selection: $viewModel.birthDate, displayedComponents: .date)
+                    TextField("Email", text: $viewModel.userEmail)
+                        .disabled(true)
+                        .foregroundColor(.gray)
                 }
             }
             .navigationTitle("Editar Perfil")

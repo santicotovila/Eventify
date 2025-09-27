@@ -9,10 +9,9 @@ final class ProfileViewModel {
     var showingEditProfile: Bool = false
     var showingLogoutAlert: Bool = false
     
-    // Datos editables del perfil
+    // Datos del perfil del usuario
     var displayName: String = ""
-    var phoneNumber: String = ""
-    var birthDate: Date = Date()
+    var userEmail: String = ""
     
     private let loginUseCase: LoginUseCaseProtocol
     
@@ -25,10 +24,10 @@ final class ProfileViewModel {
     func loadUserData() {
         guard let user = loginUseCase.getCurrentUser() else { return }
         
-        displayName = user.displayName ?? "Anonymous"
-        phoneNumber = "+3467480303"
-        birthDate = DateFormatter.dateFromString("27.05.1995") ?? Date()
+        displayName = user.displayName ?? user.name
+        userEmail = user.email
     }
+    
     
     func showEditProfile() {
         showingEditProfile = true
@@ -73,20 +72,6 @@ final class ProfileViewModel {
         return String(initials).uppercased()
     }
     
-    var formattedBirthDate: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd/MM/yyyy"
-        return formatter.string(from: birthDate)
-    }
 }
 
-// MARK: - Extensions
-
-private extension DateFormatter {
-    static func dateFromString(_ dateString: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy"
-        return formatter.date(from: dateString)
-    }
-}
 
