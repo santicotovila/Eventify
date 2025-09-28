@@ -7,6 +7,7 @@
 
 import Vapor
 
+//DTO de  Intereses con sus respectivas validaciones.
 struct InterestDTO {
     struct Create: Content, Validatable {
         let name: String

@@ -8,34 +8,32 @@
 import Vapor
 import Fluent
 
-
-
+// Controlador de rutas para gestionar los RSVP (asistencias) a eventos.
 struct EventAttendeesController: RouteCollection, Sendable {
+
+    // Registra las rutas del controlador.
+  
     func boot(routes: any RoutesBuilder) throws {
         let rsvp = routes.grouped("rsvp")
-        rsvp.post(use: createWithUserID) // pública (body trae userID)
 
-        // Protegidas con JWT /:eventID/rsvp
+        rsvp.post(use: createWithUserID)
         routes.grouped(JWTUserAuthenticator(), Users.guardMiddleware())
             .group(":eventID") { e in
                 e.post("rsvp", use: createFromJWT)
-                e.put("rsvp", use: updateFromJWT)
-                e.delete("rsvp", use: deleteFromJWT)
             }
     }
 
-    // POST /rsvp  (con userID en el body)
     func createWithUserID(_ req: Request) async throws -> EventAttendeesDTO.Public {
         try EventAttendeesDTO.Create.validate(content: req)
         let dto = try req.content.decode(EventAttendeesDTO.Create.self)
 
-        // Comprobar existencia de event y user
+        // Comprobar existencia de event y users
         guard try await Events.find(dto.eventID, on: req.db) != nil
         else { throw Abort(.notFound, reason: "Evento no existe") }
         guard try await Users.find(dto.userID, on: req.db) != nil
         else { throw Abort(.notFound, reason: "Usuario no existe") }
 
-        // Unicidad por (event y user), si existe,actualizamos sino creamos.
+        // Unicidad por (event y user). Si existe, actualizamos; si no, creamos.
         if let existing = try await EventAttendee.query(on: req.db)
             .filter(\.$event.$id == dto.eventID)
             .filter(\.$user.$id == dto.userID)
@@ -57,22 +55,20 @@ struct EventAttendeesController: RouteCollection, Sendable {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
 
-       
+        // Si la URL trae eventID, debe coincidir con el del body para evitar inconsistencias.
         if let urlID = req.parameters.get("eventID", as: UUID.self), urlID != dto.eventID {
             throw Abort(.badRequest, reason: "eventID URL != body")
         }
-
 
         let record = EventAttendee(eventID: dto.eventID, userID: userID, status: dto.status)
         try await record.create(on: req.db)
         return try record.toPublicDTO()
     }
 
+    // Actualiza el estado de un RSVP existente para el usuario autenticado y el eventID.
     func updateFromJWT(_ req: Request) async throws -> EventAttendeesDTO.Public {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
-
-       // try EventAttendeesDTO.Update.validate(content: req)
         let dto = try req.content.decode(EventAttendeesDTO.Update.self)
 
         guard let eventID = req.parameters.get("eventID", as: UUID.self)
@@ -91,6 +87,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
         return try existing.toPublicDTO()
     }
     
+    // Eliminamos el RSVP del usuario autenticado para el eventID
     func deleteFromJWT(_ req: Request) async throws -> HTTPStatus {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
@@ -104,7 +101,6 @@ struct EventAttendeesController: RouteCollection, Sendable {
             .filter(\.$user.$id == userID)
             .first()
         else {
-            
             throw Abort(.notFound, reason: "No tenías RSVP para este evento")
         }
 
@@ -116,6 +112,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
 
 // MARK: - Mapper a DTO
 extension EventAttendee {
+    // Convierte el modelo EventAttendee a su representación pública EventAttendeesDTO.Public
     func toPublicDTO() throws -> EventAttendeesDTO.Public {
         guard let id = self.id else {
             throw Abort(.internalServerError, reason: "EventAttendee sin ID")

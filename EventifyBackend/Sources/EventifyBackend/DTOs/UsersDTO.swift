@@ -16,7 +16,7 @@ struct UsersDTO: Content {
                 name: self.name,
                 email: self.email,
                 password: hashed,
-                interests: [] //se rellena tras adjuntar los itnereses el usuario.
+                interests: [] //Comienza vacío pero se rellena tras adjuntar los intereses del  usuario.
             )
         }
     }

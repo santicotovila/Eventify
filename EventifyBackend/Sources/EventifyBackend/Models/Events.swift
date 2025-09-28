@@ -18,7 +18,7 @@ final class Events: Model, @unchecked Sendable {
     var name: String
     
     @Field(key: ConstantsEvents.category)
-    var category: String
+    var category: String?
     
     @Field(key: ConstantsEvents.lat)
     var lat: Double?
@@ -44,7 +44,7 @@ final class Events: Model, @unchecked Sendable {
     init() {}
     
     
-    init(name:String, category:String,userID:UUID,lat:Double? = nil ,lng:Double? = nil, eventDate: Date? = nil, location: String? = nil) {
+    init(name:String, category:String? = nil,userID:UUID,lat:Double? = nil ,lng:Double? = nil, eventDate: Date? = nil, location: String? = nil) {
         self.name = name
         self.category = category
         self.$user.id = userID
