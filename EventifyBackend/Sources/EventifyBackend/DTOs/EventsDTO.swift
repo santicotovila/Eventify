@@ -10,13 +10,14 @@
 import Vapor
 import Foundation
 
+//Conversiones de Events con sus respectivas validaciones.
 struct EventsDTO: Content {
     struct Create: Content {
         let name: String
-        let category: String
+        let category: String?
         let userID: UUID
         let eventDate: Date?
-        let location: String
+        let location: String?
         let lat: Double?
         let lng: Double?
 
@@ -46,7 +47,7 @@ struct EventsDTO: Content {
     struct Public: Content {
         let id: UUID
         let name: String
-        let category: String
+        let category: String?
         let lat: Double?
         let lng: Double?
         let userID: UUID
@@ -59,13 +60,13 @@ struct EventsDTO: Content {
 
 }
 
-// Validaciones
+// Validaciones para events
 extension EventsDTO.Create: Validatable {
     static func validations(_ v: inout Validations) {
         v.add("name", as: String.self, is: .count(1...), required: true)
-        v.add("category", as: String.self, is: .count(1...), required: true)
-        v.add("lat", as: Double?.self, is: .nil || .range(-90...90))
-        v.add("lng", as: Double?.self, is: .nil || .range(-180...180))
+        v.add("category", as: String.self, is: .count(1...), required: false)
+      //  v.add("lat", as: Double?.self, is: .nil || .range(-90...90))
+      //  v.add("lng", as: Double?.self, is: .nil || .range(-180...180))
     }
 }
 
@@ -73,8 +74,8 @@ extension EventsDTO.Update: Validatable {
     static func validations(_ v: inout Validations) {
         v.add("name", as: String?.self, is: .nil || .count(1...))
         v.add("category", as: String?.self, is: .nil || .count(1...))
-        v.add("lat", as: Double?.self, is: .nil || .range(-90...90))
-        v.add("lng", as: Double?.self, is: .nil || .range(-180...180))
+     //   v.add("lat", as: Double?.self, is: .nil || .range(-90...90))
+       // v.add("lng", as: Double?.self, is: .nil || .range(-180...180))
         
     }
 }

@@ -27,4 +27,3 @@ struct CreateUserInterests: AsyncMigration {
         try await db.schema(ConstantsUserInterests.schemaUserInterests).delete()
     }
 }
-

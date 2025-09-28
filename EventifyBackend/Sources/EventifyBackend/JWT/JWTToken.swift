@@ -3,18 +3,21 @@ import JWT
 
 struct JWTToken: JWTPayload, Authenticatable {
     
-    let userID: SubjectClaim
-    let username: SubjectClaim
-    let expiration: ExpirationClaim
-    let isRefresh: BoolClaim
+    let userID: SubjectClaim       // UUID del usuario como string
+    let username: SubjectClaim     // Nombre de usuario
+    let expiration: ExpirationClaim// Fecha de expiración
+    let isRefresh: BoolClaim       // Bandera: indica si el token es de refresh
     
     func verify(using algorithm: some JWTAlgorithm) async throws {
+        // Verifica que el token no esté expirado
         try expiration.verifyNotExpired()
     }
 }
 
 extension JWTToken {
     
+    /// Genera un par de tokens (access y refresh) para un usuario dado.
+    /// - Nota: usa `Constants.accessTokenLifetime` y `Constants.refreshTokenLifetime`.
     static func generateTokens(for username: String,andID userID: UUID) -> (accessToken: JWTToken,refreshToken: JWTToken) {
         let now = Date.now
         let tokenExpDate = now.addingTimeInterval(Constants.accessTokenLifetime)
