@@ -281,6 +281,8 @@ struct CreateEventField: View {
             TextField(placeholder, text: $text)
                 .font(.system(size: 16))
                 .foregroundColor(.white)
+                .textInputAutocapitalization(placeholder == "Lugar" ? .words : .sentences)
+                .submitLabel(placeholder == "Lugar" ? .done : .next)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
                 .background(

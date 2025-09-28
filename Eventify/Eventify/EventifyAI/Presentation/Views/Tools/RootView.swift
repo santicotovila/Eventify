@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct RootView: View {
     
     @State private var appStateVM: AppStateVM
+    @Environment(\.modelContext) private var modelContext
      
     init() {
         let loginRepository = DefaultLoginRepository()
@@ -15,9 +17,11 @@ struct RootView: View {
             if appStateVM.isUserAuthenticated {
                 HomeView()
                     .environment(appStateVM)
+                    .environment(\.modelContext, modelContext)
             } else {
                 LoginView()
                     .environment(appStateVM)
+                    .environment(\.modelContext, modelContext)
             }
         }
         .onAppear {

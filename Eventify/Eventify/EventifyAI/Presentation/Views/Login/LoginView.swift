@@ -66,6 +66,7 @@ struct LoginView: View {
                         TextField("Usuario", text: $viewModel.email)
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
+                            .submitLabel(.next)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -77,6 +78,7 @@ struct LoginView: View {
                             .foregroundColor(.gray)
                             .frame(width: 20)
                         SecureField("Contraseña", text: $viewModel.password)
+                            .submitLabel(.go)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))

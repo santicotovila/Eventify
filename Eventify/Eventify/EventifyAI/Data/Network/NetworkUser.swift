@@ -2,7 +2,7 @@ import Foundation
 
 final class NetworkUser {
     private let session = URLSession.shared
-    private let baseURL = "http://localhost:8080/api" // URL del backend
+    private let baseURL = ConstantsApp.API.baseURL // URL del backend
     
     // MARK: - Get Interests
     func getInterests() async throws -> [InterestModel] {
@@ -48,7 +48,48 @@ final class NetworkUser {
             }
             
         } catch {
-            print("Error fetching interests: \(error)")
+            throw NetworkError.decodingError(error)
+        }
+    }
+    
+    // MARK: - Login User
+    func login(email: String, password: String) async throws -> RegisterResponseModel {
+        guard let url = URL(string: "\(baseURL)/auth/login") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.POST.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        struct LoginRequest: Codable {
+            let email: String
+            let password: String
+        }
+        
+        let loginData = LoginRequest(email: email, password: password)
+        
+        do {
+            let jsonData = try JSONEncoder().encode(loginData)
+            request.httpBody = jsonData
+            
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.unknown(URLError(.badServerResponse))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                    throw NetworkError.requestFailed(responseCode)
+                } else {
+                    throw NetworkError.unknown(URLError(.badServerResponse))
+                }
+            }
+            
+            return try JSONDecoder().decode(RegisterResponseModel.self, from: data)
+            
+        } catch {
             throw NetworkError.decodingError(error)
         }
     }
@@ -110,7 +151,6 @@ final class NetworkUser {
             return try JSONDecoder().decode(RegisterResponseModel.self, from: data)
             
         } catch {
-            print("Error registering user: \(error)")
             throw NetworkError.decodingError(error)
         }
     }

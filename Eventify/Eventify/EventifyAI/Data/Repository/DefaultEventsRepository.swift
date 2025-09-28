@@ -9,7 +9,7 @@ import Foundation
 
 final class EventsRepository: EventsRepositoryProtocol {
     
-    // 💾 Persistencia en memoria para desarrollo/testing
+    // Persistencia en memoria para desarrollo/testing
     private var events: [EventModel] = [
         EventModel.preview,
         EventModel.previewPast,
@@ -26,7 +26,7 @@ final class EventsRepository: EventsRepositoryProtocol {
     ]
     
     func getEvents(filter: String) async -> [EventModel] {
-        // 🔄 Simular delay de red
+        // Simular delay de red
         try? await Task.sleep(nanoseconds: 500_000_000)
         
         if filter.isEmpty {
@@ -46,7 +46,6 @@ final class EventsRepository: EventsRepositoryProtocol {
         
         // GUARDAR en array en memoria
         events.append(event)
-        print("Mock Repository: Evento '\(event.title)' guardado. Total: \(events.count)")
         
         return true
     }

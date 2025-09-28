@@ -90,6 +90,8 @@ struct ContinueRegistrationView: View {
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
                                 TextField("Nombre", text: $firstName)
+                                    .textInputAutocapitalization(.words)
+                                    .submitLabel(.next)
     
                             }
                             .padding()
@@ -102,6 +104,8 @@ struct ContinueRegistrationView: View {
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
                                 TextField("Apellido", text: $lastName)
+                                    .textInputAutocapitalization(.words)
+                                    .submitLabel(.next)
                                 Text("*")
                                     .foregroundColor(.red)
                             }
@@ -133,6 +137,8 @@ struct ContinueRegistrationView: View {
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
                                 TextField("Localidad", text: $location)
+                                    .textInputAutocapitalization(.words)
+                                    .submitLabel(.done)
                                 Text("*")
                                     .foregroundColor(.red)
                             }
@@ -285,7 +291,6 @@ struct ContinueRegistrationView: View {
                 await MainActor.run {
                     self.errorMessage = "Error cargando intereses: \(error.localizedDescription)"
                     self.isLoadingInterests = false
-                    // Fallback a intereses mock
                     self.availableInterests = InterestModel.mockInterests
                 }
             }
@@ -313,13 +318,19 @@ struct ContinueRegistrationView: View {
             )
             
             await MainActor.run {
+                guard let userId = response.userID else {
+                    self.errorMessage = "Error: No se pudo extraer el ID de usuario del token"
+                    self.isRegistering = false
+                    return
+                }
+                
                 let user = UserModel(
-                    id: UUID().uuidString,
+                    id: userId,
                     email: email,
                     displayName: fullName
                 )
                 
-                try? self.loginUseCase.saveUser(user)
+                try? self.loginUseCase.saveUserWithToken(user, token: response.accessToken)
                 NotificationCenter.default.post(name: .userDidSignIn, object: user)
                 
                 self.isRegistering = false

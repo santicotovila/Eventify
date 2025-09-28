@@ -10,11 +10,12 @@ import Foundation
 enum NetworkError: LocalizedError {
     case invalidURL
     case decodingError(Error)
-    case requestFailed(HttpResponseCodes)
-    case noInternetConnection
+    case badRequest(String)
     case unauthorized
-    case conflict
+    case notFound
     case internalServerError
+    case noInternetConnection
+    case requestFailed(HttpResponseCodes)
     case unknown(Error)
     
     var errorDescription: String? {
@@ -23,16 +24,18 @@ enum NetworkError: LocalizedError {
             return "URL inválida"
         case .decodingError:
             return "Error al procesar datos"
-        case .requestFailed(let statusCode):
-            return "Error de red: \(statusCode.rawValue)"
+        case .badRequest(let message):
+            return "Validaciones o IDs mal formados: \(message)"
+        case .unauthorized:
+            return "Token ausente/expirado o API Key inválida"
+        case .notFound:
+            return "Recurso inexistente"
+        case .internalServerError:
+            return "Errores internos del servidor"
         case .noInternetConnection:
             return "Sin conexión a internet"
-        case .unauthorized:
-            return "No autorizado"
-        case .conflict:
-            return "Conflicto en el servidor"
-        case .internalServerError:
-            return "Error interno del servidor"
+        case .requestFailed(let statusCode):
+            return "Error de red: \(statusCode.rawValue)"
         case .unknown:
             return "Error de red"
         }

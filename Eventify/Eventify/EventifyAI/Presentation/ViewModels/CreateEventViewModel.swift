@@ -47,7 +47,7 @@ final class CreateEventViewModel {
         }
         
         // Usar una categoría real del backend (Aprendizaje)
-        let defaultCategoryId = "03E25929-9A94-42BC-AE1B-121948A74829" // Categoría "Aprendizaje" 
+        let defaultCategoryId = "96205784-26B7-45B6-8A1B-7420D81D2808" // Categoría "Aprendizaje" 
         let defaultLatitude = 40.4168 // Madrid por defecto
         let defaultLongitude = -3.7038 // Madrid por defecto
         
@@ -65,6 +65,7 @@ final class CreateEventViewModel {
         )
         
         let success = await eventsUseCase.createEvent(newEvent)
+        
         if success {
             isEventCreated = true
             NotificationCenter.default.postEventWasCreated(event: newEvent)

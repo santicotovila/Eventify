@@ -59,7 +59,7 @@ struct ConstantsApp {
     
     // MARK: - API
     struct API {
-        static let baseURL = "https://api.eventifyai.com"
+        static let baseURL = "http://localhost:8080/api"
         static let timeout: TimeInterval = 30.0
     }
 }

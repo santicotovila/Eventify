@@ -15,6 +15,7 @@ protocol LoginUseCaseProtocol {
     func isUserAuthenticated() -> Bool
     func refreshToken() async throws -> String
     func saveUser(_ user: UserModel) throws
+    func saveUserWithToken(_ user: UserModel, token: String) throws
 }
 
 // Contiene la lógica de negocio pura para la autenticación.
@@ -136,6 +137,13 @@ final class LoginUseCase: LoginUseCaseProtocol {
     
     func saveUser(_ user: UserModel) throws {
         try loginRepository.saveUser(user)
+    }
+    
+    func saveUserWithToken(_ user: UserModel, token: String) throws {
+        try loginRepository.saveUser(user)
+        if let defaultRepository = loginRepository as? DefaultLoginRepository {
+            try defaultRepository.saveUserToken(token)
+        }
     }
 }
 

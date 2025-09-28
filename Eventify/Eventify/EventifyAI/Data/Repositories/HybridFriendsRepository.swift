@@ -1,15 +1,15 @@
 import Foundation
 import SwiftData
 
-/// Repository híbrido: Amigos ficticios + SwiftData para amigos nuevos
+//   Repository híbrido: Amigos ficticios + SwiftData para amigos nuevos
 final class HybridFriendsRepository {
     
-    // Amigos ficticios para demo (como en el Figma)
+    // Amigos ficticios para demo
     private let mockFriends = [
         UserModel.friendPreview1, // Santi Coto Vila
         UserModel.friendPreview2, // Javier Gómez
         UserModel.friendPreview3, // Elsa Fernández
-        UserModel.friendPreview4  // Jose Luis bustos
+        UserModel.friendPreview4  // Jose Luis Bustos
     ]
     
     // Usuarios disponibles para agregar
@@ -28,7 +28,6 @@ final class HybridFriendsRepository {
     
     init(modelContext: ModelContext? = nil) {
         self.modelContext = modelContext
-        print("HybridFriendsRepository: MocksFriends=SI, SwiftData=\(modelContext != nil ? "SI" : "NO")")
     }
     
     // MARK: - Get Friends
@@ -74,13 +73,11 @@ final class HybridFriendsRepository {
         // Verificar que no sea ya amigo
         let currentFriendsIds = Set(getFriends().map { $0.id })
         guard !currentFriendsIds.contains(user.id) else {
-            print("Usuario ya es amigo: \(user.name)")
             return false
         }
         
         // Añadir a amigos reales
         realFriends.append(user)
-        print("Amigo añadido: \(user.name)")
         
         
         return true
@@ -92,20 +89,14 @@ final class HybridFriendsRepository {
         let protectedIds = ["friend-1", "friend-2", "friend-3", "friend-4"]
         
         if protectedIds.contains(userId) {
-            print("No se puede eliminar amigo de demo: \(userId)")
             return false
         }
         
         // Eliminar de amigos reales
         if let index = realFriends.firstIndex(where: { $0.id == userId }) {
-            let removedFriend = realFriends.remove(at: index)
-            print("Amigo eliminado: \(removedFriend.name)")
-            
-            
+            realFriends.remove(at: index)
             return true
         }
-        
-        print("Amigo no encontrado para eliminar: \(userId)")
         return false
     }
 }

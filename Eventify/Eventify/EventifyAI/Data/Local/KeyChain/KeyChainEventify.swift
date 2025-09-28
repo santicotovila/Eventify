@@ -39,7 +39,6 @@ final class KeyChainEventify {
         
         try save(key: "user_complete_data", data: data)
         
-        print("Usuario guardado en KeyChain: \(user.email)")
     }
     
     func getCurrentUser() -> UserModel? {
@@ -58,7 +57,6 @@ final class KeyChainEventify {
                 displayName: keychainData.name
             )
         } catch {
-            print("Error al decodificar usuario del KeyChain: \(error)")
             return nil
         }
     }
@@ -69,7 +67,6 @@ final class KeyChainEventify {
         try delete(key: ConstantsApp.Keychain.userToken)
         try delete(key: "user_complete_data")
         
-        print("Usuario eliminado del KeyChain")
     }
     
     // MARK: - Token Methods
@@ -103,7 +100,6 @@ final class KeyChainEventify {
             let decoder = JSONDecoder()
             return try decoder.decode(type, from: data)
         } catch {
-            print("Error al decodificar configuración \(key): \(error)")
             return nil
         }
     }
@@ -183,7 +179,6 @@ final class KeyChainEventify {
             throw KeyChainEventifyError.unableToDelete(status)
         }
         
-        print("KeyChain limpiado completamente")
     }
     
     

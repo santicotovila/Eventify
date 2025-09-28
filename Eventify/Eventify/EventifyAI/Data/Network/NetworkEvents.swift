@@ -17,7 +17,7 @@ protocol NetworkEventsProtocol {
 
 final class NetworkEvents: NetworkEventsProtocol {
     private let session = URLSession.shared
-    private let baseURL = "http://localhost:8080/api" // URL del backend
+    private let baseURL = ConstantsApp.API.baseURL
     
     private struct BackendEventResponse: Codable {
         let id: UUID
@@ -44,8 +44,8 @@ final class NetworkEvents: NetworkEventsProtocol {
     
     
     func getEvents(userId: String) async throws -> [EventModel] {
-        guard let userUUID = UUID(uuidString: userId),
-              let url = URL(string: "\(baseURL)/users/\(userUUID)/events") else {
+        // FALLBACK: Usar /api/events y filtrar por userID porque /api/users/{id}/events tiene bug
+        guard let url = URL(string: "\(baseURL)/events") else {
             throw NetworkError.invalidURL
         }
         
@@ -61,17 +61,38 @@ final class NetworkEvents: NetworkEventsProtocol {
             }
             
             guard httpResponse.statusCode == 200 else {
-                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
-                    throw NetworkError.requestFailed(responseCode)
-                } else {
-                    throw NetworkError.unknown(URLError(.badServerResponse))
+                switch httpResponse.statusCode {
+                case 400:
+                    throw NetworkError.badRequest("IDs mal formados")
+                case 401:
+                    throw NetworkError.unauthorized
+                case 404:
+                    throw NetworkError.notFound
+                case 500...599:
+                    throw NetworkError.internalServerError
+                default:
+                    if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                        throw NetworkError.requestFailed(responseCode)
+                    } else {
+                        throw NetworkError.unknown(URLError(.badServerResponse))
+                    }
                 }
             }
             
-            let backendEvents = try JSONDecoder().decode([BackendEventResponse].self, from: data)
+            // Decodificar respuesta paginada
+            struct EventsResponse: Codable {
+                let items: [BackendEventResponse]
+            }
             
-            // Convertir a nuestro modelo EventModel
-            return backendEvents.map { backendEvent in
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let eventsResponse = try decoder.decode(EventsResponse.self, from: data)
+            
+            // Filtrar por userID y convertir a EventModel
+            
+            let filteredEvents = eventsResponse.items.filter { $0.userID.uuidString == userId }
+            
+            return filteredEvents.map { backendEvent in
                 EventModel(
                     id: backendEvent.id.uuidString,
                     title: backendEvent.name,
@@ -88,7 +109,6 @@ final class NetworkEvents: NetworkEventsProtocol {
             }
             
         } catch {
-            print("Error fetching events: \(error)")
             throw NetworkError.decodingError(error)
         }
     }
@@ -121,7 +141,9 @@ final class NetworkEvents: NetworkEventsProtocol {
                 }
             }
             
-            let backendEvent = try JSONDecoder().decode(BackendEventResponse.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let backendEvent = try decoder.decode(BackendEventResponse.self, from: data)
             
             return EventModel(
                 id: backendEvent.id.uuidString,
@@ -138,21 +160,25 @@ final class NetworkEvents: NetworkEventsProtocol {
             )
             
         } catch {
-            print("Error fetching event: \(error)")
             throw NetworkError.decodingError(error)
         }
     }
     
     func createEvent(event: EventModel) async throws -> EventModel {
+        
         guard let url = URL(string: "\(baseURL)/events") else {
             throw NetworkError.invalidURL
         }
         
         // Validar que tenemos los campos requeridos
-        guard let userID = event.userID,
-              let userUUID = UUID(uuidString: userID) else {
+        guard let originalUserID = event.userID else {
             throw NetworkError.requestFailed(.badRequest)
         }
+        
+        guard let userUUID = UUID(uuidString: originalUserID) else {
+            throw NetworkError.requestFailed(.badRequest)
+        }
+        
         
         var request = URLRequest(url: url)
         request.httpMethod = HttpMethods.POST.rawValue
@@ -164,12 +190,14 @@ final class NetworkEvents: NetworkEventsProtocol {
             userID: userUUID,
             eventDate: event.date,
             location: event.location,
-            lat: event.lat,
-            lng: event.lng
+            lat: event.lat ?? 40.4168,
+            lng: event.lng ?? -3.7038
         )
         
         do {
-            let jsonData = try JSONEncoder().encode(backendRequest)
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let jsonData = try encoder.encode(backendRequest)
             request.httpBody = jsonData
             
             let (data, response) = try await session.data(for: request)
@@ -186,7 +214,9 @@ final class NetworkEvents: NetworkEventsProtocol {
                 }
             }
             
-            let backendEvent = try JSONDecoder().decode(BackendEventResponse.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let backendEvent = try decoder.decode(BackendEventResponse.self, from: data)
             
             return EventModel(
                 id: backendEvent.id.uuidString,
@@ -203,7 +233,6 @@ final class NetworkEvents: NetworkEventsProtocol {
             )
             
         } catch {
-            print("Error creating event: \(error)")
             throw NetworkError.decodingError(error)
         }
     }
@@ -245,14 +274,27 @@ final class NetworkEvents: NetworkEventsProtocol {
             }
             
             guard httpResponse.statusCode == 200 else {
-                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
-                    throw NetworkError.requestFailed(responseCode)
-                } else {
-                    throw NetworkError.unknown(URLError(.badServerResponse))
+                switch httpResponse.statusCode {
+                case 400:
+                    throw NetworkError.badRequest("IDs mal formados")
+                case 401:
+                    throw NetworkError.unauthorized
+                case 404:
+                    throw NetworkError.notFound
+                case 500...599:
+                    throw NetworkError.internalServerError
+                default:
+                    if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                        throw NetworkError.requestFailed(responseCode)
+                    } else {
+                        throw NetworkError.unknown(URLError(.badServerResponse))
+                    }
                 }
             }
             
-            let backendEvent = try JSONDecoder().decode(BackendEventResponse.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let backendEvent = try decoder.decode(BackendEventResponse.self, from: data)
             
             return EventModel(
                 id: backendEvent.id.uuidString,
@@ -269,7 +311,6 @@ final class NetworkEvents: NetworkEventsProtocol {
             )
             
         } catch {
-            print("Error updating event: \(error)")
             throw NetworkError.decodingError(error)
         }
     }
@@ -300,7 +341,6 @@ final class NetworkEvents: NetworkEventsProtocol {
             }
             
         } catch {
-            print("Error deleting event: \(error)")
             throw NetworkError.decodingError(error)
         }
     }

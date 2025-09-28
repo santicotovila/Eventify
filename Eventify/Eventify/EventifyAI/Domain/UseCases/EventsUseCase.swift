@@ -19,10 +19,9 @@ final class EventsUseCase: EventsUseCaseProtocol {
     var repo: EventsRepositoryProtocol
     
     init(repo: EventsRepositoryProtocol? = nil, modelContext: ModelContext? = nil) {
-        // Si no se pasa repo, usar el híbrido por defecto
-        self.repo = repo ?? HybridEventsRepository(
+        self.repo = repo ?? SimpleEventsRepository(
             modelContext: modelContext,
-            enableNetwork: true  // Habilitar backend por defecto
+            enableNetwork: true
         )
     }
     

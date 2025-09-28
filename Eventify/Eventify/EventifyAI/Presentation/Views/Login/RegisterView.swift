@@ -72,6 +72,7 @@ struct RegisterView: View {
                             .frame(width: 20)
                         TextField("Nombre de usuario", text: $username)
                             .autocapitalization(.none)
+                            .submitLabel(.next)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -85,6 +86,7 @@ struct RegisterView: View {
                         TextField("Email", text: $email)
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
+                            .submitLabel(.next)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -96,6 +98,7 @@ struct RegisterView: View {
                             .foregroundColor(.gray)
                             .frame(width: 20)
                         SecureField("Contraseña", text: $password)
+                            .submitLabel(.next)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -107,6 +110,15 @@ struct RegisterView: View {
                             .foregroundColor(.gray)
                             .frame(width: 20)
                         SecureField("Repetir Contraseña", text: $confirmPassword)
+                            .submitLabel(.go)
+                        
+                        if !confirmPassword.isEmpty && password != confirmPassword {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.red)
+                        } else if !confirmPassword.isEmpty && password == confirmPassword {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -117,9 +129,7 @@ struct RegisterView: View {
                         Text("* Contraseña mínimo 8 caracteres")
                             .font(.caption2)
                             .foregroundColor(.white.opacity(0.8))
-                        Text("* Campos Obligatorios")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.8))
+                        
                     }
                     
                     // Botón continuar
@@ -195,16 +205,20 @@ struct RegisterView: View {
     }
     
     private var isFormValid: Bool {
-        !username.isEmpty && 
-        !email.isEmpty && 
-        !password.isEmpty && 
-        !confirmPassword.isEmpty &&
-        password == confirmPassword &&
-        password.count >= 8 &&
-        email.contains("@")
+        return !username.isEmpty && 
+               !email.isEmpty && 
+               !password.isEmpty && 
+               !confirmPassword.isEmpty &&
+               password.count >= 6 &&
+               email.contains("@") &&
+               password == confirmPassword
     }
 }
 
 #Preview {
-    RegisterView()
+    let loginRepository = DefaultLoginRepository()
+    let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+    let appState = AppStateVM(loginUseCase: loginUseCase)
+    return RegisterView()
+        .environment(appState)
 }

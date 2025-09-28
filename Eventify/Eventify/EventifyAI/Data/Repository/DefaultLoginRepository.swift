@@ -93,6 +93,10 @@ final class DefaultLoginRepository: LoginRepositoryProtocol {
         try keychain.saveCurrentUser(user)
     }
     
+    func saveUserToken(_ token: String) throws {
+        try keychain.saveUserToken(token)
+    }
+    
     // MARK: - Métodos Privados
     
     private func extractNameFromEmail(_ email: String) -> String {

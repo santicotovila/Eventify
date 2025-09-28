@@ -79,7 +79,7 @@ struct EventModel: Identifiable, Codable, Equatable {
     }
 }
 
-// MARK: - Preview Extensions
+// MARK: - Extensions
 extension EventModel {
     static let preview = EventModel(
         id: "preview-event-1",

@@ -30,22 +30,13 @@ final class EventDetailViewModel {
         
         do {
             let allEvents = await eventsUseCase.getEvents(filter: "")
-            print("Buscando evento con ID: \(eventId)")
-            print("Eventos disponibles: \(allEvents.count)")
-            for event in allEvents {
-                print("  - ID: \(event.id), Título: \(event.title)")
-            }
             
             self.event = allEvents.first { $0.id == eventId }
             
-            if let foundEvent = self.event {
-                print("Evento encontrado: \(foundEvent.title)")
-            } else {
-                print("No se encontró evento con ID: \(eventId)")
+            if self.event == nil {
                 errorMessage = "No se pudo encontrar el evento con ID: \(eventId)"
             }
         } catch {
-            print("Error cargando eventos: \(error)")
             errorMessage = "Error al cargar el evento: \(error.localizedDescription)"
         }
         
@@ -61,10 +52,8 @@ final class EventDetailViewModel {
         let success = await eventsUseCase.deleteEvent(event.id)
         
         if success {
-            print("Evento eliminado: \(event.title)")
         } else {
             errorMessage = "No se pudo eliminar el evento"
-            print("Error al eliminar evento: \(event.title)")
         }
         
         isLoading = false
