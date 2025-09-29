@@ -64,18 +64,18 @@ extension AuthController {
     // Endpoint de login.
     // Requiere que el middleware de autenticación haya adjuntado un Users válido al request.
     // Si llega aquí, el usuario está autenticado y se emiten tokens JWT.
-    func login(req: Request) async throws -> JWTTokenDTO {
-        
-        // Recuperamos el usuario autenticado
-        let user = try req.auth.require(Users.self)
-        
-        // Genera y devuelve tokens para el usuario
-        return try await generateJWTTokens(
-            for: user.email,
-            andID: user.requireID(),
-            withRequest: req
-        )
-    }
+        func login(req: Request) async throws -> JWTTokenDTO {
+            
+            // Recuperamos el usuario autenticado
+            let user = try req.auth.require(Users.self)
+            
+            // Genera y devuelve tokens para el usuario
+            return try await generateJWTTokens(
+                for: user.email,
+                andID: user.requireID(),
+                withRequest: req
+            )
+        }
     
     // Endpoint de refresh token.
     // Recibe un JWT en el Authorization que debe ser un refresh token válido.

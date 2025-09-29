@@ -1,6 +1,9 @@
 import Vapor
 import Queues
 
+
+//MARK: - Dejo la estructura para doble autenticación pendiente para producción.
+
 struct Email: Codable {
     let to: String
     let message: String

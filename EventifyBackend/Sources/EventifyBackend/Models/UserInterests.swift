@@ -8,6 +8,8 @@
 import Fluent
 import Vapor
 
+//Modelo pivot que conecta usuarios con intereses.
+
 final class UserInterest: Model, @unchecked Sendable {
     static let schema = ConstantsUserInterests.schemaUserInterests
     

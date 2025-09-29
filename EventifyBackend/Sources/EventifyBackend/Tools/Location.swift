@@ -7,11 +7,14 @@
 
 import Foundation
 
+//MARK: - Pendiente todavia de implementar,no dio tiempo en Front.
 struct Location {
     let lat: Double
     let lon: Double
 }
 
+
+//Formula de Haversine útil para cuando proximamente implementemos la localizacion para asi obtener los lugares cercanos.
 extension Location {
     func distance(to other: Location) -> Double {
         let R = 6371.0

@@ -5,7 +5,9 @@ func routes(_ app: Application) throws {
     app.get { req async in
         "It works server Eventify!"
     }
-
+    
+//Registro de rutas
+    
     try app.group("api") { builder in
         try builder.register(collection: AuthController())
         try builder.register(collection: UsersController())

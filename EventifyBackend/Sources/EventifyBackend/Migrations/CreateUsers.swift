@@ -1,6 +1,9 @@
 import Fluent
 import Vapor
 
+
+//Migracion para crear la tabla de usuarios.
+//Cada fila representa información de cada usuario.
 struct CreateUsers: AsyncMigration {
     func prepare(on database: any Database) async  throws {
         try await database.schema(ConstantsUsers.schemaUsers)

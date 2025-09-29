@@ -8,6 +8,8 @@
 import Fluent
 import Vapor
 
+//Migracion para crear la tabla de eventos.
+//Cada fila representa la información de un evento por parte de  un usuario.
 struct CreateEvents: AsyncMigration {
     func prepare(on database: any Database) async  throws {
         try await database.schema(ConstantsEvents.schemaEvents)
@@ -24,6 +26,7 @@ struct CreateEvents: AsyncMigration {
             .create()
     }
 
+    // Borra la tabla si hacemos rollback
     func revert(on database: any Database) async throws {
         try await database.schema(ConstantsEvents.schemaEvents).delete()
     }

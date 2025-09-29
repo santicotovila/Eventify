@@ -8,6 +8,7 @@
 
 import Fluent
 
+//Constantes utilizadass para dar mas seguridad y evitar confuciones con los nombres
 struct ConstantsUserInterests {
     static let schemaUserInterests = "user_interests"
     static let userID: FieldKey = "userID"

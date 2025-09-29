@@ -16,7 +16,7 @@ struct PopulateData: AsyncMigration {
     
     
     func prepare(on database: any Database) async throws {
-        // Lista de intereses iniciales (seed).
+        // Lista de intereses iniciales para el registro del usuario.
         let nameInterests = ["Deportes",
                              "Juegos",
                              "Ferias",
@@ -33,7 +33,7 @@ struct PopulateData: AsyncMigration {
                              "Relajación",
                              "Discotecas"]
         
-        // Inserta cada interés si no existe previamente (por nombre exacto).
+        // Inserta cada interés si no existe previamente
         for name in nameInterests {
             if try await Interest.query(on: database)
                 .filter(\.$name == name)

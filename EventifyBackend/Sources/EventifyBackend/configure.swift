@@ -9,14 +9,14 @@ import Foundation
 
 public func configure(_ app: Application) async throws {
    
-
+//Comprobación de que existe una JWT_KEY y API_KEY ,en caso contrario,no levanta servidor.
     guard let jwtKey = Environment.process.JWT_KEY else { fatalError("JWT_KEY not found") }
     guard let _ = Environment.process.API_KEY else { fatalError("API_KEY required") }
 
     
     switch app.environment {
     case .production:
-        // create PostgreSQL connection
+        // Creación de PostgreSQL conexión ya que  la intención era levantar el servidor  con su respectivo dominio.
         app.databases.use(
             .postgres(
                 configuration: .init(
@@ -30,7 +30,7 @@ public func configure(_ app: Application) async throws {
             ),
             as: .psql
         )
-        // Configure Redis connection
+        // Configurar Redis conexion
         let redisHost = Environment.get("REDIS_HOST") ?? "redis"
         let redisPort = Environment.get("REDIS_PORT") ?? "6379"
         try app.queues.use(.redis(url: "redis://\(redisHost):\(redisPort)"))
@@ -41,7 +41,7 @@ public func configure(_ app: Application) async throws {
         app.databases.use(DatabaseConfigurationFactory.sqlite(.file("db.sqlite")), as: .sqlite)
     }
     
-    // Set password algorithm
+    // Guardar contraseña con algoritmo
     app.passwords.use(.bcrypt)
     
     // Configure JWT

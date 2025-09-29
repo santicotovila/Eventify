@@ -8,6 +8,10 @@
 import Fluent
 import Vapor
 
+
+
+// Modelo que representa un evento
+// Cada instancia es la relación usuario → evento, con su estado,fecha,categoria,direccion...etc
 final class Events: Model, @unchecked Sendable {
     static let schema = ConstantsEvents.schemaEvents
     
@@ -20,10 +24,10 @@ final class Events: Model, @unchecked Sendable {
     @Field(key: ConstantsEvents.category)
     var category: String?
     
-    @Field(key: ConstantsEvents.lat)
+    @Field(key: ConstantsEvents.lat)// No esta implementado en el Front todavia por eso utilizamos location
     var lat: Double?
     
-    @Field(key: ConstantsEvents.lng)
+    @Field(key: ConstantsEvents.lng)// No esta implementado en el Front todavia por eso utilizamos location
     var lng: Double?
     
     @Parent(key: ConstantsEvents.userID)
@@ -33,7 +37,7 @@ final class Events: Model, @unchecked Sendable {
     var eventDate: Date?
     
     @Field(key: ConstantsEvents.location)
-    var location: String?
+    var location: String? //Creación en el ultimo momento porque no daba tiempo a implementar el maps,por lo cual para poder crear eventos por nombre y no por ubicación
     
     @Timestamp(key: ConstantsEvents.createdAt, on: .create)
     var createdAt: Date?

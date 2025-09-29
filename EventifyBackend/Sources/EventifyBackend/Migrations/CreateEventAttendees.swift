@@ -8,6 +8,8 @@
 import Vapor
 import Fluent
 
+//Migracion para crear la tabla de asistencias de eventos.
+//Cada fila representa información en la asistencia de un usuario a un evento.
 struct CreateEventAttendees: AsyncMigration {
     func prepare(on db: any Database) async throws {
         try await db.schema(ConstantsEventAttendees.schema)
@@ -19,10 +21,11 @@ struct CreateEventAttendees: AsyncMigration {
             .field(ConstantsEventAttendees.status, .string, .required)
             .field(ConstantsEventAttendees.joinedAt, .datetime)
             .field(ConstantsEventAttendees.updatedAt, .datetime)
-            .unique(on: ConstantsEventAttendees.eventID, ConstantsEventAttendees.userID) // 1 por usuario/evento
+            .unique(on: ConstantsEventAttendees.eventID, ConstantsEventAttendees.userID)
             .create()
     }
-
+    
+    // Borra la tabla si hacemos rollback
     func revert(on db: any Database) async throws {
         try await db.schema(ConstantsEventAttendees.schema).delete()
     }

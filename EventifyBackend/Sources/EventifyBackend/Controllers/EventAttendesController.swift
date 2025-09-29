@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-// Controlador de rutas para gestionar los RSVP (asistencias) a eventos.
+// Controlador de rutas para gestionar las asistencias a eventos.
 struct EventAttendeesController: RouteCollection, Sendable {
 
     // Registra las rutas del controlador.
@@ -33,7 +33,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
         guard try await Users.find(dto.userID, on: req.db) != nil
         else { throw Abort(.notFound, reason: "Usuario no existe") }
 
-        // Unicidad por (event y user). Si existe, actualizamos; si no, creamos.
+        // Unicidad por (event y user). Si existe, actualizamos si no, creamos.
         if let existing = try await EventAttendee.query(on: req.db)
             .filter(\.$event.$id == dto.eventID)
             .filter(\.$user.$id == dto.userID)
@@ -55,7 +55,6 @@ struct EventAttendeesController: RouteCollection, Sendable {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
 
-        // Si la URL trae eventID, debe coincidir con el del body para evitar inconsistencias.
         if let urlID = req.parameters.get("eventID", as: UUID.self), urlID != dto.eventID {
             throw Abort(.badRequest, reason: "eventID URL != body")
         }
@@ -65,7 +64,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
         return try record.toPublicDTO()
     }
 
-    // Actualiza el estado de un RSVP existente para el usuario autenticado y el eventID.
+    // Actualiza el estado de un rsvp existente para el usuario autenticado y el eventID.
     func updateFromJWT(_ req: Request) async throws -> EventAttendeesDTO.Public {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()
@@ -87,7 +86,7 @@ struct EventAttendeesController: RouteCollection, Sendable {
         return try existing.toPublicDTO()
     }
     
-    // Eliminamos el RSVP del usuario autenticado para el eventID
+    // Eliminamos el RSVP del usuario
     func deleteFromJWT(_ req: Request) async throws -> HTTPStatus {
         let user = try req.auth.require(Users.self)
         let userID = try user.requireID()

@@ -7,6 +7,8 @@
 import Vapor
 import Fluent
 
+//Constantes utilizadass para dar mas seguridad y evitar confuciones con los nombres
+
 struct ConstantsEvents {
     static let schemaEvents   = "events"
     static let nameEvent: FieldKey = "nameEvent"

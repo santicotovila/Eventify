@@ -7,6 +7,7 @@
 
 import Fluent
 
+//Constantes utilizadass para dar mas seguridad y evitar confuciones con los nombres
 struct ConstantsEventAttendees {
     static let schema = "event_attendees"
     static let eventID: FieldKey = "eventID"

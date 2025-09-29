@@ -8,6 +8,8 @@
 import Vapor
 import Fluent
 
+
+// Modelo que representa un interes
 final class Interest: Model, @unchecked Sendable {
     static let schema = ConstantsInterests.schemaInterests
     
@@ -22,7 +24,7 @@ final class Interest: Model, @unchecked Sendable {
     @Field(key: ConstantsInterests.nameClean)
     var nameClean: String
     
-    @Siblings(through: UserInterest.self, from: \.$interest, to: \.$user)
+    @Siblings(through: UserInterest.self, from: \.$interest, to: \.$user) // Relación muchos a muchos, un interés puede tener varios usuarios, y un usuario puede tener varios intereses.
     var users: [Users]
     
     init() {}
@@ -33,18 +35,14 @@ final class Interest: Model, @unchecked Sendable {
     
     
     
-    //MARK: - Util para no diferencias por mayusculas o tildes
-    
+    //Util para no diferencias por mayusculas o tildes ya que tenia conflictos.
     
     static func cleanName(from text: String) -> String {
         var s = text.lowercased()
-        // quita tildes: "Música" -> "Musica"
+        
         s = s.folding(options: .diacriticInsensitive, locale: .init(identifier: "es_ES"))
-        // deja solo letras/números/espacios/guiones
         s = s.replacingOccurrences(of: "[^a-z0-9\\s-]", with: "", options: .regularExpression)
-        // espacios múltiples -> un guion
-        s = s.replacingOccurrences(of: "\\s+", with: "-", options: .regularExpression)
-        // quita guiones al principio/fin
+       s = s.replacingOccurrences(of: "\\s+", with: "-", options: .regularExpression)
         s = s.trimmingCharacters(in: CharacterSet(charactersIn: "-"))
         return s
     }

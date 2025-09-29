@@ -34,7 +34,7 @@ struct UsersDTO: Content {
         let interests: [String]
     }
 }
-
+//MARK: - Validations
 extension UsersDTO.Create: Validatable {
     static func validations(_ v: inout Vapor.Validations) {
         v.add("name", as: String.self, is: .count(3...30), required: true)

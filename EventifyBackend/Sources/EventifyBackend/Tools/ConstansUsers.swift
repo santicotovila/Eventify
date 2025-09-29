@@ -2,6 +2,7 @@ import Foundation
 import Vapor
 import Fluent
 
+//Constantes utilizadass para dar mas seguridad y evitar confuciones con los nombres
 struct ConstantsUsers {
     static let schemaUsers = "users"
     static let name: FieldKey = "name"

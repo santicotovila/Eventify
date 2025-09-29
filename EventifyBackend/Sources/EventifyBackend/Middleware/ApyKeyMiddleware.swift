@@ -7,6 +7,7 @@
 
 import Vapor
 
+//Comprobación de la ApiKey del servidor,si existe comprobamos y verificamos si es correcta.
 struct ApiKeyMiddleware: AsyncMiddleware {
     
     func respond(to request: Request, chainingTo next: any AsyncResponder) async throws -> Response {

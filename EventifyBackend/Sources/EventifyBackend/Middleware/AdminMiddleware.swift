@@ -7,6 +7,8 @@
 
 import Vapor
 
+
+//MARK: - Todavia no implementamos un perfil de administradores ya que inicializamos todos como false pero lo dejo pendiente para nuevas actualizaciones.
 struct AdminMiddleware: AsyncMiddleware {
     
     func respond(to request: Request, chainingTo next: any AsyncResponder) async throws -> Response {

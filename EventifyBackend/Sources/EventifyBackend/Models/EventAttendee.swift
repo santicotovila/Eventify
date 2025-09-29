@@ -8,6 +8,9 @@
 import Fluent
 import Vapor
 
+
+// Modelo que representa la asistencia de un usuario a un evento.
+// Cada instancia es la relación usuario → evento, con su estado y fechas.
 final class EventAttendee: Model, @unchecked Sendable {
     static let schema = ConstantsEventAttendees.schema
     

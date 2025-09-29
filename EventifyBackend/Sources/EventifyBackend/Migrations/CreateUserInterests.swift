@@ -11,6 +11,8 @@ import Vapor
 
 import Fluent
 
+//Migracion para crear la tabla de intereses de cada usuario,lo cual se lleva a cabo en el registro.
+//Cada fila representa información de los intereses del usuario.
 struct CreateUserInterests: AsyncMigration {
     func prepare(on db: any Database) async throws {
         try await db.schema(ConstantsUserInterests.schemaUserInterests)
