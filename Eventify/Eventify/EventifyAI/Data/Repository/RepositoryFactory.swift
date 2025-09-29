@@ -25,7 +25,7 @@ final class SimpleEventsRepository: EventsRepositoryProtocol {
         if let networkRepo = networkRepo {
             let backendEvents = await networkRepo.getEvents(filter: "")
             
-            // DESHABILITADO: Sincronización con SwiftData para evitar threading issues
+            // Sincronización con SwiftData para evitar problemas
             // Usando solo backend por ahora
             // if let swiftDataRepo = swiftDataRepo {
             //     for backendEvent in backendEvents {
@@ -42,7 +42,7 @@ final class SimpleEventsRepository: EventsRepositoryProtocol {
             return filteredEvents.sorted { $0.date > $1.date }
         }
         
-        // Fallback a local solo si no hay red
+        
         if let swiftDataRepo = swiftDataRepo {
             let localEvents = await swiftDataRepo.getEvents(filter: filter)
             return localEvents.sorted { $0.date > $1.date }
@@ -52,8 +52,6 @@ final class SimpleEventsRepository: EventsRepositoryProtocol {
     }
     
     func createEvent(_ event: EventModel) async -> Bool {
-        // DESHABILITADO: SwiftData por threading issues
-        // Solo usar backend por ahora
         
         if let networkRepo = networkRepo {
             let result = await networkRepo.createEvent(event)
@@ -64,8 +62,6 @@ final class SimpleEventsRepository: EventsRepositoryProtocol {
     }
     
     func deleteEvent(_ eventId: String) async -> Bool {
-        // DESHABILITADO: SwiftData por threading issues
-        // Solo usar backend por ahora
         
         if let networkRepo = networkRepo {
             return await networkRepo.deleteEvent(eventId)

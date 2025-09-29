@@ -19,6 +19,13 @@ final class NetworkEvents: NetworkEventsProtocol {
     private let session = URLSession.shared
     private let baseURL = ConstantsApp.API.baseURL
     
+    // MARK: - Private Helper Methods
+    private func addAuthHeader(to request: inout URLRequest) {
+        if let token = KeyChainEventify.shared.getUserToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+    }
+    
     private struct BackendEventResponse: Codable {
         let id: UUID
         let name: String
@@ -52,6 +59,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = HttpMethods.GET.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request)
         
         do {
             let (data, response) = try await session.data(for: request)
@@ -122,6 +130,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = HttpMethods.GET.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request)
         
         do {
             let (data, response) = try await session.data(for: request)
@@ -183,6 +192,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = HttpMethods.POST.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request)
         
         let backendRequest = BackendEventRequest(
             name: event.name ?? event.title,
@@ -252,6 +262,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = HttpMethods.PUT.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request)
         
         let backendRequest = BackendEventRequest(
             name: event.name ?? event.title,
@@ -324,6 +335,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = HttpMethods.DELETE.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request)
         
         do {
             let (_, response) = try await session.data(for: request)

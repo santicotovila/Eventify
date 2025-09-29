@@ -45,6 +45,24 @@ final class EventsViewModel {
                 }
             }
             .store(in: &cancellables)
+        
+        // Escuchar cuando el usuario hace login para refrescar la lista de eventos
+        NotificationCenter.default.userDidSignInPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task {
+                    await self?.getEvents()
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Escuchar cuando el usuario hace logout para limpiar la lista de eventos
+        NotificationCenter.default.userDidSignOutPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.eventsData = []
+            }
+            .store(in: &cancellables)
     }
     
     @MainActor

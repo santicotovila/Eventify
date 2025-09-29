@@ -67,9 +67,21 @@ final class NetworkLogin: NetworkLoginProtocol {
             
             let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
             
-            // Crear UserModel a partir del email (temporal, el JWT contiene más info)
+            // Guardar el token JWT en KeyChain
+            try KeyChainEventify.shared.saveUserToken(loginResponse.accessToken)
+            
+            // Extraer userID del JWT token
+            let userIdFromJWT: String? = {
+                guard let payload = JWTHelper.extractPayload(from: loginResponse.accessToken),
+                      let userIDString = payload["userID"] as? String else {
+                    return nil
+                }
+                return userIDString
+            }()
+            
+            // Crear UserModel con el ID real del JWT
             let user = UserModel(
-                id: "user-from-backend",
+                id: userIdFromJWT ?? "user-fallback-\(UUID().uuidString)",
                 email: email,
                 displayName: email.components(separatedBy: "@").first ?? "Usuario"
             )
