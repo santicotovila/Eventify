@@ -1,11 +1,13 @@
 import SwiftUI
 
+// Componente reutilizable para estados de carga con dos variantes
 struct LoaderView: View {
     let message: String
     let showProgress: Bool
     
     @State private var isAnimating = false
     
+    // Init con valores por defecto para flexibilidad
     init(message: String = "Cargando...", showProgress: Bool = true) {
         self.message = message
         self.showProgress = showProgress
@@ -14,11 +16,12 @@ struct LoaderView: View {
     var body: some View {
         VStack(spacing: 20) {
             if showProgress {
+                // ProgressView nativo de SwiftUI
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .blue))
                     .scaleEffect(1.2)
             } else {
-                // Custom animated loader
+                // Loader personalizado con animación secuencial
                 HStack(spacing: 4) {
                     ForEach(0..<3) { index in
                         Circle()
@@ -28,7 +31,7 @@ struct LoaderView: View {
                             .animation(
                                 .easeInOut(duration: 0.6)
                                     .repeatForever()
-                                    .delay(0.2 * Double(index)),
+                                    .delay(0.2 * Double(index)), // Delay progresivo
                                 value: isAnimating
                             )
                     }
@@ -47,6 +50,7 @@ struct LoaderView: View {
     }
 }
 
+// Overlay de carga que bloquea la pantalla - para operaciones críticas
 struct LoaderOverlay: View {
     let message: String
     
@@ -56,6 +60,7 @@ struct LoaderOverlay: View {
     
     var body: some View {
         ZStack {
+            // Fondo semitransparente que bloquea interacción
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
             
@@ -75,6 +80,7 @@ struct LoaderOverlay: View {
     }
 }
 
+// Preview con múltiples variantes para desarrollo
 #Preview {
     Group {
         LoaderView()

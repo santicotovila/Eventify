@@ -1,26 +1,27 @@
 import Foundation
+import SwiftData
 
 @MainActor
-final class EventDetailViewModel: ObservableObject {
+@Observable
+final class EventDetailViewModel {
     
-    @Published var event: EventModel?
-    @Published var userAttendance: AttendanceModel?
-    @Published var isLoading: Bool = false
-    @Published var errorMessage: String? = nil
-    @Published var isShowingAlert: Bool = false
-    @Published var alertMessage: String = ""
-    @Published var voteState: Bool = false
+    var event: EventModel?
+    var isLoading: Bool = false
+    var errorMessage: String? = nil
     
     private let eventId: String
-    private let eventsUseCase: EventsUseCaseProtocol
-    private let attendanceUseCase: AttendanceUseCaseProtocol
-    private let loginUseCase: LoginUseCaseProtocol
+    @ObservationIgnored
+    private var eventsUseCase: EventsUseCaseProtocol
     
-    init(eventId: String, eventsUseCase: EventsUseCaseProtocol, attendanceUseCase: AttendanceUseCaseProtocol, loginUseCase: LoginUseCaseProtocol) {
+    init(eventId: String, eventsUseCase: EventsUseCaseProtocol = EventsUseCase()) {
         self.eventId = eventId
         self.eventsUseCase = eventsUseCase
-        self.attendanceUseCase = attendanceUseCase
-        self.loginUseCase = loginUseCase
+    }
+    
+    // Método para inyectar modelContext después de init
+    func setModelContext(_ modelContext: ModelContext) {
+        // Recrear UseCase con contexto
+        self.eventsUseCase = EventsUseCase(modelContext: modelContext)
     }
     
     func loadEventDetail() async {
@@ -28,53 +29,34 @@ final class EventDetailViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            guard let updatedEvent = try await eventsUseCase.getEventById(eventId) else {
-                errorMessage = "No se pudo encontrar el evento."
-                isLoading = false
-                return
-            }
-            self.event = updatedEvent
+            let allEvents = await eventsUseCase.getEvents(filter: "")
             
-            // Cargar asistencia del usuario si está autenticado
-            if let currentUser = loginUseCase.getCurrentUser() {
-                userAttendance = try await attendanceUseCase.getUserAttendance(userId: currentUser.id, eventId: eventId)
+            self.event = allEvents.first { $0.id == eventId }
+            
+            if self.event == nil {
+                errorMessage = "No se pudo encontrar el evento con ID: \(eventId)"
             }
         } catch {
-            errorMessage = "Error al cargar los detalles del evento: \(error.localizedDescription)"
+            errorMessage = "Error al cargar el evento: \(error.localizedDescription)"
         }
         
         isLoading = false
     }
     
-    func vote(status: AttendanceStatus) async {
-        guard let currentUser = loginUseCase.getCurrentUser() else {
-            showAlert(message: "Debes iniciar sesión para votar")
-            return
+    func deleteEvent() async -> Bool {
+        guard let event = event else { return false }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        let success = await eventsUseCase.deleteEvent(event.id)
+        
+        if success {
+        } else {
+            errorMessage = "No se pudo eliminar el evento"
         }
         
-        voteState = true
-        
-        do {
-            let attendance = try await attendanceUseCase.saveAttendance(
-                userId: currentUser.id,
-                eventId: eventId,
-                status: status,
-                userName: currentUser.displayName ?? "Usuario"
-            )
-            userAttendance = attendance
-        } catch {
-            showAlert(message: "Error al votar: \(error.localizedDescription)")
-        }
-        
-        voteState = false
-    }
-    
-    func refreshData() async {
-        await loadEventDetail()
-    }
-    
-    private func showAlert(message: String) {
-        alertMessage = message
-        isShowingAlert = true
+        isLoading = false
+        return success
     }
 }

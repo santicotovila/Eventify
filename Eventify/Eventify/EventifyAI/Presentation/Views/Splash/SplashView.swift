@@ -15,9 +15,13 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color.blue.opacity(0.8), Color.purple.opacity(1.2)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                stops: [
+                    Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
+                    Gradient.Stop(color: Color(red: 0.31, green: 0.27, blue: 0.58), location: 0.40),
+                    Gradient.Stop(color: Color(red: 0.45, green: 0.22, blue: 0.57), location: 1.00),
+                ],
+                startPoint: UnitPoint(x: 0.02, y: 0),
+                endPoint: UnitPoint(x: 1, y: 1)
             )
             .ignoresSafeArea()
             

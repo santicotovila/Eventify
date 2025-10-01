@@ -1,3 +1,10 @@
+//
+//  LoginRepositoryProtocol.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 7/9/25.
+//
+
 import Foundation
 
 protocol LoginRepositoryProtocol {
@@ -8,4 +15,5 @@ protocol LoginRepositoryProtocol {
     func refreshToken() async throws -> String
     func isUserAuthenticated() -> Bool
     func getUserToken() -> String?
+    func saveUser(_ user: UserModel) throws
 }

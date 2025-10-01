@@ -1,21 +1,27 @@
+//
+//  AppStateVM.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 9/9/25.
+//
+
 import Foundation
 import Combine
 
-// Gestiona el estado global de la app (si el usuario está logueado o no).
-// Se comparte por toda la app como un EnvironmentObject para que cualquier vista pueda acceder a él.
 @MainActor
-final class AppStateVM: ObservableObject {
+@Observable
+final class AppStateVM {
     
-    // MARK: - Propiedades de Estado Global
-    @Published var isUserAuthenticated: Bool = false
-    @Published var currentUser: UserModel?
-    @Published var selectedTab: Int = 0
-    @Published var showAlert: Bool = false
-    @Published var alertMessage: String = ""
+    var isUserAuthenticated: Bool = false
+    var currentUser: UserModel?
+    var selectedTab: Int = 0
+    var showAlert: Bool = false
+    var alertMessage: String = ""
+    var isLoading: Bool = false
     
-    // MARK: - Dependencias y Suscripciones
-    private let loginUseCase: LoginUseCaseProtocol
-    // Guardamos aquí las suscripciones de Combine para que no "mueran".
+    @ObservationIgnored
+    let loginUseCase: LoginUseCaseProtocol
+    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     
     init(loginUseCase: LoginUseCaseProtocol) {
@@ -31,8 +37,7 @@ final class AppStateVM: ObservableObject {
         self.isUserAuthenticated = loginUseCase.isUserAuthenticated()
         self.currentUser = loginUseCase.getCurrentUser()
     }
-    
-    // Métodos para manejar alertas
+   
     func showAlert(message: String) {
         self.alertMessage = message
         self.showAlert = true
@@ -43,15 +48,13 @@ final class AppStateVM: ObservableObject {
         self.alertMessage = ""
     }
     
-    // Propiedad computada para el nombre de usuario
+    //  nombre de usuario
     var userDisplayName: String {
         return currentUser?.displayName ?? "Usuario"
     }
     
-    // Estado de carga
-    @Published var isLoading: Bool = false
     
-    // Método para cerrar sesión
+    //  cerrar sesión
     func signOut() async {
         isLoading = true
         
@@ -65,7 +68,7 @@ final class AppStateVM: ObservableObject {
         isLoading = false
     }
     
-    // MARK: - Suscripciones a Notificaciones
+    // MARK: - Suscripcion a Notificaciones
     // Escucha notificaciones globales para mantener el estado actualizado.
     private func setupSubscribers() {
         // Se suscribe a la notificación de login exitoso.

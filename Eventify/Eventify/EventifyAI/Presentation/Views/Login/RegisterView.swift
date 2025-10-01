@@ -1,7 +1,10 @@
 import SwiftUI
 
+// Vista de registro - primera parte del proceso de registro
 struct RegisterView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppStateVM.self) var appState: AppStateVM
+    // @State para campos del formulario - datos locales de la vista
     @State private var username = ""
     @State private var email = ""
     @State private var password = ""
@@ -11,9 +14,13 @@ struct RegisterView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color.blue.opacity(0.8), Color.purple.opacity(1.2)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                stops: [
+                    Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
+                    Gradient.Stop(color: Color(red: 0.31, green: 0.27, blue: 0.58), location: 0.40),
+                    Gradient.Stop(color: Color(red: 0.45, green: 0.22, blue: 0.57), location: 1.00),
+                ],
+                startPoint: UnitPoint(x: 0.02, y: 0),
+                endPoint: UnitPoint(x: 1, y: 1)
             )
             .ignoresSafeArea()
             
@@ -33,9 +40,9 @@ struct RegisterView: View {
                 .padding(.top)
                 
                 VStack(spacing: 32) {
-                    // Header con foto de perfil
+                    // Header con placeholder de foto de perfil
                     VStack(spacing: 16) {
-                    // Círculo para añadir foto de perfil
+                    // Placeholder para foto de perfil (funcionalidad pendiente)
                     ZStack {
                         Circle()
                             .fill(Color.white.opacity(0.2))
@@ -67,6 +74,7 @@ struct RegisterView: View {
                             .frame(width: 20)
                         TextField("Nombre de usuario", text: $username)
                             .autocapitalization(.none)
+                            .submitLabel(.next)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -80,6 +88,7 @@ struct RegisterView: View {
                         TextField("Email", text: $email)
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
+                            .submitLabel(.next)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -91,6 +100,7 @@ struct RegisterView: View {
                             .foregroundColor(.gray)
                             .frame(width: 20)
                         SecureField("Contraseña", text: $password)
+                            .submitLabel(.next)
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
@@ -102,17 +112,30 @@ struct RegisterView: View {
                             .foregroundColor(.gray)
                             .frame(width: 20)
                         SecureField("Repetir Contraseña", text: $confirmPassword)
+                            .submitLabel(.go)
+                        
+                        // Validación visual en tiempo real
+                        if !confirmPassword.isEmpty && password != confirmPassword {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.red)
+                        } else if !confirmPassword.isEmpty && password == confirmPassword {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
                     }
                     .padding()
                     .background(Color.white.opacity(0.9))
                     .cornerRadius(15)
                     
-                    // Texto de campos obligatorios
-                    HStack {
-                        Spacer()
-                        Text("* Campos Obligatorios")
-                            .font(.caption)
+                    // Texto de campos obligatorios y requisitos
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("* Nombre: 3-30 caracteres")
+                            .font(.caption2)
                             .foregroundColor(.white.opacity(0.8))
+                        Text("* Contraseña mínimo 8 caracteres")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.8))
+
                     }
                     
                     // Botón continuar
@@ -177,21 +200,34 @@ struct RegisterView: View {
                 .padding()
             }
         }
+        // Modal para segunda parte del registro (selección de intereses)
         .fullScreenCover(isPresented: $showContinueRegistration) {
-            ContinueRegistrationView()
+            ContinueRegistrationView(
+                userName: username,
+                email: email,
+                password: password,
+                loginUseCase: appState.loginUseCase
+            )
         }
     }
     
+    // Computed property para validación del formulario
     private var isFormValid: Bool {
-        !username.isEmpty && 
-        !email.isEmpty && 
-        !password.isEmpty && 
-        !confirmPassword.isEmpty &&
-        password == confirmPassword &&
-        email.contains("@")
+        return username.count >= 3 &&
+               username.count <= 30 &&
+               !email.isEmpty &&
+               !password.isEmpty &&
+               !confirmPassword.isEmpty &&
+               password.count >= 8 &&
+               email.contains("@") &&
+               password == confirmPassword
     }
 }
 
 #Preview {
-    RegisterView()
+    let loginRepository = DefaultLoginRepository()
+    let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+    let appState = AppStateVM(loginUseCase: loginUseCase)
+    return RegisterView()
+        .environment(appState)
 }

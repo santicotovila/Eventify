@@ -1,4 +1,12 @@
+//
+//  ConstantsApp.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 5/9/25.
+//
+
 import Foundation
+import SwiftUI
 import CoreGraphics
 
 struct ConstantsApp {
@@ -37,16 +45,21 @@ struct ConstantsApp {
         static let animationDuration: Double = 0.3
     }
     
+    // MARK: - Colors
+    struct Colors {
+        static let gris = Color(red: 0.75, green: 0.78, blue: 0.82) // #BFC7D1
+    }
+    
     // MARK: - Validation
     struct Validation {
-        static let minPasswordLength = 6
+        static let minPasswordLength = 8
         static let maxEventTitleLength = 100
         static let maxEventDescriptionLength = 500
     }
     
     // MARK: - API
     struct API {
-        static let baseURL = "https://api.eventifyai.com"
+        static let baseURL = "http://localhost:8080/api"
         static let timeout: TimeInterval = 30.0
     }
 }

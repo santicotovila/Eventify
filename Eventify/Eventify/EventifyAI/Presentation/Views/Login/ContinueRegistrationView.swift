@@ -5,22 +5,27 @@ struct ContinueRegistrationView: View {
     @State private var firstName: String
     @State private var lastName = ""
     
-    init(userName: String = "") {
+    // Datos del registro anterior
+    private let userEmail: String
+    private let userPassword: String
+    private let loginUseCase: LoginUseCaseProtocol
+    
+    init(userName: String = "", email: String = "", password: String = "", loginUseCase: LoginUseCaseProtocol) {
         _firstName = State(initialValue: userName)
+        self.userEmail = email
+        self.userPassword = password
+        self.loginUseCase = loginUseCase
     }
     @State private var birthDate = Date()
     @State private var location = ""
-    @State private var selectedPreferences: Set<String> = []
+    @State private var selectedPreferences: Set<InterestModel> = []
+    @State private var availableInterests: [InterestModel] = []
     @State private var showDatePicker = false
-    @State private var showHomeView = false
+    @State private var isLoadingInterests = false
+    @State private var isRegistering = false
+    @State private var errorMessage: String?
     
-    // Preferencias disponibles según el mockup
-    let availablePreferences = [
-        "Deportes", "Juegos", "Ferias", "Bienestar", 
-        "Música", "Cine", "Baile", "Comida", "Aprendizaje",
-        "Aventura", "Entretenimiento", "Espectáculos", 
-        "Tapas y bares", "Relajación", "Discotecas"
-    ]
+    private let networkUser = NetworkUser()
     
     let preferenceColors: [String: Color] = [
         "Deportes": .blue, "Juegos": .green, "Ferias": .orange,
@@ -33,9 +38,13 @@ struct ContinueRegistrationView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color.blue.opacity(0.8), Color.purple.opacity(1.2)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                stops: [
+                    Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
+                    Gradient.Stop(color: Color(red: 0.31, green: 0.27, blue: 0.58), location: 0.40),
+                    Gradient.Stop(color: Color(red: 0.45, green: 0.22, blue: 0.57), location: 1.00),
+                ],
+                startPoint: UnitPoint(x: 0.02, y: 0),
+                endPoint: UnitPoint(x: 1, y: 1)
             )
             .ignoresSafeArea()
             
@@ -81,6 +90,8 @@ struct ContinueRegistrationView: View {
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
                                 TextField("Nombre", text: $firstName)
+                                    .textInputAutocapitalization(.words)
+                                    .submitLabel(.next)
     
                             }
                             .padding()
@@ -93,6 +104,8 @@ struct ContinueRegistrationView: View {
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
                                 TextField("Apellido", text: $lastName)
+                                    .textInputAutocapitalization(.words)
+                                    .submitLabel(.next)
                                 Text("*")
                                     .foregroundColor(.red)
                             }
@@ -124,6 +137,8 @@ struct ContinueRegistrationView: View {
                                     .foregroundColor(.gray)
                                     .frame(width: 20)
                                 TextField("Localidad", text: $location)
+                                    .textInputAutocapitalization(.words)
+                                    .submitLabel(.done)
                                 Text("*")
                                     .foregroundColor(.red)
                             }
@@ -147,62 +162,87 @@ struct ContinueRegistrationView: View {
                                 Text("❤️ Preferencias")
                                     .font(.subheadline)
                                     .foregroundColor(.white)
-                                Text("(Elige al menos 3)")
+                                Text("(Elige entre 3-6)")
                                     .font(.caption2)
                                     .foregroundColor(.white.opacity(0.8))
                                 Spacer()
                             }
                             .padding(.horizontal, 32)
                             
-                            // Grid de preferencias
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
-                                ForEach(availablePreferences, id: \.self) { preference in
-                                    Button(action: {
-                                        if selectedPreferences.contains(preference) {
-                                            selectedPreferences.remove(preference)
-                                        } else {
-                                            selectedPreferences.insert(preference)
+                            // Grid de preferencias - dinámico desde backend
+                            if isLoadingInterests {
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                                    .tint(.white)
+                                    .padding()
+                            } else {
+                                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+                                    ForEach(availableInterests) { interest in
+                                        Button(action: {
+                                            if selectedPreferences.contains(interest) {
+                                                selectedPreferences.remove(interest)
+                                            } else if selectedPreferences.count < 6 {
+                                                selectedPreferences.insert(interest)
+                                            }
+                                        }) {
+                                            Text(interest.name)
+                                                .font(.caption2)
+                                                .fontWeight(.medium)
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 8)
+                                                .background(
+                                                    selectedPreferences.contains(interest) ? 
+                                                    (preferenceColors[interest.name] ?? .blue) : 
+                                                    Color.white.opacity(0.3)
+                                                )
+                                                .foregroundColor(
+                                                    selectedPreferences.contains(interest) ? .white : .white.opacity(0.9)
+                                                )
+                                                .cornerRadius(20)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 20)
+                                                        .stroke(Color.white.opacity(0.3), lineWidth: selectedPreferences.contains(interest) ? 0 : 1)
+                                                )
                                         }
-                                    }) {
-                                        Text(preference)
-                                            .font(.caption2)
-                                            .fontWeight(.medium)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                selectedPreferences.contains(preference) ? 
-                                                (preferenceColors[preference] ?? .blue) : 
-                                                Color.white.opacity(0.3)
-                                            )
-                                            .foregroundColor(
-                                                selectedPreferences.contains(preference) ? .white : .white.opacity(0.9)
-                                            )
-                                            .cornerRadius(20)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 20)
-                                                    .stroke(Color.white.opacity(0.3), lineWidth: selectedPreferences.contains(preference) ? 0 : 1)
-                                            )
                                     }
                                 }
+                                .padding(.horizontal, 32)
                             }
-                            .padding(.horizontal, 32)
                         }
                         
                         // Botones de acción
                         VStack(spacing: 16) {
                             Button(action: {
-                                showHomeView = true
+                                Task {
+                                    await registerUser()
+                                }
                             }) {
-                                Text("Crear cuenta")
-                                    .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 50)
-                                    .background(Color.white.opacity(0.3))
-                                    .foregroundColor(.white)
-                                    .cornerRadius(25)
+                                HStack {
+                                    if isRegistering {
+                                        ProgressView()
+                                            .scaleEffect(0.8)
+                                            .tint(.white)
+                                    }
+                                    Text(isRegistering ? "Registrando..." : "Crear cuenta")
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color.white.opacity(isFormValid ? 0.3 : 0.1))
+                                .foregroundColor(.white)
+                                .cornerRadius(25)
                             }
-                            .disabled(!isFormValid)
+                            .disabled(!isFormValid || isRegistering)
                             .padding(.horizontal, 32)
+                            
+                            // Mostrar error si existe
+                            if let errorMessage = errorMessage {
+                                Text(errorMessage)
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                                    .padding(.horizontal, 32)
+                                    .multilineTextAlignment(.center)
+                            }
                             
                         }
                 
@@ -222,16 +262,88 @@ struct ContinueRegistrationView: View {
                 .padding()
             }
         }
-        .fullScreenCover(isPresented: $showHomeView) {
-            HomeView()
+        .onAppear {
+            loadInterests()
         }
     }
     
     private var isFormValid: Bool {
-        !firstName.isEmpty && 
-        !lastName.isEmpty && 
+        !firstName.isEmpty &&
+        !lastName.isEmpty &&
         !location.isEmpty &&
-        selectedPreferences.count >= 3
+        selectedPreferences.count >= 3 &&
+        selectedPreferences.count <= 6 &&
+        !availableInterests.isEmpty
+    }
+    
+    // MARK: - Backend Functions
+    private func loadInterests() {
+        isLoadingInterests = true
+        errorMessage = nil
+        
+        Task {
+            do {
+                let interests = try await networkUser.getInterests()
+                await MainActor.run {
+                    self.availableInterests = interests
+                    self.isLoadingInterests = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "Error cargando intereses: \(error.localizedDescription)"
+                    self.isLoadingInterests = false
+                    self.availableInterests = InterestModel.mockInterests
+                }
+            }
+        }
+    }
+    
+    private func registerUser() async {
+        isRegistering = true
+        errorMessage = nil
+        
+        // Preparar datos del registro
+        let fullName = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
+        let selectedInterestIDs = Array(selectedPreferences).map { $0.id }
+        
+        // Usar los datos reales del RegisterView
+        let email = userEmail
+        let password = userPassword
+        
+        do {
+            let response = try await networkUser.register(
+                name: fullName,
+                email: email,
+                password: password,
+                interestIDs: selectedInterestIDs
+            )
+            
+            await MainActor.run {
+                guard let userId = response.userID else {
+                    self.errorMessage = "Error: No se pudo extraer el ID de usuario del token"
+                    self.isRegistering = false
+                    return
+                }
+                
+                let user = UserModel(
+                    id: userId,
+                    email: email,
+                    displayName: fullName
+                )
+                
+                try? self.loginUseCase.saveUserWithToken(user, token: response.accessToken)
+                NotificationCenter.default.post(name: .userDidSignIn, object: user)
+                
+                self.isRegistering = false
+                self.dismiss()
+            }
+            
+        } catch {
+            await MainActor.run {
+                self.errorMessage = "Error en registro: \(error.localizedDescription)"
+                self.isRegistering = false
+            }
+        }
     }
 }
 
@@ -245,5 +357,7 @@ extension DateFormatter {
 }
 
 #Preview {
-    ContinueRegistrationView(userName: "Usuario de prueba")
+    let loginRepository = DefaultLoginRepository()
+    let loginUseCase = LoginUseCase(loginRepository: loginRepository)
+    return ContinueRegistrationView(userName: "Usuario de prueba", loginUseCase: loginUseCase)
 }

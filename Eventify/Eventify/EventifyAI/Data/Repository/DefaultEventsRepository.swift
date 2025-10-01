@@ -1,71 +1,72 @@
+//
+//  DefaultEventsRepository.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 15/9/25.
+//
+
 import Foundation
 
-final class DefaultEventsRepository: EventsRepositoryProtocol {
+final class EventsRepository: EventsRepositoryProtocol {
     
-    private let networkEvents: NetworkEventsProtocol
-    private let keychain: kcPersistenceKeyChain
+    // Persistencia en memoria para desarrollo/testing
+    private var events: [EventModel] = [
+        EventModel.preview,
+        EventModel.previewPast,
+        EventModel(
+            id: "conference-ios-1",
+            title: "Conferencia iOS",
+            date: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
+            location: "Madrid",
+            organizerId: "user-3",
+            organizerName: "Keepcoding",
+            tags: ["iOS", "desarrollo"]
+        )
+    ]
     
-    init(
-        networkEvents: NetworkEventsProtocol = NetworkEvents(),
-        keychain: kcPersistenceKeyChain = .shared
-    ) {
-        self.networkEvents = networkEvents
-        self.keychain = keychain
-    }
-    
-    func createEvent(_ event: EventModel) async throws -> EventModel {
-        do {
-            let createdEvent = try await networkEvents.createEvent(event: event)
-            NotificationCenter.default.postEventWasCreated(event: createdEvent)
-            return createdEvent
-        } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
-        } catch {
-            throw EventError.unknown(error)
+    func getEvents(filter: String) async -> [EventModel] {
+        // Simular delay de red
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        
+        if filter.isEmpty {
+            return events.sorted { $0.date > $1.date } // Más recientes primero
+        } else {
+            return events.filter { event in
+                event.title.lowercased().contains(filter.lowercased()) ||
+                event.location.lowercased().contains(filter.lowercased()) ||
+                (event.category?.lowercased().contains(filter.lowercased()) ?? false)
+            }.sorted { $0.date > $1.date }
         }
     }
     
-    func getEvents(for userId: String) async throws -> [EventModel] {
-        do {
-            let events = try await networkEvents.getEvents(userId: userId)
-            return events
-        } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
-        } catch {
-            throw EventError.unknown(error)
-        }
+    func createEvent(_ event: EventModel) async -> Bool {
+        // Simular delay de red
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        
+        // GUARDAR en array en memoria
+        events.append(event)
+        
+        return true
     }
     
-    func getEventById(_ eventId: String) async throws -> EventModel? {
-        do {
-            let event = try await networkEvents.getEventById(eventId: eventId)
-            return event
-        } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
-        } catch {
-            throw EventError.unknown(error)
-        }
+    func deleteEvent(_ eventId: String) async -> Bool {
+        // Este repository ya no se usa directamente
+        // Solo está para compatibilidad
+        return false
+    }
+}
+
+final class EventsRepositoryFake: EventsRepositoryProtocol {
+    
+    func getEvents(filter: String) async -> [EventModel] {
+        return [EventModel.preview]
     }
     
-    func updateEvent(_ event: EventModel) async throws -> EventModel {
-        do {
-            let updatedEvent = try await networkEvents.updateEvent(eventId: event.id, event: event)
-            NotificationCenter.default.postEventWasUpdated(event: updatedEvent)
-            return updatedEvent
-        } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
-        } catch {
-            throw EventError.unknown(error)
-        }
+    func createEvent(_ event: EventModel) async -> Bool {
+        return true
     }
     
-    func deleteEvent(eventId: String) async throws {
-        do {
-            try await networkEvents.deleteEvent(eventId: eventId)
-        } catch let networkError as NetworkError {
-            throw EventError.networkError(networkError)
-        } catch {
-            throw EventError.unknown(error)
-        }
+    func deleteEvent(_ eventId: String) async -> Bool {
+        return true
     }
 }

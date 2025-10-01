@@ -34,7 +34,6 @@ extension NotificationCenter {
         post(name: .eventWasUpdated, object: event)
     }
     
-    // MARK: - Observer Helpers
     
     func addObserver(
         _ observer: Any,
@@ -49,7 +48,6 @@ extension NotificationCenter {
         removeObserver(observer, name: name, object: nil)
     }
     
-    // MARK: - Combine Publishers
     
     var userDidSignInPublisher: AnyPublisher<UserModel, Never> {
         NotificationCenter.default

@@ -1,4 +1,12 @@
+//
+//  StatusModel.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 6/9/25.
+//
+
 import Foundation
+
 
 enum StatusModel {
     case success
@@ -7,6 +15,7 @@ enum StatusModel {
     case none
 }
 
+// Extension para comparar estados
 extension StatusModel: Equatable {
     static func == (lhs: StatusModel, rhs: StatusModel) -> Bool {
         switch (lhs, rhs) {

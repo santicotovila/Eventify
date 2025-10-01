@@ -1,3 +1,10 @@
+//
+//  Codable+Dictionary.swift
+//  EventifyAI
+//
+//  Created by Javier Gómez on 15/9/25.
+//
+
 import Foundation
 
 /// Extensiones para convertir entre Codable y Dictionary para APIs JSON
@@ -20,13 +27,6 @@ extension EventModel {
     }
 }
 
-extension AttendanceModel {
-    /// Crea un AttendanceModel desde un Dictionary de API
-    static func fromDictionary(_ dictionary: [String: Any]) throws -> AttendanceModel {
-        let data = try JSONSerialization.data(withJSONObject: dictionary)
-        return try JSONDecoder().decode(AttendanceModel.self, from: data)
-    }
-}
 
 extension UserModel {
     /// Crea un UserModel desde un Dictionary de API
