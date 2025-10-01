@@ -117,7 +117,7 @@ extension EventAttendee {
             throw Abort(.internalServerError, reason: "EventAttendee sin ID")
         }
         guard let statusEnum = EventStatus(rawValue: self.status) else {
-            throw Abort(.internalServerError, reason: "Estado inválido: \(self.status)")
+            throw Abort(.internalServerError, reason: "Estado invalido: \(self.status)")
         }
         return .init(
             id: id,

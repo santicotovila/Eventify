@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-//Creamos el controller para manejar las rutas relacionadas con los Users.
+//Creamos el controller para manejar las rutas relacionadas con los Interests.
 struct InterestsController: RouteCollection, Sendable {
     func boot(routes: any RoutesBuilder) throws {
         let api = routes.grouped("interests")
