@@ -12,7 +12,6 @@ struct EventModel: Identifiable, Codable, Equatable {
     let id: String
     let title: String
     let name: String?           // Backend usa 'name' en lugar de 'title'
-    let description: String
     let date: Date
     let location: String
     let organizerId: String
@@ -41,11 +40,10 @@ struct EventModel: Identifiable, Codable, Equatable {
     }
     
     // Constructor para nuevos eventos
-    init(id: String = UUID().uuidString, title: String, description: String, date: Date, location: String, organizerId: String, organizerName: String, userID: String? = nil, category: String? = nil, lat: Double? = nil, lng: Double? = nil, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil) {
+    init(id: String = UUID().uuidString, title: String, date: Date, location: String, organizerId: String, organizerName: String, userID: String? = nil, category: String? = nil, lat: Double? = nil, lng: Double? = nil, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil) {
         self.id = id
         self.title = title
         self.name = title // name = title para compatibilidad con backend
-        self.description = description
         self.date = date
         self.location = location
         self.organizerId = organizerId
@@ -62,11 +60,10 @@ struct EventModel: Identifiable, Codable, Equatable {
     }
     
     // Constructor para eventos de base de datos
-    init(id: String, title: String, description: String, date: Date, location: String, organizerId: String, organizerName: String, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil, createdAt: Date, updatedAt: Date) {
+    init(id: String, title: String, date: Date, location: String, organizerId: String, organizerName: String, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil, createdAt: Date, updatedAt: Date) {
         self.id = id
         self.title = title
         self.name = title
-        self.description = description
         self.date = date
         self.location = location
         self.organizerId = organizerId
@@ -88,18 +85,16 @@ extension EventModel {
     static let preview = EventModel(
         id: "preview-event-1",
         title: "Cena de Cumpleaños",
-        description: "Celebremos el cumpleaños de Ana en su restaurante favorito",
         date: Calendar.current.date(byAdding: .day, value: 3, to: Date()) ?? Date(),
         location: "Restaurante El Buen Gusto",
         organizerId: "user-preview",
         organizerName: "Ana García",
         tags: ["cumpleaños", "cena"]
     )
-    
+
     static let previewPast = EventModel(
         id: "preview-event-2",
         title: "Reunión de Trabajo",
-        description: "Reunión mensual del equipo de desarrollo",
         date: Calendar.current.date(byAdding: .day, value: -2, to: Date()) ?? Date(),
         location: "Oficina Central",
         organizerId: "user-preview-2",

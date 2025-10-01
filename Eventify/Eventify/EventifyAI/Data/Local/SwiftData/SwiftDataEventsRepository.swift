@@ -35,7 +35,7 @@ final class SwiftDataEventsRepository: EventsRepositoryProtocol {
             } else {
                 return allEvents.filter { event in
                     event.title.lowercased().contains(filter.lowercased()) ||
-                    event.description.lowercased().contains(filter.lowercased())
+                    event.location.lowercased().contains(filter.lowercased())
                 }
             }
         } catch {

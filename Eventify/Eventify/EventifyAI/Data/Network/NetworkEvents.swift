@@ -111,7 +111,6 @@ final class NetworkEvents: NetworkEventsProtocol {
                 EventModel(
                     id: backendEvent.id.uuidString,
                     title: backendEvent.name,
-                    description: "Descripción del evento",
                     date: backendEvent.eventDate ?? backendEvent.createdAt ?? Date(),
                     location: backendEvent.location ?? "Ubicación no especificada",
                     organizerId: backendEvent.userID.uuidString,
@@ -165,7 +164,6 @@ final class NetworkEvents: NetworkEventsProtocol {
             return EventModel(
                 id: backendEvent.id.uuidString,
                 title: backendEvent.name,
-                description: "Descripción del evento",
                 date: backendEvent.eventDate ?? backendEvent.createdAt ?? Date(),
                 location: backendEvent.location ?? "Ubicación no especificada",
                 organizerId: backendEvent.userID.uuidString,
@@ -240,7 +238,6 @@ final class NetworkEvents: NetworkEventsProtocol {
             return EventModel(
                 id: backendEvent.id.uuidString,
                 title: backendEvent.name,
-                description: event.description,
                 date: backendEvent.eventDate ?? backendEvent.createdAt ?? Date(),
                 location: backendEvent.location ?? event.location,
                 organizerId: backendEvent.userID.uuidString,
@@ -320,7 +317,6 @@ final class NetworkEvents: NetworkEventsProtocol {
             return EventModel(
                 id: backendEvent.id.uuidString,
                 title: backendEvent.name,
-                description: event.description,
                 date: backendEvent.eventDate ?? backendEvent.updatedAt ?? Date(),
                 location: backendEvent.location ?? event.location,
                 organizerId: backendEvent.userID.uuidString,

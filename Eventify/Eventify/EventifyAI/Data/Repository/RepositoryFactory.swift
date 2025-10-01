@@ -35,8 +35,8 @@ final class SimpleEventsRepository: EventsRepositoryProtocol {
             
             let filteredEvents = filter.isEmpty ? backendEvents : backendEvents.filter { event in
                 event.title.lowercased().contains(filter.lowercased()) ||
-                event.description.lowercased().contains(filter.lowercased()) ||
-                event.location.lowercased().contains(filter.lowercased())
+                event.location.lowercased().contains(filter.lowercased()) ||
+                (event.category?.lowercased().contains(filter.lowercased()) ?? false)
             }
             
             return filteredEvents.sorted { $0.date > $1.date }

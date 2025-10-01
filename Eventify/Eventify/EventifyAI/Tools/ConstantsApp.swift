@@ -52,7 +52,7 @@ struct ConstantsApp {
     
     // MARK: - Validation
     struct Validation {
-        static let minPasswordLength = 6
+        static let minPasswordLength = 8
         static let maxEventTitleLength = 100
         static let maxEventDescriptionLength = 500
     }

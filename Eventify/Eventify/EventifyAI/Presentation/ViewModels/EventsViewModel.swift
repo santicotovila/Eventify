@@ -39,8 +39,9 @@ final class EventsViewModel {
         NotificationCenter.default.eventWasCreatedPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
+                guard let self = self else { return }
                 Task {
-                    await self?.getEvents()
+                    await self.getEvents()
                 }
             }
             .store(in: &cancellables)
@@ -49,8 +50,9 @@ final class EventsViewModel {
         NotificationCenter.default.userDidSignInPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
+                guard let self = self else { return }
                 Task {
-                    await self?.getEvents()
+                    await self.getEvents()
                 }
             }
             .store(in: &cancellables)
@@ -59,7 +61,8 @@ final class EventsViewModel {
         NotificationCenter.default.userDidSignOutPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.eventsData = []
+                guard let self = self else { return }
+                self.eventsData = []
             }
             .store(in: &cancellables)
     }

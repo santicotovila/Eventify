@@ -57,7 +57,6 @@ final class CreateEventViewModel {
         
         let newEvent = EventModel(
             title: eventTitle,
-            description: eventDescription,
             date: eventDate,
             location: eventLocation,
             organizerId: currentUser.id,

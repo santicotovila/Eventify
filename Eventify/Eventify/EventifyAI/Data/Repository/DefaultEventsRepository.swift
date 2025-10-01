@@ -16,7 +16,6 @@ final class EventsRepository: EventsRepositoryProtocol {
         EventModel(
             id: "conference-ios-1",
             title: "Conferencia iOS",
-            description: "Conferencia sobre desarrollo iOS",
             date: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
             location: "Madrid",
             organizerId: "user-3",
@@ -34,8 +33,8 @@ final class EventsRepository: EventsRepositoryProtocol {
         } else {
             return events.filter { event in
                 event.title.lowercased().contains(filter.lowercased()) ||
-                event.description.lowercased().contains(filter.lowercased()) ||
-                event.location.lowercased().contains(filter.lowercased())
+                event.location.lowercased().contains(filter.lowercased()) ||
+                (event.category?.lowercased().contains(filter.lowercased()) ?? false)
             }.sorted { $0.date > $1.date }
         }
     }

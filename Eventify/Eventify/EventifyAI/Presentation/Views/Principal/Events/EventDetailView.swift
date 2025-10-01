@@ -74,14 +74,6 @@ struct EventDetailView: View {
                                 title: "Organizador",
                                 content: event.organizerName
                             )
-                            
-                            if !event.description.isEmpty {
-                                EventDetailCard(
-                                    icon: "text.alignleft",
-                                    title: "Descripción",
-                                    content: event.description
-                                )
-                            }
                         }
                         .padding(.horizontal)
                         

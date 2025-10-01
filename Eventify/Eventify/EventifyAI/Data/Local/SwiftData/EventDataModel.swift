@@ -27,7 +27,7 @@ final class EventDataModel {
     init(from eventModel: EventModel) {
         self.id = eventModel.id
         self.title = eventModel.title
-        self.eventDescription = eventModel.description
+        self.eventDescription = ""  // Campo no disponible en backend
         self.date = eventModel.date
         self.location = eventModel.location
         self.organizerId = eventModel.organizerId
@@ -77,7 +77,6 @@ extension EventDataModel {
         return EventModel(
             id: id,
             title: title,
-            description: eventDescription,
             date: date,
             location: location,
             organizerId: organizerId,
@@ -93,7 +92,7 @@ extension EventDataModel {
     // Actualiza propiedades desde Domain model
     func updateFromDomain(_ eventModel: EventModel) {
         self.title = eventModel.title
-        self.eventDescription = eventModel.description
+        self.eventDescription = ""  // Campo no disponible en backend
         self.date = eventModel.date
         self.location = eventModel.location
         self.organizerId = eventModel.organizerId
