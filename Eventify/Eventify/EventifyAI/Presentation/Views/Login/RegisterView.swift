@@ -129,7 +129,10 @@ struct RegisterView: View {
                     
                     // Texto de campos obligatorios y requisitos
                     VStack(alignment: .trailing, spacing: 4) {
-                        Text("* Contraseña mínimo 6 caracteres")
+                        Text("* Nombre: 3-30 caracteres")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.8))
+                        Text("* Contraseña mínimo 8 caracteres")
                             .font(.caption2)
                             .foregroundColor(.white.opacity(0.8))
 
@@ -210,7 +213,8 @@ struct RegisterView: View {
     
     // Computed property para validación del formulario
     private var isFormValid: Bool {
-        return !username.isEmpty &&
+        return username.count >= 3 &&
+               username.count <= 30 &&
                !email.isEmpty &&
                !password.isEmpty &&
                !confirmPassword.isEmpty &&

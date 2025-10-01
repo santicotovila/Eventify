@@ -22,11 +22,33 @@ final class NetworkEvents: NetworkEventsProtocol {
     private let baseURL = ConstantsApp.API.baseURL
     
     // MARK: - Métodos auxiliares privados
-    
+
     // Agregar token JWT a peticiones autenticadas
     private func addAuthHeader(to request: inout URLRequest) {
         if let token = KeyChainEventify.shared.getUserToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+    }
+
+    // Validar respuesta HTTP y lanzar errores apropiados
+    private func validateHTTPResponse(_ httpResponse: HTTPURLResponse) throws {
+        guard httpResponse.statusCode == 200 else {
+            switch httpResponse.statusCode {
+            case 400:
+                throw NetworkError.badRequest("IDs mal formados")
+            case 401:
+                throw NetworkError.unauthorized
+            case 404:
+                throw NetworkError.notFound
+            case 500...599:
+                throw NetworkError.internalServerError
+            default:
+                if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
+                    throw NetworkError.requestFailed(responseCode)
+                } else {
+                    throw NetworkError.unknown(URLError(.badServerResponse))
+                }
+            }
         }
     }
     
@@ -74,25 +96,8 @@ final class NetworkEvents: NetworkEventsProtocol {
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw NetworkError.unknown(URLError(.badServerResponse))
             }
-            
-            guard httpResponse.statusCode == 200 else {
-                switch httpResponse.statusCode {
-                case 400:
-                    throw NetworkError.badRequest("IDs mal formados")
-                case 401:
-                    throw NetworkError.unauthorized
-                case 404:
-                    throw NetworkError.notFound
-                case 500...599:
-                    throw NetworkError.internalServerError
-                default:
-                    if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
-                        throw NetworkError.requestFailed(responseCode)
-                    } else {
-                        throw NetworkError.unknown(URLError(.badServerResponse))
-                    }
-                }
-            }
+
+            try validateHTTPResponse(httpResponse)
             
             // Respuesta paginada del backend
             struct EventsResponse: Codable {
@@ -290,25 +295,8 @@ final class NetworkEvents: NetworkEventsProtocol {
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw NetworkError.unknown(URLError(.badServerResponse))
             }
-            
-            guard httpResponse.statusCode == 200 else {
-                switch httpResponse.statusCode {
-                case 400:
-                    throw NetworkError.badRequest("IDs mal formados")
-                case 401:
-                    throw NetworkError.unauthorized
-                case 404:
-                    throw NetworkError.notFound
-                case 500...599:
-                    throw NetworkError.internalServerError
-                default:
-                    if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
-                        throw NetworkError.requestFailed(responseCode)
-                    } else {
-                        throw NetworkError.unknown(URLError(.badServerResponse))
-                    }
-                }
-            }
+
+            try validateHTTPResponse(httpResponse)
             
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601

@@ -127,10 +127,7 @@ struct AddFriendView: View {
                 }
             }
         }
-        .searchable(text: $searchText, prompt: "Buscar usuarios")
-        .onChange(of: searchText) { _, newValue in
-            loadAvailableUsers()
-        }
+        
         .onAppear {
             loadAvailableUsers()
         }
@@ -148,7 +145,6 @@ struct AddFriendView: View {
             // Notificar que se añadió un amigo
             onFriendAdded()
             
-            // Mostrar feedback visual (opcional)
         }
     }
 }

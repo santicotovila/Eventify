@@ -319,22 +319,6 @@ struct CreateEventField: View {
     }
 }
 
-// TextFieldStyle personalizado (no usado actualmente)
-struct CustomCreateEventTextFieldStyle: TextFieldStyle {
-    func _body(configuration: TextField<Self._Label>) -> some View {
-        configuration
-            .foregroundColor(.white)
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white.opacity(0.15))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    )
-            )
-    }
-}
 
 #Preview {
     CreateEventView()

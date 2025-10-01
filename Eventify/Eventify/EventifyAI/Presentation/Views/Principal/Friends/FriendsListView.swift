@@ -78,7 +78,7 @@ struct FriendsListView: View {
                     .padding(.top, 20)
                     .padding(.bottom, 16)
                     
-                    // Barra de búsqueda (estilo Figma)
+                    // Barra de búsqueda 
                     HStack {
                         HStack {
                             Image(systemName: "magnifyingglass")

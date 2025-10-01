@@ -49,7 +49,7 @@ struct CustomTabBar: View {
             
             Spacer()
             
-            // Navegación a perfil con dependency injection
+            // Navegación a perfil 
             NavigationLink(destination: ProfileView(loginUseCase: LoginUseCase(loginRepository: DefaultLoginRepository()))) {
                 CustomTabButton(icon: "person.circle", title: "Perfil")
             }

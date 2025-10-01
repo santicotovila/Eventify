@@ -162,7 +162,7 @@ struct ContinueRegistrationView: View {
                                 Text("❤️ Preferencias")
                                     .font(.subheadline)
                                     .foregroundColor(.white)
-                                Text("(Elige al menos 3)")
+                                Text("(Elige entre 3-6)")
                                     .font(.caption2)
                                     .foregroundColor(.white.opacity(0.8))
                                 Spacer()
@@ -181,7 +181,7 @@ struct ContinueRegistrationView: View {
                                         Button(action: {
                                             if selectedPreferences.contains(interest) {
                                                 selectedPreferences.remove(interest)
-                                            } else {
+                                            } else if selectedPreferences.count < 6 {
                                                 selectedPreferences.insert(interest)
                                             }
                                         }) {
@@ -268,10 +268,11 @@ struct ContinueRegistrationView: View {
     }
     
     private var isFormValid: Bool {
-        !firstName.isEmpty && 
-        !lastName.isEmpty && 
+        !firstName.isEmpty &&
+        !lastName.isEmpty &&
         !location.isEmpty &&
         selectedPreferences.count >= 3 &&
+        selectedPreferences.count <= 6 &&
         !availableInterests.isEmpty
     }
     
