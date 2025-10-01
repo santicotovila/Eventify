@@ -7,6 +7,7 @@
 
 import Foundation
 
+// Errores de red - implementan LocalizedError para mostrar mensajes al usuario
 enum NetworkError: LocalizedError {
     case invalidURL
     case decodingError(Error)
@@ -42,6 +43,7 @@ enum NetworkError: LocalizedError {
     }
 }
 
+// Errores específicos de autenticación
 enum AuthError: LocalizedError {
     case invalidCredentials
     case emailAlreadyInUse
@@ -65,6 +67,7 @@ enum AuthError: LocalizedError {
     }
 }
 
+// Errores relacionados con eventos
 enum EventError: LocalizedError {
     case eventNotFound
     case eventCreationFailed(String)

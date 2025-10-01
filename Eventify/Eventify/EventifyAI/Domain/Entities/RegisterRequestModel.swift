@@ -28,7 +28,7 @@ struct RegisterResponseModel: Codable {
     }
 }
 
-// Helper para extraer payload del JWT sin verificar firma
+// Para extraer payload del JWT sin verificar firma
 struct JWTHelper {
     static func extractPayload(from token: String) -> [String: Any]? {
         let segments = token.components(separatedBy: ".")

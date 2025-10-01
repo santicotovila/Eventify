@@ -6,19 +6,21 @@
 //
 
 import Foundation
+
+// Modelo de evento con protocolos básicos de SwiftUI
 struct EventModel: Identifiable, Codable, Equatable {
     let id: String
     let title: String
-    let name: String? // Backend usa 'name'
+    let name: String?           // Backend usa 'name' en lugar de 'title'
     let description: String
     let date: Date
     let location: String
     let organizerId: String
     let organizerName: String
-    let userID: String? // Backend requiere userID
-    let category: String? // Backend requiere category UUID
-    let lat: Double? // Backend requiere coordenadas
-    let lng: Double? // Backend requiere coordenadas
+    let userID: String?         // Para compatibilidad con backend
+    let category: String?
+    let lat: Double?            // Coordenadas de ubicación
+    let lng: Double?
     let isAllDay: Bool
     let tags: [String]
     let maxAttendees: Int?
@@ -29,6 +31,7 @@ struct EventModel: Identifiable, Codable, Equatable {
         date > Date()
     }
     
+    // Formateo de fecha para mostrar en UI
     var formattedDate: String {
         DateFormatter.eventFormatter.string(from: date)
     }
@@ -37,6 +40,7 @@ struct EventModel: Identifiable, Codable, Equatable {
         DateFormatter.timeFormatter.string(from: date)
     }
     
+    // Constructor para nuevos eventos
     init(id: String = UUID().uuidString, title: String, description: String, date: Date, location: String, organizerId: String, organizerName: String, userID: String? = nil, category: String? = nil, lat: Double? = nil, lng: Double? = nil, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil) {
         self.id = id
         self.title = title
@@ -57,7 +61,7 @@ struct EventModel: Identifiable, Codable, Equatable {
         self.updatedAt = Date()
     }
     
-    // Este se usa cuando sacamos un evento de la base de datos
+    // Constructor para eventos de base de datos
     init(id: String, title: String, description: String, date: Date, location: String, organizerId: String, organizerName: String, isAllDay: Bool = false, tags: [String] = [], maxAttendees: Int? = nil, createdAt: Date, updatedAt: Date) {
         self.id = id
         self.title = title
@@ -79,7 +83,7 @@ struct EventModel: Identifiable, Codable, Equatable {
     }
 }
 
-// MARK: - Extensions
+// Extension con datos de prueba
 extension EventModel {
     static let preview = EventModel(
         id: "preview-event-1",

@@ -1,10 +1,11 @@
 import Foundation
 
+// Servicio de red para operaciones de usuario - intereses y registro
 final class NetworkUser {
     private let session = URLSession.shared
-    private let baseURL = ConstantsApp.API.baseURL // URL del backend
+    private let baseURL = ConstantsApp.API.baseURL
     
-    // MARK: - Get Interests
+    // MARK: - Obtener lista de intereses disponibles
     func getInterests() async throws -> [InterestModel] {
         guard let url = URL(string: "\(baseURL)/interests") else {
             throw NetworkError.invalidURL
@@ -29,7 +30,7 @@ final class NetworkUser {
                 }
             }
             
-            // Parsear respuesta del backend
+            // Estructura que espera el backend para intereses
             struct InterestResponse: Codable {
                 let id: UUID
                 let name: String
@@ -38,7 +39,7 @@ final class NetworkUser {
             
             let backendInterests = try JSONDecoder().decode([InterestResponse].self, from: data)
             
-            // Convertir a nuestro modelo
+            // Convertir formato del backend a nuestro modelo de app
             return backendInterests.map { interest in
                 InterestModel(
                     id: interest.id.uuidString,
@@ -52,7 +53,7 @@ final class NetworkUser {
         }
     }
     
-    // MARK: - Login User
+    // MARK: - Login con JSON en body (método alternativo al Basic Auth)
     func login(email: String, password: String) async throws -> RegisterResponseModel {
         guard let url = URL(string: "\(baseURL)/auth/login") else {
             throw NetworkError.invalidURL
@@ -62,6 +63,7 @@ final class NetworkUser {
         request.httpMethod = HttpMethods.POST.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
+        // Datos de login en JSON (diferente a Basic Auth)
         struct LoginRequest: Codable {
             let email: String
             let password: String
@@ -94,7 +96,7 @@ final class NetworkUser {
         }
     }
     
-    // MARK: - Register User
+    // MARK: - Registro de usuario con intereses seleccionados
     func register(name: String, email: String, password: String, interestIDs: [String]) async throws -> RegisterResponseModel {
         guard let url = URL(string: "\(baseURL)/auth/register") else {
             throw NetworkError.invalidURL
@@ -104,9 +106,10 @@ final class NetworkUser {
         request.httpMethod = HttpMethods.POST.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Convertir interestIDs a UUIDs
+        // Convertir IDs de String a UUID para el backend
         let uuidInterests = interestIDs.compactMap { UUID(uuidString: $0) }
         
+        // Modelo de nuestra app (String IDs)
         let registerData = RegisterRequestModel(
             name: name,
             email: email,
@@ -114,7 +117,7 @@ final class NetworkUser {
             interestIDs: interestIDs
         )
         
-        // Para el backend, necesitamos el formato específico
+        // Formato específico que espera el backend (UUID IDs)
         struct BackendRegisterRequest: Codable {
             let name: String
             let email: String
@@ -139,6 +142,7 @@ final class NetworkUser {
                 throw NetworkError.unknown(URLError(.badServerResponse))
             }
             
+            // Aceptar tanto 200 como 201 para registro exitoso
             guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
                 if let responseCode = HttpResponseCodes(rawValue: httpResponse.statusCode) {
                     throw NetworkError.requestFailed(responseCode)
@@ -147,7 +151,7 @@ final class NetworkUser {
                 }
             }
             
-            // Parsear respuesta JWT
+            // Parsear respuesta con token JWT del usuario registrado
             return try JSONDecoder().decode(RegisterResponseModel.self, from: data)
             
         } catch {

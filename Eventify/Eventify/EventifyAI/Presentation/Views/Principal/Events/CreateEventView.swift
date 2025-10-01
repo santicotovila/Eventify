@@ -1,12 +1,15 @@
 import SwiftUI
 import SwiftData
 
+// Vista para crear eventos - formulario completo con validación
 struct CreateEventView: View {
     
+    // @State para ViewModel local
     @State private var viewModel: CreateEventViewModel
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) var dismiss // Para cerrar la vista
+    @Environment(\.modelContext) private var modelContext // SwiftData context
     
+    // Callback opcional cuando se crea el evento
     let onEventCreated: (() -> Void)?
     
     init(onEventCreated: (() -> Void)? = nil) {
@@ -248,18 +251,18 @@ struct CreateEventView: View {
                 }
             }
             .onAppear {
-                // Inyectar modelContext al ViewModel
+                // Inyectar SwiftData context cuando aparece la vista
                 viewModel.setModelContext(modelContext)
             }
         }
     }
 
 
-// Vista auxiliar para los campos del formulario con estilo de los mocks
+// Componente reutilizable para campos de formulario con icono
 struct CreateEventField: View {
     let icon: String
     let placeholder: String
-    @Binding var text: String
+    @Binding var text: String // Binding bidireccional al ViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -277,7 +280,7 @@ struct CreateEventField: View {
                 Spacer()
             }
             
-            // Campo de texto estilizado
+            // TextField con configuración condicional según el tipo de campo
             TextField(placeholder, text: $text)
                 .font(.system(size: 16))
                 .foregroundColor(.white)
@@ -316,7 +319,7 @@ struct CreateEventField: View {
     }
 }
 
-// Estilo personalizado para los campos de texto
+// TextFieldStyle personalizado (no usado actualmente)
 struct CustomCreateEventTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration

@@ -11,25 +11,24 @@ import Foundation
 @Observable
 final class LoginViewModel {
     
+    
     var email: String = ""
     var password: String = ""
     var isLoading: Bool = false
     var errorMessage: String? = nil
     
-   
+    
     var isFormValid: Bool {
         return !email.isEmpty && !password.isEmpty
     }
     
     private let loginUseCase: LoginUseCaseProtocol
     
-    // Inyectamos el caso de uso para poder testearlo fácilmente (con un mock).
     init(loginUseCase: LoginUseCaseProtocol) {
         self.loginUseCase = loginUseCase
     }
 
-    // Se llama desde la vista cuando el usuario pulsa el boton de login.
-    @MainActor
+    @MainActor  // Asegura que se ejecute en el hilo principal
     func signIn() async {
         isLoading = true
         errorMessage = nil

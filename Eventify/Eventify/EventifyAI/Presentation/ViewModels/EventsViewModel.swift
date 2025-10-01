@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftData
 
+// ViewModel para lista de eventos
 @Observable
 final class EventsViewModel {
     var eventsData = [EventModel]()
@@ -17,26 +18,24 @@ final class EventsViewModel {
     @ObservationIgnored
     private var useCaseEvents: EventsUseCaseProtocol
     @ObservationIgnored
-    private var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()  // Para manejar Combine subscriptions
     
     init(useCase: EventsUseCaseProtocol = EventsUseCase()) {
         self.useCaseEvents = useCase
         setupNotificationListeners()
     }
     
-    // Método para inyectar modelContext después de init
+    // Para SwiftData injection
     func setModelContext(_ modelContext: ModelContext) {
-        // Recrear UseCase con contexto
         self.useCaseEvents = EventsUseCase(modelContext: modelContext)
-        // Cargar eventos con el nuevo contexto
         Task {
             await self.getEvents()
         }
     }
     
-    // MARK: - Notification Listeners
+    // Configurar listeners de NotificationCenter
     private func setupNotificationListeners() {
-        // Escuchar cuando se crea un nuevo evento para actualizar la lista automáticamente
+        // Actualizar lista cuando se crea evento
         NotificationCenter.default.eventWasCreatedPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -46,7 +45,7 @@ final class EventsViewModel {
             }
             .store(in: &cancellables)
         
-        // Escuchar cuando el usuario hace login para refrescar la lista de eventos
+        // Refrescar al hacer login
         NotificationCenter.default.userDidSignInPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -56,7 +55,7 @@ final class EventsViewModel {
             }
             .store(in: &cancellables)
         
-        // Escuchar cuando el usuario hace logout para limpiar la lista de eventos
+        // Limpiar al hacer logout
         NotificationCenter.default.userDidSignOutPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in

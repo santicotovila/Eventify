@@ -7,6 +7,7 @@
 
 import Foundation
 
+// Protocolo para servicios de red de eventos
 protocol NetworkEventsProtocol {
     func getEvents(userId: String) async throws -> [EventModel]
     func getEventById(eventId: String) async throws -> EventModel?
@@ -15,17 +16,21 @@ protocol NetworkEventsProtocol {
     func deleteEvent(eventId: String) async throws
 }
 
+// Servicio de red para eventos - CRUD completo con autenticación JWT
 final class NetworkEvents: NetworkEventsProtocol {
     private let session = URLSession.shared
     private let baseURL = ConstantsApp.API.baseURL
     
-    // MARK: - Private Helper Methods
+    // MARK: - Métodos auxiliares privados
+    
+    // Agregar token JWT a peticiones autenticadas
     private func addAuthHeader(to request: inout URLRequest) {
         if let token = KeyChainEventify.shared.getUserToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
     }
     
+    // Estructura que devuelve el backend para eventos
     private struct BackendEventResponse: Codable {
         let id: UUID
         let name: String
@@ -39,6 +44,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         let location: String?
     }
     
+    // Estructura que espera el backend para crear/actualizar eventos
     private struct BackendEventRequest: Codable {
         let name: String
         let category: String
@@ -50,8 +56,9 @@ final class NetworkEvents: NetworkEventsProtocol {
     }
     
     
+    // Obtener eventos del usuario - usa fallback por bug en endpoint específico
     func getEvents(userId: String) async throws -> [EventModel] {
-        // FALLBACK: Usar /api/events y filtrar por userID porque /api/users/{id}/events tiene bug
+        // FALLBACK: usar /api/events y filtrar por userID
         guard let url = URL(string: "\(baseURL)/events") else {
             throw NetworkError.invalidURL
         }
@@ -87,7 +94,7 @@ final class NetworkEvents: NetworkEventsProtocol {
                 }
             }
             
-            // Decodificar respuesta paginada
+            // Respuesta paginada del backend
             struct EventsResponse: Codable {
                 let items: [BackendEventResponse]
             }
@@ -96,7 +103,7 @@ final class NetworkEvents: NetworkEventsProtocol {
             decoder.dateDecodingStrategy = .iso8601
             let eventsResponse = try decoder.decode(EventsResponse.self, from: data)
             
-            // Filtrar por userID y convertir a EventModel
+            // Filtrar por userID y mapear a nuestro modelo
             
             let filteredEvents = eventsResponse.items.filter { $0.userID.uuidString == userId }
             
@@ -121,6 +128,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         }
     }
     
+    // Obtener evento específico por ID
     func getEventById(eventId: String) async throws -> EventModel? {
         guard let eventUUID = UUID(uuidString: eventId),
               let url = URL(string: "\(baseURL)/events/\(eventUUID)") else {
@@ -173,13 +181,14 @@ final class NetworkEvents: NetworkEventsProtocol {
         }
     }
     
+    // Crear nuevo evento en el backend
     func createEvent(event: EventModel) async throws -> EventModel {
         
         guard let url = URL(string: "\(baseURL)/events") else {
             throw NetworkError.invalidURL
         }
         
-        // Validar que tenemos los campos requeridos
+        // Validar campos requeridos antes de enviar
         guard let originalUserID = event.userID else {
             throw NetworkError.requestFailed(.badRequest)
         }
@@ -247,13 +256,14 @@ final class NetworkEvents: NetworkEventsProtocol {
         }
     }
     
+    // Actualizar evento existente
     func updateEvent(eventId: String, event: EventModel) async throws -> EventModel {
         guard let eventUUID = UUID(uuidString: eventId),
               let url = URL(string: "\(baseURL)/events/\(eventUUID)") else {
             throw NetworkError.invalidURL
         }
         
-        // Validar campos requeridos
+        // Validar campos requeridos para actualización
         guard let userID = event.userID,
               let userUUID = UUID(uuidString: userID) else {
             throw NetworkError.requestFailed(.badRequest)
@@ -326,6 +336,7 @@ final class NetworkEvents: NetworkEventsProtocol {
         }
     }
     
+    // Eliminar evento del backend
     func deleteEvent(eventId: String) async throws {
         guard let eventUUID = UUID(uuidString: eventId),
               let url = URL(string: "\(baseURL)/events/\(eventUUID)") else {

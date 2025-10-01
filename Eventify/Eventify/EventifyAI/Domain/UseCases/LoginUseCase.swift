@@ -6,7 +6,8 @@
 //
 
 import Foundation
-// Usar un protocolo facilita los tests y desacopla el código.
+
+// Protocolo del Use Case - define qué operaciones de login están disponibles
 protocol LoginUseCaseProtocol {
     func signIn(email: String, password: String) async throws -> UserModel
     func signUp(email: String, password: String) async throws -> UserModel
@@ -18,12 +19,11 @@ protocol LoginUseCaseProtocol {
     func saveUserWithToken(_ user: UserModel, token: String) throws
 }
 
-// Contiene la lógica de negocio pura para la autenticación.
-// Orquesta la validación, el repositorio y las notificaciones.
+// Use Case - lógica de negocio para autenticación
+// Valida datos, llama al repository y maneja notificaciones
 final class LoginUseCase: LoginUseCaseProtocol {
     
-    // MARK: - Dependencias
-    // Dependemos de un protocolo, no de una clase concreta. Esto es Inversión de Dependencias.
+    // Dependency injection del repository
     private let loginRepository: LoginRepositoryProtocol
     
     init(loginRepository: LoginRepositoryProtocol) {
@@ -33,21 +33,19 @@ final class LoginUseCase: LoginUseCaseProtocol {
     // MARK: - Funciones Públicas
     
     func signIn(email: String, password: String) async throws -> UserModel {
-        // Regla de negocio: validar datos antes de continuar.
+        // Validar datos antes de llamar al repository
         try validateSignInData(email: email, password: password)
         
         do {
-            // Pide al repositorio que autentique al usuario.
             let user = try await loginRepository.signIn(email: email, password: password)
             
-            // Avisa al resto de la app que el login fue exitoso.
+            // Notificar que el login fue exitoso
             await MainActor.run {
                 NotificationCenter.default.postUserDidSignIn(user: user)
             }
             
             return user
         } catch {
-            // Envolvemos el error en uno propio del caso de uso para dar más contexto.
             throw LoginUseCaseError.signInFailed(error)
         }
     }

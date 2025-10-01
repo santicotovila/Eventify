@@ -1,11 +1,9 @@
 import Foundation
 
-// Implementación del repositorio que se encarga de la autenticación.
-// Abstrae el origen de los datos (network, keychain) para que el resto de la app no sepa de dónde vienen.
+// Repository pattern - abstrae de dónde vienen los datos (red + keychain)
 final class DefaultLoginRepository: LoginRepositoryProtocol {
     
-    // MARK: - Dependencias
-    // El repositorio tiene dos fuentes de datos: la red y el Keychain.
+    // Dependencias: servicio de red y almacenamiento local
     private let networkLogin: NetworkLoginProtocol
     private let keychain: KeyChainEventify
     

@@ -8,24 +8,22 @@
 import Foundation
 import Security
 
+// Singleton para manejar Keychain - almacenamiento seguro de datos sensibles
 final class KeyChainEventify {
     
-    static let shared = KeyChainEventify()
+    static let shared = KeyChainEventify()  // Patrón Singleton
     
     private let serviceIdentifier = "com.eventifyai.keychain"
     
-    private init() {}
+    private init() {}  // Private init para singleton
     
-    // MARK: - User Authentication Methods
-    
+    // Guardar usuario completo en Keychain
     func saveCurrentUser(_ user: UserModel) throws {
-        // Guardar ID del usuario
+        // Guardar datos individuales
         try saveString(key: ConstantsApp.Keychain.currentUserId, value: user.id)
-        
-        // Guardar email del usuario
         try saveString(key: ConstantsApp.Keychain.userEmail, value: user.email)
         
-        // Guardar datos completos del usuario como JSON
+        // Guardar objeto completo como JSON
         let userData = UserKeychainData(
             id: user.id,
             email: user.email,
@@ -38,9 +36,9 @@ final class KeyChainEventify {
         let data = try encoder.encode(userData)
         
         try save(key: "user_complete_data", data: data)
-        
     }
     
+    // Recuperar usuario guardado
     func getCurrentUser() -> UserModel? {
         guard let userData = get(key: "user_complete_data") else {
             return nil
@@ -61,16 +59,15 @@ final class KeyChainEventify {
         }
     }
     
+    // Limpiar todos los datos del usuario
     func clearCurrentUser() throws {
         try delete(key: ConstantsApp.Keychain.currentUserId)
         try delete(key: ConstantsApp.Keychain.userEmail)
         try delete(key: ConstantsApp.Keychain.userToken)
         try delete(key: "user_complete_data")
-        
     }
     
-    // MARK: - Token Methods
-    
+    // Métodos para tokens JWT - sesión del usuario
     func saveUserToken(_ token: String) throws {
         try saveString(key: ConstantsApp.Keychain.userToken, value: token)
     }
@@ -83,8 +80,7 @@ final class KeyChainEventify {
         try delete(key: ConstantsApp.Keychain.userToken)
     }
     
-    // MARK: - App Settings Methods
-    
+    // Configuraciones generales de la app - uso de generics para cualquier tipo
     func saveAppSetting<T: Codable>(key: String, value: T) throws {
         let encoder = JSONEncoder()
         let data = try encoder.encode(value)
@@ -104,7 +100,9 @@ final class KeyChainEventify {
         }
     }
     
+    // MARK: - Métodos privados para Keychain usando Security Framework
     
+    // Guardar datos binarios en Keychain
     func save(key: String, data: Data) throws {
         let query = [
             kSecClass as String: kSecClassGenericPassword,
@@ -114,16 +112,17 @@ final class KeyChainEventify {
             kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ] as [String: Any]
         
-        // Eliminar elemento existente
+        // Eliminar elemento existente antes de guardar
         SecItemDelete(query as CFDictionary)
         
-        // Guardar nuevo elemento
+        // Crear nuevo elemento en Keychain
         let status = SecItemAdd(query as CFDictionary, nil)
         guard status == errSecSuccess else {
             throw KeyChainEventifyError.unableToSave(status)
         }
     }
     
+    // Guardar String convirtiendo a Data
     func saveString(key: String, value: String) throws {
         guard let data = value.data(using: .utf8) else {
             throw KeyChainEventifyError.invalidData
@@ -131,6 +130,7 @@ final class KeyChainEventify {
         try save(key: key, data: data)
     }
     
+    // Recuperar datos de Keychain
     func get(key: String) -> Data? {
         let query = [
             kSecClass as String: kSecClassGenericPassword,
@@ -150,11 +150,13 @@ final class KeyChainEventify {
         }
     }
     
+    // Recuperar String desde Data
     func getString(key: String) -> String? {
         guard let data = get(key: key) else { return nil }
         return String(data: data, encoding: .utf8)
     }
     
+    // Eliminar elemento específico
     func delete(key: String) throws {
         let query = [
             kSecClass as String: kSecClassGenericPassword,
@@ -168,6 +170,7 @@ final class KeyChainEventify {
         }
     }
     
+    // Limpiar todos los datos de esta app
     func clearAll() throws {
         let query = [
             kSecClass as String: kSecClassGenericPassword,
@@ -178,14 +181,14 @@ final class KeyChainEventify {
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw KeyChainEventifyError.unableToDelete(status)
         }
-        
     }
     
-    
+    // Verificar si existe una clave
     func exists(key: String) -> Bool {
         return get(key: key) != nil
     }
     
+    // Obtener todas las claves guardadas (útil para debug)
     func getAllKeys() -> [String] {
         let query = [
             kSecClass as String: kSecClassGenericPassword,
@@ -208,8 +211,10 @@ final class KeyChainEventify {
     }
 }
 
-// MARK: - Data Models
 
+// MARK: - Modelos auxiliares
+
+// Estructura para datos de usuario en Keychain - solo datos necesarios
 private struct UserKeychainData: Codable {
     let id: String
     let email: String
@@ -217,8 +222,7 @@ private struct UserKeychainData: Codable {
     let lastLoginDate: Date
 }
 
-// MARK: - Errors
-
+// Errores específicos de Keychain con códigos de Security Framework
 enum KeyChainEventifyError: Error, LocalizedError {
     case invalidData
     case unableToSave(OSStatus)
@@ -242,10 +246,11 @@ enum KeyChainEventifyError: Error, LocalizedError {
     }
 }
 
-// MARK: - Extensions
+// MARK: - Extensions para funcionalidades específicas
 
 extension KeyChainEventify {
     
+    // Configuraciones de usuario específicas
     func saveUserSettings(_ settings: UserSettings) throws {
         try saveAppSetting(key: "user_settings", value: settings)
     }
@@ -255,7 +260,7 @@ extension KeyChainEventify {
     }
 }
 
-// MARK: - User Settings Model
+// MARK: - Modelo de configuraciones de usuario
 
 struct UserSettings: Codable {
     var notificationsEnabled: Bool
@@ -263,6 +268,7 @@ struct UserSettings: Codable {
     var language: String
     var autoSyncEnabled: Bool
     
+    // Valores por defecto para la app
     init(
         notificationsEnabled: Bool = true,
         darkModeEnabled: Bool = false,

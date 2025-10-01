@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+
 struct UserModel: Identifiable, Codable, Equatable {
     let id: String
     let email: String
@@ -13,7 +15,7 @@ struct UserModel: Identifiable, Codable, Equatable {
     let createdAt: Date
     let updatedAt: Date
     
-    // Esto crea un usuario nuevo con su info
+    
     init(id: String, email: String, displayName: String? = nil) {
         self.id = id
         self.email = email
@@ -22,7 +24,7 @@ struct UserModel: Identifiable, Codable, Equatable {
         self.updatedAt = Date()
     }
     
-    // Este se usa cuando sacamos un usuario de la base de datos
+    
     init(id: String, email: String, displayName: String? = nil, createdAt: Date, updatedAt: Date) {
         self.id = id
         self.email = email
@@ -31,22 +33,25 @@ struct UserModel: Identifiable, Codable, Equatable {
         self.updatedAt = updatedAt
     }
     
-    // Con esto nos aseguramos de que el display name nunca sea nil porporcionando el nombre la parte delantera del email
+    
     var name: String {
         return displayName ?? extractNameFromEmail()
     }
     
+  
     private func extractNameFromEmail() -> String {
         let components = email.components(separatedBy: "@")
         if let firstComponent = components.first, !firstComponent.isEmpty {
-            return firstComponent.capitalized
+            return firstComponent.capitalized  // Pone la primera letra en mayúscula
         }
-        return "Usuario"
+        return "Usuario"  // Valor por defecto si algo sale mal
     }
 }
 
-// MARK: - Mock Friends for Demo
+
 extension UserModel {
+    
+    
     static let friendPreview1 = UserModel(
         id: "friend-1",
         email: "santi@keepcoding.com",
@@ -79,7 +84,7 @@ extension UserModel {
         updatedAt: Date()
     )
     
-    // Usuarios disponibles para agregar como amigos
+    // Más usuarios para simular la funcionalidad de agregar amigos
     static let availableUser1 = UserModel(
         id: "available-1",
         email: "ana@gmail.com",

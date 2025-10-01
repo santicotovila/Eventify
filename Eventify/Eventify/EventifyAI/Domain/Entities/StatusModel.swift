@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 enum StatusModel {
     case success
     case loading
@@ -14,6 +15,7 @@ enum StatusModel {
     case none
 }
 
+// Extension para comparar estados
 extension StatusModel: Equatable {
     static func == (lhs: StatusModel, rhs: StatusModel) -> Bool {
         switch (lhs, rhs) {

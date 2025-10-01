@@ -8,21 +8,25 @@
 import Foundation
 import SwiftData
 
+// ViewModel para crear eventos
 @Observable
 final class CreateEventViewModel {
     
+    // Properties del formulario
     var eventTitle: String = ""
     var eventDescription: String = ""
     var eventLocation: String = ""
-    var eventDate: Date = Date().addingTimeInterval(3600)
+    var eventDate: Date = Date().addingTimeInterval(3600)  // 1 hora en el futuro por defecto
     var isLoading: Bool = false
     var errorMessage: String? = nil
     var isEventCreated: Bool = false
     
+    // Validación del formulario
     var isFormValid: Bool {
         return !eventTitle.isEmpty && !eventDescription.isEmpty && !eventLocation.isEmpty
     }
     
+    // @ObservationIgnored evita que SwiftUI observe esta property
     @ObservationIgnored
     private var eventsUseCase: EventsUseCaseProtocol
     
@@ -30,7 +34,7 @@ final class CreateEventViewModel {
         self.eventsUseCase = eventsUseCase
     }
     
-    // Método para inyectar modelContext después de init
+    // Para SwiftData - se inyecta el contexto después
     func setModelContext(_ modelContext: ModelContext) {
         self.eventsUseCase = EventsUseCase(modelContext: modelContext)
     }
@@ -39,17 +43,17 @@ final class CreateEventViewModel {
         isLoading = true
         errorMessage = nil
         
-        // Obtener el usuario actual del keychain
+        // Obtener el usuario logueado del keychain
         guard let currentUser = KeyChainEventify.shared.getCurrentUser() else {
             errorMessage = "No hay usuario autenticado"
             isLoading = false
             return
         }
         
-        // Usar una categoría real del backend (Aprendizaje)
+        // Valores por defecto para el backend
         let defaultCategoryId = "96205784-26B7-45B6-8A1B-7420D81D2808" // Categoría "Aprendizaje" 
-        let defaultLatitude = 40.4168 // Madrid por defecto
-        let defaultLongitude = -3.7038 // Madrid por defecto
+        let defaultLatitude = 40.4168   // Madrid
+        let defaultLongitude = -3.7038  // Madrid
         
         let newEvent = EventModel(
             title: eventTitle,
@@ -68,6 +72,7 @@ final class CreateEventViewModel {
         
         if success {
             isEventCreated = true
+            // Notificación para actualizar otras pantallas
             NotificationCenter.default.postEventWasCreated(event: newEvent)
         } else {
             errorMessage = "Error al crear el evento"

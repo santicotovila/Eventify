@@ -7,13 +7,16 @@
 
 import SwiftUI
 
-
+// Vista de Login - formulario de autenticación con diseño moderno
 struct LoginView: View {
     
+    // @State para ViewModel local de esta vista
     @State private var viewModel: LoginViewModel
     @State private var showRegister = false
+    // @Environment para estado global de la app
     @Environment(AppStateVM.self) var appState: AppStateVM
     
+    // Dependency injection manual - creamos las dependencias aquí
     init() {
         let loginRepository = DefaultLoginRepository()
         let loginUseCase = LoginUseCase(loginRepository: loginRepository)
@@ -23,10 +26,10 @@ struct LoginView: View {
         ))
     }
     
-    // MARK: - Cuerpo de la Vista
+    // MARK: - UI de la vista
     var body: some View {
         ZStack {
-            // Fondo decorativo.
+            // Fondo con gradiente - LinearGradient de SwiftUI
             LinearGradient(
                 stops: [
                     Gradient.Stop(color: Color(red: 0.08, green: 0.31, blue: 0.6), location: 0.00),
@@ -39,9 +42,9 @@ struct LoginView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 32) {
-                // Cabecera con el logo y nombre
+                // Header con logo de la app
                 VStack(spacing: 16) {
-                    // Logo
+                    // Logo circular
                     ZStack {
                         VStack(spacing: 6) {
                             Image("Logo-Eventify")
@@ -56,9 +59,9 @@ struct LoginView: View {
                         .font(.largeTitle).fontWeight(.bold).foregroundColor(.white)
                 }
                 
-                // Formulario de login
+                // Formulario de entrada - campos con binding al ViewModel
                 VStack(spacing: 20) {
-                    // Campo de usuario con icono
+                    // Campo email con icono SF Symbols
                     HStack {
                         Image(systemName: "person")
                             .foregroundColor(.gray)
@@ -72,7 +75,7 @@ struct LoginView: View {
                     .background(Color.white.opacity(0.9))
                     .cornerRadius(15)
                     
-                    // Campo de contraseña con icono
+                    // Campo contraseña con SecureField
                     HStack {
                         Image(systemName: "lock")
                             .foregroundColor(.gray)
@@ -84,7 +87,7 @@ struct LoginView: View {
                     .background(Color.white.opacity(0.9))
                     .cornerRadius(15)
                     
-                    // Boton acceder
+                    // Botón login con Task para async/await
                     Button(action: {
                         Task { await viewModel.signIn() }
                     }) {
@@ -170,9 +173,11 @@ struct LoginView: View {
             }
             .padding()
         }
+        // Alert para mostrar errores - binding con computed property
         .alert("Error de Login", isPresented: .constant(viewModel.errorMessage != nil), actions: {}) {
             Text(viewModel.errorMessage ?? "")
         }
+        // Modal de registro - fullScreenCover para pantalla completa
         .fullScreenCover(isPresented: $showRegister) {
             RegisterView()
                 .environment(appState)
@@ -180,8 +185,9 @@ struct LoginView: View {
     }
 }
 
-// MARK: - Estilos Personalizados
+// MARK: - Estilos personalizados para componentes
 
+// ButtonStyle personalizado - protocolo de SwiftUI para estilos reutilizables
 struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -191,12 +197,12 @@ struct PrimaryButtonStyle: ButtonStyle {
             .background(Color.white)
             .foregroundColor(.blue)
             .cornerRadius(25)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0) // Efecto al pulsar.
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0) // Animación al tocar
             .opacity(configuration.isPressed ? 0.8 : 1.0)
     }
 }
 
-// Estilo para los campos de texto.
+// TextFieldStyle personalizado para campos de entrada consistentes
 struct CustomTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
@@ -207,8 +213,9 @@ struct CustomTextFieldStyle: TextFieldStyle {
     }
 }
 
-// MARK: - Extensions
+// MARK: - Extensions para funcionalidad adicional
 
+// Extension de View para placeholder personalizado usando @ViewBuilder
 extension View {
     func placeholder<Content: View>(
         when shouldShow: Bool,
@@ -222,7 +229,7 @@ extension View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview para desarrollo
 
 #Preview {
     LoginView()

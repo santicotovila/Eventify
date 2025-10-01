@@ -6,19 +6,22 @@
 //
 
 import Foundation
+
+
 struct InterestModel: Identifiable, Codable, Hashable {
-    let id: String // UUID como string
+    let id: String
     let name: String
     let nameClean: String
     
-    // Para usar en UI
+    
     var displayName: String {
         return name
     }
 }
 
-// MARK: - Mock Interests basados en backend real
+// Extension con datos mock y utilidades
 extension InterestModel {
+    // Array con todos los intereses disponibles en el backend
     static let mockInterests = [
         InterestModel(id: "A1B2C3D4-E5F6-7890-1234-567890ABCDEF", name: "Deportes", nameClean: "deportes"),
         InterestModel(id: "B2C3D4E5-F6G7-8901-2345-678901BCDEFG", name: "Juegos", nameClean: "juegos"),
@@ -37,6 +40,7 @@ extension InterestModel {
         InterestModel(id: "O5P6Q7R8-S9T0-1234-5678-901234OPQRST", name: "Discotecas", nameClean: "discotecas")
     ]
     
+    // Función para limpiar texto (quita acentos y caracteres especiales)
     static func cleanName(from text: String) -> String {
         var s = text.lowercased()
         s = s.folding(options: .diacriticInsensitive, locale: .init(identifier: "es_ES"))

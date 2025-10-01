@@ -1,8 +1,10 @@
 import SwiftUI
 
+// Vista de registro - primera parte del proceso de registro
 struct RegisterView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStateVM.self) var appState: AppStateVM
+    // @State para campos del formulario - datos locales de la vista
     @State private var username = ""
     @State private var email = ""
     @State private var password = ""
@@ -38,9 +40,9 @@ struct RegisterView: View {
                 .padding(.top)
                 
                 VStack(spacing: 32) {
-                    // Header con foto de perfil
+                    // Header con placeholder de foto de perfil
                     VStack(spacing: 16) {
-                    // Círculo para añadir foto de perfil
+                    // Placeholder para foto de perfil (funcionalidad pendiente)
                     ZStack {
                         Circle()
                             .fill(Color.white.opacity(0.2))
@@ -112,6 +114,7 @@ struct RegisterView: View {
                         SecureField("Repetir Contraseña", text: $confirmPassword)
                             .submitLabel(.go)
                         
+                        // Validación visual en tiempo real
                         if !confirmPassword.isEmpty && password != confirmPassword {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.red)
@@ -194,6 +197,7 @@ struct RegisterView: View {
                 .padding()
             }
         }
+        // Modal para segunda parte del registro (selección de intereses)
         .fullScreenCover(isPresented: $showContinueRegistration) {
             ContinueRegistrationView(
                 userName: username,
@@ -204,6 +208,7 @@ struct RegisterView: View {
         }
     }
     
+    // Computed property para validación del formulario
     private var isFormValid: Bool {
         return !username.isEmpty && 
                !email.isEmpty && 
