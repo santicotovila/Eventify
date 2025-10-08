@@ -1,149 +1,149 @@
 # Eventi — iOS App (SwiftUI, MVVM, Clean Architecture)
 
-Una app nativa para descubrir, crear y gestionar eventos, con autenticación segura, asistencias y soporte de datos *mock* para desarrollo rápido.
-
-> **Objetivo**: entregar un producto mantenible, testeable y escalable listo para revisión técnica por recruiters.
-
+A native app to discover, create, and manage events, with secure authentication and attendance tracking.
 ---
 
-## Tabla de contenidos
-- [Ventajas principales](#ventajas-principales)
-- [Requisitos](#requisitos)
-- [Ejecución del proyecto](#ejecución-del-proyecto)
-- [Estructura de navegación](#estructura-de-navegación)
-- [Autenticación](#autenticación)
-- [Sistema de asistencias](#sistema-de-asistencias)
+## Table of Contents
+- [Key Advantages](#key-advantages)
+- [Requirements](#requirements)
+- [How to Run the Project](#how-to-run-the-project)
+- [Navigation Structure](#navigation-structure)
+- [Authentication](#authentication)
+- [Attendance System](#attendance-system)
 - [Roadmap](#roadmap)
-- [Arquitectura (iOS)](#arquitectura-ios)
-- [Calidad y testing](#calidad-y-testing)
-- [Rendimiento y accesibilidad](#rendimiento-y-accesibilidad)
-- [Backend (resumen técnico)](#backend-resumen-técnico)
-- [Seguridad y cumplimiento](#seguridad-y-cumplimiento)
-- [Contacto](#contacto)
+- [Architecture (iOS)](#architecture-ios)
+- [Quality & Testing](#quality--testing)
+- [Performance & Accessibility](#performance--accessibility)
+- [Backend (Technical Overview)](#backend-technical-overview)
+- [Security & Compliance](#security--compliance)
+- [Contact](#contact)
 
 ---
 
-## Ventajas principales
-- Separación clara de responsabilidades.  
-- Mayor facilidad para realizar tests unitarios.  
-- Mantenimiento y escalado más simples.  
-- Desarrollo iterativo con datos *mock* para no depender del backend en fases tempranas.
+## Key Advantages
+- Clear separation of responsibilities.  
+- Easier unit testing.  
+- Simpler maintenance and scaling.  
 
 ---
 
-## Requisitos
-- iOS 18 o superior.  
-- Versión actual de Xcode con soporte para SwiftUI.
+## Requirements
+- iOS 18 or later.  
 
 ---
 
-## Ejecución del proyecto
-1. Clonar el repositorio.  
-2. Abrir el proyecto en Xcode.  
-3. Ajustar el **Bundle Identifier** y la firma si es necesario.  
-4. Ejecutar en simulador o dispositivo físico.  
-5. *(Opcional)* Configurar variables del backend si se desea conectar con el servidor real.
+## How to Run the Project
+1. Clone the repository.  
+2. Open the project in Xcode.  
+3. Adjust the **Bundle Identifier** and signing if needed.  
+4. Run on a simulator or a physical device.  
+5. Configure backend variables if you want to connect to the real server. (A `.env.example` is included)
 
-> Por defecto, la aplicación puede ejecutarse completamente con datos *mock*.
-
----
-
-## Estructura de navegación
-- **Eventos**: Lista general de eventos.  
-- **Nuevo evento**: Creación mediante vista modal con selectores de fecha y hora.  
-- **EventiBot**: Asistente con sugerencias *(vista en desarrollo)*.  
-- **Perfil**: Información del usuario y ajustes.
+> By default, the app can run fully with *mock* data.
 
 ---
 
-## Autenticación
-- Inicio de sesión mediante **email** y **contraseña**.  
-- Validación de campos en tiempo real.  
-- Credenciales guardadas de forma segura en **Keychain**.  
-- Estado global de sesión gestionado por `AppStateViewModel`.
+## Navigation Structure
+- **Events**: General list of events.  
+- **New Event**: Creation via a modal view with date and time pickers.  
+- **EventiBot**: Assistant with suggestions *(view in progress)*.  
+- **Profile**: User info and settings.
 
 ---
 
-## Sistema de asistencias
-Cada usuario puede indicar su participación en un evento:
-- *Asistir*  
-- *No asistir*  
-- *Tal vez*
+## Authentication
+- Sign in with **email** and **password**.  
+- Real-time field validation.  
+- Credentials securely stored in **Keychain**.  
+- Global session state managed by `AppStateViewModel`.
 
-El detalle del evento muestra el conteo actualizado de cada estado.
+---
+
+## Attendance System
+Each user can set their status for an event:
+- *Going*  
+- *Not going*  
+- *Maybe*
+
+The event detail screen shows the live count for each status.
 
 ---
 
 ## Roadmap
-- [ ] Integración completa de **EventiBot** con IA (texto y voz).  
-- [ ] Notificaciones push para recordatorios.  
-- [ ] Compartir eventos por WhatsApp, correo o calendario.  
-- [ ] Autenticación biométrica (Face ID / Touch ID).  
-- [ ] Geolocalización y mapas interactivos.  
-- [ ] Personalización de temas y colores.
+- [ ] Full **EventiBot** integration with AI (text and voice).  
+- [ ] Push notifications for reminders.  
+- [ ] Share events via WhatsApp, email, or calendar.  
+- [ ] Biometric authentication (Face ID / Touch ID).  
+- [ ] Geolocation and interactive maps.  
+- [ ] Personal app customization.
 
 ---
 
-## Arquitectura (iOS)
-- **Patrones**: **Clean Architecture** + **MVVM** sobre **SwiftUI**.  
-- **Capas**:
-  - **Presentation**: Vistas SwiftUI y `ViewModels` (estado y bindings).  
-  - **Domain**: Casos de uso, entidades y protocolos.  
-  - **Data**: Repositorios, *data sources* (remoto/local), *mappers* y *DTOs*.  
-- **Principios**: inyección de dependencias, bajo acoplamiento, testabilidad.
+## Architecture (iOS)
+- **MVVM** with **SwiftUI**.  
+- **Layers**:
+  - **Presentation**: SwiftUI views and ViewModels (state and bindings).  
+  - **Domain**: Use cases, entities, and protocols.  
+  - **Data**: Repositories, data sources (remote/local), *mappers*, and *DTOs*.  
+- **Principles**: dependency injection, low coupling, testability.
+  
+## Reactive Frameworks & Patterns
+- **State management (SwiftUI):** `@State`, `@Binding`, `@ObservedObject`, `@Environment` for unidirectional data flow and reactive views.
+  
+## Quality & Testing
+- **Unit Tests** for use cases and *ViewModels*.  
+- **Mocks/Stubs** for repositories and data sources.  
 
-
----
-
-## Calidad y testing
-- **Unit Tests** en casos de uso y *ViewModels*.  
-- **Mocks/Stubs** para repositorios y *data sources*.  
-- **Previews** en SwiftUI con estados controlados.  
-- *(Opcional)* **Snapshot tests** para vistas críticas.
-
----
-
-## Rendimiento y accesibilidad
-- Listas virtualizadas y carga perezosa.  
-- Uso eficiente de `@State`, `@StateObject`, `@ObservedObject` y `@EnvironmentObject`.  
-- Dinamic Type, VoiceOver y contraste de color considerados en componentes base.
+## Performance & Accessibility
 
 ---
 
-## Backend (resumen técnico)
-**Objetivo**: base sólida, segura y escalable para gestionar usuarios, eventos e intereses.
+## Backend (Technical Overview)
 
-- **Tecnología**: SQLite local *(migrable a PostgreSQL)*.  
-- **Estructura**: `Models`, `Controllers`, `DTOs`, `Migrations`, `Middleware`, `JWT`, `Jobs`, `Tools/Constants`.  
-- **Modelos clave**:  
-  - `User`: email normalizado, contraseña encriptada con **BCrypt**.  
-  - `Interest` y `UserInterest`: relación N:N optimizada.  
-  - `Event`: nombre, fecha, categoría, ubicación, coordenadas.  
-  - `EventAttendance`: estados de asistencia.  
-- **Autenticación**: Tokens **JWT** (access y refresh) y rutas protegidas.  
-- **Seguridad**: claves privadas fuera del repositorio y sin credenciales en código.  
-- **Migrations**: creación de entidades, pivotes y *seed* inicial.
+**Goal:**  
+Build a solid, secure, and scalable base to manage users, events, and interests within the app.
 
-> La aplicación puede ejecutarse sin backend para fines de demostración o desarrollo.
+### Technology
+- **Framework:** Vapor  
+- **Tools:** Postman for endpoint testing  
+- **Databases:** SQLite in local environment and PostgreSQL in production  
+
+### Project Structure
+Code is organized into well-defined modules:
+- `Models`
+- `Controllers`
+- `DTOs`
+- `Migrations`
+- `Middleware`
+- `JWT`
+- `Jobs`
+- `Tools/Constants`
+
+### Core Models
+- **User:** normalized emails and passwords encrypted with **BCrypt**.  
+- **Interest / UserInterest:** optimized many-to-many relationship to manage user interests.  
+- **Event:** includes name, date, category, location, and coordinates.  
+- **EventAttendance:** defines the different attendance states for users per event.
+
+### Authentication
+Implemented via **JWT tokens** (access and refresh), with protected routes according to role and access level.
+
+### Security
+- Private keys are kept out of the repository.  
+- No credentials are included in the source code.  
+- A `.env.example` is provided to test the server.
+
+### Migrations
+Include entity creation, pivot relationships, and an initial *seed* for testing and development.
 
 ---
 
-## Seguridad y cumplimiento
-- Almacenamiento de credenciales en **Keychain**.  
-- Comunicación *(cuando aplique)* sobre **HTTPS/TLS**.  
-- Buenas prácticas OWASP Mobile: validaciones, manejo de errores y *least privilege*.  
-- Variables sensibles gestionadas por esquemas/entornos y fuera del control de versiones.
+## Security & Compliance
+*(Reserved section for future policies and compliance details.)*
 
 ---
 
-## Decisiones técnicas
-- Uso de **Clean Architecture** con **MVVM** para reducir el acoplamiento.  
-- Implementación completa en **SwiftUI**, priorizando código declarativo y mantenible.  
-- Datos *mock* durante el desarrollo para mejorar la iteración y el testeo sin depender de servicios externos.
-
----
-
-## Contacto
+## Contact
 - Javier Gómez — [javiergomezdev@gmail.com](mailto:javiergomezdev@gmail.com)  
 - Santiago Coto — [santiagocotovila@outlook.com](mailto:santiagocotovila@outlook.com)  
 - Manuel Liébana — [manololiebana@gmail.com](mailto:manololiebana@gmail.com)
