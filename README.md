@@ -1,4 +1,4 @@
-# Eventi — iOS App (SwiftUI, MVVM, Clean Architecture)
+# Eventify — iOS App (SwiftUI, MVVM, Clean Architecture)
 
 A native app to discover, create, and manage events, with secure authentication and attendance tracking.
 ---
