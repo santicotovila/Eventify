@@ -1,9 +1,4 @@
-//
-//  AdminMiddleware.swift
-//  EventifyBackend
-//
-//  Created by Santiago Coto Vila on 23/9/25.
-//
+
 
 import Vapor
 

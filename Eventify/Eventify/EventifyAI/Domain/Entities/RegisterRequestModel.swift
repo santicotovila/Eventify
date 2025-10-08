@@ -1,10 +1,3 @@
-//
-//  RegisterRequestModel.swift
-//  EventifyAI
-//
-//  Created by Javier Gómez on 6/9/25.
-//
-
 import Foundation
 struct RegisterRequestModel: Codable {
     let name: String

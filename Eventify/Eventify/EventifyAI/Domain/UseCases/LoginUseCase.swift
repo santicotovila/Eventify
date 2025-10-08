@@ -1,9 +1,3 @@
-//
-//  LoginUseCase.swift
-//  EventifyAI
-//
-//  Created by Javier Gómez on 8/9/25.
-//
 
 import Foundation
 

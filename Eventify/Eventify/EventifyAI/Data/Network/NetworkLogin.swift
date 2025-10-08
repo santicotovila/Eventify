@@ -1,9 +1,3 @@
-//
-//  NetworkLogin.swift
-//  EventifyAI
-//
-//  Created by Javier Gómez on 14/9/25.
-//
 
 import Foundation
 

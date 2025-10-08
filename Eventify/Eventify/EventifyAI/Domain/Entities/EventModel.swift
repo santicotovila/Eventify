@@ -1,9 +1,3 @@
-//
-//  EventModel.swift
-//  EventifyAI
-//
-//  Created by Javier Gómez on 6/9/25.
-//
 
 import Foundation
 
@@ -11,7 +5,7 @@ import Foundation
 struct EventModel: Identifiable, Codable, Equatable {
     let id: String
     let title: String
-    let name: String?           // Backend usa 'name' en lugar de 'title'
+    let name: String?
     let date: Date
     let location: String
     let organizerId: String

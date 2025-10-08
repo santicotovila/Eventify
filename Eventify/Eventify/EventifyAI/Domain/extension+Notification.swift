@@ -34,20 +34,22 @@ extension NotificationCenter {
         post(name: .eventWasUpdated, object: event)
     }
     
+    // MARK: - Convenience observer helpers (avoid shadowing system APIs)
     
-    func addObserver(
+    func addObserverForName(
         _ observer: Any,
         selector: Selector,
         name: Notification.Name,
         object: Any? = nil
     ) {
-        addObserver(observer, selector: selector, name: name, object: object)
+        self.addObserver(observer, selector: selector, name: name, object: object)
     }
     
-    func removeObserver(_ observer: Any, name: Notification.Name) {
-        removeObserver(observer, name: name, object: nil)
+    func removeObserverForName(_ observer: Any, name: Notification.Name, object: Any? = nil) {
+        self.removeObserver(observer, name: name, object: object)
     }
     
+    // MARK: - Combine Publishers
     
     var userDidSignInPublisher: AnyPublisher<UserModel, Never> {
         NotificationCenter.default

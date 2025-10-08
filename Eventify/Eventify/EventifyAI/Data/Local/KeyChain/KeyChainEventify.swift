@@ -1,9 +1,3 @@
-//
-//  KeyChainEventify.swift
-//  EventifyAI
-//
-//  Created by Javier Gómez on 16/9/25.
-//
 
 import Foundation
 import Security

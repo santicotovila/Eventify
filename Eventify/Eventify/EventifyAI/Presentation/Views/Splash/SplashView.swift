@@ -1,9 +1,3 @@
-//
-//  SplashView.swift
-//  EventifyAI
-//
-//  Created by Santiago Coto Vila on 9/9/25.
-//
 
 import SwiftUI
 

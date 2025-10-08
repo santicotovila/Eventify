@@ -1,9 +1,3 @@
-//
-//  HomeView.swift
-//  EventifyAI
-//
-//  Created by Javier Gómez on 11/9/25.
-//
 
 import SwiftUI
 

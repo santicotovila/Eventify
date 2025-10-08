@@ -1,9 +1,3 @@
-//
-//  Location.swift
-//  EventifyBackend
-//
-//  Created by Santiago Coto Vila on 7/9/25.
-//
 
 import Foundation
 

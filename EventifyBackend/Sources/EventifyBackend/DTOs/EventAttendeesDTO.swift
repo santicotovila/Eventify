@@ -1,9 +1,3 @@
-//
-//  EventAttendeesDTO.swift
-//  EventifyBackend
-//
-//  Created by Santiago Coto Vila on 22/9/25.
-
 
 
 import Vapor
