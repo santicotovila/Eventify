@@ -1,5 +1,8 @@
 # Eventify — iOS App (SwiftUI, MVVM, Clean Architecture)
 
+## ScreenShots
+<img width="300" height="615" alt="Home" src="https://github.com/user-attachments/assets/99c4429c-cde1-4dd9-80f8-403ce24dee45" /><img width="300" height="615" alt="Register1" src="https://github.com/user-attachments/assets/9e64b237-9363-410b-80bf-a07ff6671cd8" /><img width="300" height="615" alt="Register2" src="https://github.com/user-attachments/assets/1456dfe5-3330-4e6a-aa18-b2a3a5794183" /><img width="300" height="615" alt="Events" src="https://github.com/user-attachments/assets/f37bfe88-8066-42c3-97dc-a9eb146b099e" /><img width="300" height="615" alt="CreateEvent" src="https://github.com/user-attachments/assets/db50e116-5315-4ab1-b692-669411b53bf8" /><img width="300" height="615" alt="Event Eventify" src="https://github.com/user-attachments/assets/c1b4c4f0-e08c-49cb-bdc7-7b513c81e20e" /><img width="300" height="615" alt="Friends" src="https://github.com/user-attachments/assets/3601942b-1508-456b-b3c2-ef64acb84c6c" /><img width="300" height="615" alt="Friends2" src="https://github.com/user-attachments/assets/fa580d51-de0e-486a-88f2-1d93a725aa75" /><img width="300" height="615" alt="seeEvent" src="https://github.com/user-attachments/assets/5a1e7534-4d27-4282-8917-146d84e25e47" /><img width="300" height="615" alt="IA" src="https://github.com/user-attachments/assets/add1fc86-8a89-40f1-8daf-b7cda6a13f69" /><img width="300" height="615" alt="Profile" src="https://github.com/user-attachments/assets/2648f9d9-aed4-4180-9c68-0697ec500ea5" />
+
 A native app to discover, create, and manage events, with secure authentication and attendance tracking.
 ---
 
